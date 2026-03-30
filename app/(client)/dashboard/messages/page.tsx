@@ -3,7 +3,7 @@ import { getWorkspaceOverview } from "@/lib/repository";
 import { requireClientActor } from "@/lib/current-actor";
 
 const quickReplies = [
-  "Thanks, I&apos;ll take a look.",
+  "Thanks, I'll take a look.",
   "Could we move this lesson to another time?",
   "That works for me.",
 ];

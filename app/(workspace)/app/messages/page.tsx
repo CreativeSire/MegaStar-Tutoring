@@ -5,8 +5,8 @@ import { requireActor } from "@/lib/current-actor";
 
 const quickReplies = [
   "Thanks, that works for me.",
-  "I&apos;ll share a new time soon.",
-  "Let&apos;s keep the same lesson plan.",
+  "I'll share a new time soon.",
+  "Let's keep the same lesson plan.",
 ];
 
 export default async function MessagesPage() {
