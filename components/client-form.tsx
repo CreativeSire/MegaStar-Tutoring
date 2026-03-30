@@ -6,7 +6,7 @@ import { useState, useTransition, type FormEvent } from "react";
 export function ClientForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState("The record stays with this account.");
+  const [message, setMessage] = useState("Keep the profile simple and private.");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -14,7 +14,7 @@ export function ClientForm() {
     const payload = Object.fromEntries(formData.entries());
 
     startTransition(async () => {
-      setMessage("Saving client...");
+      setMessage("Saving student...");
       const response = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -23,12 +23,12 @@ export function ClientForm() {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setMessage(result?.error || "Could not save the client.");
+        setMessage(result?.error || "Could not save the student.");
         return;
       }
 
       event.currentTarget.reset();
-      setMessage("Client saved.");
+      setMessage("Student saved.");
       router.refresh();
     });
   }
@@ -37,25 +37,25 @@ export function ClientForm() {
     <form className="panel form-panel" onSubmit={handleSubmit}>
       <div className="section-head compact">
         <div>
-          <h2>Add client</h2>
-          <p>Keep the client record private, with its own rate, schedule, and notes.</p>
+          <h2>Add student</h2>
+          <p>Keep each profile private, with its own rate, rhythm, and notes.</p>
         </div>
       </div>
       <div className="form-grid">
         <label className="field">
-          <span>Name</span>
-          <input name="name" placeholder="Client A" required />
+          <span>Student name</span>
+          <input name="name" placeholder="Student A" required />
         </label>
         <label className="field">
-          <span>Bill to</span>
-          <input name="billTo" placeholder="Client A Family" required />
+          <span>Billing name</span>
+          <input name="billTo" placeholder="Student A Family" required />
         </label>
         <label className="field">
-          <span>Rate per session</span>
+          <span>Rate per lesson</span>
           <input name="rateCents" type="number" min="0" step="1" placeholder="1500" required />
         </label>
         <label className="field">
-          <span>Meetings per week</span>
+          <span>Lessons each week</span>
           <input name="meetingsPerWeek" type="number" min="0" step="1" placeholder="3" required />
         </label>
         <label className="field">
@@ -73,11 +73,11 @@ export function ClientForm() {
       </div>
       <label className="field">
         <span>Notes</span>
-        <textarea name="notes" placeholder="Reschedule rules, billing notes, or anything useful." />
+        <textarea name="notes" placeholder="Rhythm notes, lesson preferences, or anything useful." />
       </label>
       <div className="action-row">
         <button className="button button-primary" type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save client"}
+          {pending ? "Saving..." : "Save student"}
         </button>
       </div>
       <p className="form-feedback">{message}</p>

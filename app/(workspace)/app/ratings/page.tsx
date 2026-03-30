@@ -1,4 +1,5 @@
 import { RatingForm } from "@/components/rating-form";
+import { PageIntro } from "@/components/page-intro";
 import { formatScore, formatShortDate } from "@/lib/format";
 import { getWorkspaceOverview, listRatings } from "@/lib/repository";
 import { requireActor } from "@/lib/current-actor";
@@ -7,43 +8,110 @@ export default async function RatingsPage() {
   const actor = await requireActor();
   const [overview, ratings] = await Promise.all([getWorkspaceOverview(actor), listRatings(actor)]);
   const averageScore = ratings.length ? ratings.reduce((total, rating) => total + rating.score, 0) / ratings.length : 0;
+  const categoryMap = ratings.reduce<Record<string, { total: number; count: number }>>((accumulator, rating) => {
+    const entry = accumulator[rating.category] || { total: 0, count: 0 };
+    entry.total += rating.score;
+    entry.count += 1;
+    accumulator[rating.category] = entry;
+    return accumulator;
+  }, {});
+  const categorySummary = Object.entries(categoryMap)
+    .map(([category, value]) => ({
+      category,
+      average: value.total / value.count,
+      count: value.count,
+    }))
+    .sort((left, right) => right.average - left.average);
 
   return (
-    <div className="workspace-grid cols-2">
-      <RatingForm
-        clients={overview.clients.map((client) => ({
-          id: client.id,
-          name: client.name,
-          billTo: client.billTo,
-        }))}
-      />
+    <div className="workspace-grid">
+      <PageIntro
+        eyebrow="Reviews"
+        title="Tutor feedback, kept private and useful."
+        description="Track what students appreciate most so each lesson feels clearer, kinder, and easier to follow."
+        aside={
+          <>
+            <div className="list-card">
+              <strong>{ratings.length ? formatScore(averageScore) : "No reviews yet"}</strong>
+              <span>Average score</span>
+            </div>
+            <div className="list-card">
+              <strong>{ratings.length}</strong>
+              <span>Verified reviews</span>
+            </div>
+            <div className="list-card">
+              <strong>{categorySummary[0]?.category || "—"}</strong>
+              <span>Strongest category</span>
+            </div>
+          </>
+        }
+      >
+        <span className="pill neutral">{overview.clients.length} students</span>
+        <span className="pill neutral">{ratings.length} reviews</span>
+        <span className="pill neutral">Private feedback</span>
+      </PageIntro>
 
-      <section className="panel">
-        <h2>Rating summary</h2>
-        <div className="workspace-grid cols-2">
-          <div className="list-card">
-            <strong>{ratings.length ? formatScore(averageScore) : "No ratings yet"}</strong>
-            <span>average score</span>
+      <section className="workspace-grid cols-2">
+        <RatingForm
+          clients={overview.clients.map((client) => ({
+            id: client.id,
+            name: client.name,
+            billTo: client.billTo,
+          }))}
+        />
+
+        <section className="panel">
+          <div className="section-head compact">
+            <div>
+              <h2>Review summary</h2>
+              <p>A quick read on how lessons are landing.</p>
+            </div>
           </div>
-          <div className="list-card">
-            <strong>{ratings.length}</strong>
-            <span>verified reviews</span>
+
+          <div className="workspace-grid cols-2">
+            <div className="list-card">
+              <strong>{ratings.length ? formatScore(averageScore) : "—"}</strong>
+              <span>Average score</span>
+            </div>
+            <div className="list-card">
+              <strong>{ratings.length}</strong>
+              <span>Verified reviews</span>
+            </div>
           </div>
-        </div>
-        <div className="workspace-grid" style={{ marginTop: 16 }}>
-          {ratings.length ? (
-            ratings.map((rating) => (
-              <div key={rating.id} className="list-card">
-                <strong>{rating.category}</strong>
-                <span>{rating.score} / 5</span>
-                <span>{rating.comment || "No comment added"}</span>
-                <span className="table-subtle">{formatShortDate(rating.createdAt)}</span>
-              </div>
-            ))
-          ) : (
-            <div className="empty-state">Leave a few verified reviews to see patterns here.</div>
-          )}
-        </div>
+
+          <div className="workspace-grid" style={{ marginTop: 16 }}>
+            {categorySummary.length ? (
+              categorySummary.map((item) => (
+                <div key={item.category} className="list-card">
+                  <div className="audit-row">
+                    <strong>{item.category}</strong>
+                    <span>{formatScore(item.average)} · {item.count}</span>
+                  </div>
+                  <div className="table-subtle">Average from the latest private reviews.</div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">Leave a few verified reviews to see patterns here.</div>
+            )}
+          </div>
+
+          <div className="workspace-grid" style={{ marginTop: 16 }}>
+            {ratings.length ? (
+              ratings.map((rating) => (
+                <div key={rating.id} className="list-card">
+                  <div className="audit-row">
+                    <strong>{rating.category}</strong>
+                    <span>{rating.score} / 5</span>
+                  </div>
+                  <span>{rating.comment || "No comment added"}</span>
+                  <span className="table-subtle">{formatShortDate(rating.createdAt)}</span>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">Reviews will show up after a lesson is marked complete.</div>
+            )}
+          </div>
+        </section>
       </section>
     </div>
   );

@@ -16,7 +16,7 @@ type SessionFormProps = {
 export function SessionForm({ clients }: SessionFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState("Use this for manual logs or imported calendar matches.");
+  const [message, setMessage] = useState("Use this for a lesson you want to keep on record.");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,7 +24,7 @@ export function SessionForm({ clients }: SessionFormProps) {
     const payload = Object.fromEntries(formData.entries());
 
     startTransition(async () => {
-      setMessage("Saving session...");
+      setMessage("Saving lesson...");
       const response = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -33,12 +33,12 @@ export function SessionForm({ clients }: SessionFormProps) {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        setMessage(result?.error || "Could not save the session.");
+        setMessage(result?.error || "Could not save the lesson.");
         return;
       }
 
       event.currentTarget.reset();
-      setMessage("Session saved.");
+      setMessage("Lesson saved.");
       router.refresh();
     });
   }
@@ -47,13 +47,13 @@ export function SessionForm({ clients }: SessionFormProps) {
     <form className="panel form-panel" onSubmit={handleSubmit}>
       <div className="section-head compact">
         <div>
-          <h2>Add session</h2>
-          <p>Log manual lessons, missed time, and Google-imported sessions in one place.</p>
+          <h2>Add lesson</h2>
+          <p>Log a lesson from the calendar or by hand in one tidy place.</p>
         </div>
       </div>
       <div className="form-grid">
         <label className="field">
-          <span>Client</span>
+          <span>Student</span>
           <select name="clientId" defaultValue="">
             <option value="">Unassigned</option>
             {clients.map((client) => (
@@ -64,7 +64,7 @@ export function SessionForm({ clients }: SessionFormProps) {
           </select>
         </label>
         <label className="field">
-          <span>Title</span>
+          <span>Lesson name</span>
           <input name="title" placeholder="Science revision" required />
         </label>
         <label className="field">
@@ -110,11 +110,10 @@ export function SessionForm({ clients }: SessionFormProps) {
       </label>
       <div className="action-row">
         <button className="button button-primary" type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save session"}
+          {pending ? "Saving..." : "Save lesson"}
         </button>
       </div>
       <p className="form-feedback">{message}</p>
     </form>
   );
 }
-

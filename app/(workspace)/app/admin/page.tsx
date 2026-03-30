@@ -1,4 +1,5 @@
 import { AdminRoleEditor } from "@/components/admin-role-editor";
+import { PageIntro } from "@/components/page-intro";
 import { formatShortDateTime } from "@/lib/format";
 import { listAuditEvents } from "@/lib/security-controls";
 import { listWorkspaceProfiles } from "@/lib/repository";
@@ -10,37 +11,39 @@ export default async function AdminPage() {
 
   return (
     <div className="workspace-grid">
-      <section className="panel admin-hero">
-        <div>
-          <span className="eyebrow">Admin console</span>
-          <h2>Manage people, access, and activity in one place.</h2>
-          <p className="stat-label">
-            A simple place to assign tutor, client, and admin access without touching Clerk metadata by hand.
-          </p>
-        </div>
-        <div className="workspace-grid cols-3 admin-stats">
-          <div className="list-card">
-            <strong>{profiles.length}</strong>
-            <span>Known users</span>
-          </div>
-          <div className="list-card">
-            <strong>{auditTrail.length}</strong>
-            <span>Recent audit events</span>
-          </div>
-          <div className="list-card">
-            <strong>{actor.role}</strong>
-            <span>Your role</span>
-          </div>
-        </div>
-      </section>
+      <PageIntro
+        eyebrow="Access"
+        title="People and access in one place."
+        description="Set who can use the tutor area, the student area, or both."
+        aside={
+          <>
+            <div className="list-card">
+              <strong>{profiles.length}</strong>
+              <span>Known users</span>
+            </div>
+            <div className="list-card">
+              <strong>{auditTrail.length}</strong>
+              <span>Recent changes</span>
+            </div>
+            <div className="list-card">
+              <strong>{actor.role}</strong>
+              <span>Your access</span>
+            </div>
+          </>
+        }
+      >
+        <span className="pill neutral">Tutor access</span>
+        <span className="pill neutral">Student access</span>
+        <span className="pill neutral">Admin access</span>
+      </PageIntro>
 
       <AdminRoleEditor profiles={profiles} />
 
       <section className="panel">
         <div className="section-head compact">
           <div>
-            <h2>Audit trail</h2>
-            <p>Recent changes are listed here so you can review role edits and other important updates.</p>
+            <h2>Recent changes</h2>
+            <p>Role edits and other important updates are listed here for a quick review.</p>
           </div>
         </div>
 
@@ -59,7 +62,7 @@ export default async function AdminPage() {
               </div>
             ))
           ) : (
-            <div className="empty-state">No audit events yet. They will appear once people start using the app.</div>
+            <div className="empty-state">No recent changes yet. They will appear once people start using the app.</div>
           )}
         </div>
       </section>
