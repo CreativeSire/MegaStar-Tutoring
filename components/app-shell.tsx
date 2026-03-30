@@ -19,48 +19,83 @@ export function AppShell({ title, subtitle, nav, role, children }: AppShellProps
   const visibleNav = nav.filter((item) => !item.roles || item.roles.includes(role));
 
   return (
-    <div className="workspace-shell">
-      <aside className="workspace-sidebar">
-        <div className="brand-lockup workspace-brand">
-          <div className="brand-mark">MS</div>
+    <div className="app-shell">
+      {/* Mobile Header */}
+      <header className="app-mobile-header">
+        <div className="brand-lockup">
+          <div className="brand-mark">M</div>
           <div>
             <div className="brand-name">{title}</div>
-            <div className="brand-subtitle">{subtitle}</div>
           </div>
         </div>
+        <div className="workspace-badge role-badge">{role}</div>
+      </header>
 
-        <nav className="workspace-nav">
-          {visibleNav.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link key={item.href} href={item.href} className={active ? "workspace-link active" : "workspace-link"}>
-                <span>{item.label}</span>
-                <small>{item.description}</small>
-              </Link>
-            );
-          })}
+      <aside className="app-sidebar">
+        <div className="sidebar-brand">
+          <Link href="/" className="brand-lockup">
+            <div className="brand-mark">M</div>
+            <div>
+              <div className="brand-name">{title}</div>
+              <div className="brand-subtitle">{subtitle}</div>
+            </div>
+          </Link>
+        </div>
+
+        <nav className="sidebar-nav">
+          <div className="nav-section">
+            <span className="nav-label">Menu</span>
+            {visibleNav.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <Link 
+                  key={item.href} 
+                  href={item.href} 
+                  className={`nav-link ${active ? "active" : ""}`}
+                >
+                  <span className="nav-link-text">{item.label}</span>
+                  <small>{item.description}</small>
+                  {active && <span className="active-indicator" />}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
-        <div className="workspace-note">
-          Lessons, calendars, and invoices stay separate so each student only sees their own work.
+        <div className="sidebar-footer">
+          <div className="privacy-note">
+            <span className="privacy-icon">🔒</span>
+            <span>Your data is private and secure</span>
+          </div>
+          <Link href="/" className="back-link">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back to website
+          </Link>
         </div>
       </aside>
 
-      <main className="workspace-main">
-        <div className="workspace-topbar">
-          <div>
-            <div className="workspace-kicker">Tutor dashboard</div>
-            <h1 className="workspace-title">{title}</h1>
+      <main className="app-main">
+        <header className="main-header">
+          <div className="header-title">
+            <span className="header-eyebrow">{subtitle}</span>
+            <h1 className="header-heading">{title}</h1>
           </div>
-          <div className="workspace-topbar-actions">
-            <div className="workspace-badge">{role}</div>
-            <div className="workspace-badge">Private web app</div>
-            <Link className="workspace-badge workspace-badge-link" href="/sign-in">
-              Sign in
+          <div className="header-actions">
+            <div className="header-badge premium-badge">
+              <span className="badge-dot" />
+              {role}
+            </div>
+            <Link href="/sign-in" className="header-signout">
+              Sign out
             </Link>
           </div>
+        </header>
+        
+        <div className="main-content">
+          {children}
         </div>
-        {children}
       </main>
     </div>
   );
