@@ -1,8 +1,30 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createSession, listSessions } from "@/lib/repository";
+import { createSession, findWorkspaceProfileByClerkUserId, listSessions } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
+import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
+import { canAccessWorkspace } from "@/lib/roles";
+
+async function requireWorkspaceActor() {
+  const { userId } = await auth();
+  if (!userId) {
+    return null;
+  }
+
+  const profile = await findWorkspaceProfileByClerkUserId(userId);
+  if (!profile || !canAccessWorkspace(profile.role)) {
+    return null;
+  }
+
+  return {
+    clerkUserId: userId,
+    profileId: profile.id,
+    role: profile.role,
+    email: profile.email,
+    displayName: profile.displayName,
+  };
+}
 
 const sessionSchema = z.object({
   clientId: z.string().trim().min(1).nullable().optional().transform((value) => value || null),
@@ -17,31 +39,44 @@ const sessionSchema = z.object({
   externalEventId: z.string().trim().max(200).nullable().optional().transform((value) => value || null),
 });
 
-async function requireActor() {
-  const { userId } = await auth();
-  return userId || null;
-}
-
-export async function GET() {
-  const userId = await requireActor();
-  if (!userId) {
+export async function GET(request: Request) {
+  const actor = await requireWorkspaceActor();
+  if (!actor) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  try {
+    await enforceRateLimit(actor, request, "api.sessions.read", 60, 60_000);
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429, headers: { "Retry-After": String(error.retryAfterSeconds) } });
+    }
+    throw error;
+  }
 
-  const sessionList = await listSessions({ clerkUserId: userId });
-  return NextResponse.json({ sessions: sessionList });
+  const sessionList = await listSessions(actor);
+  const response = NextResponse.json({ sessions: sessionList });
+  await recordAuditEvent(actor, request, "sessions.list", response.status, { count: sessionList.length }).catch(() => undefined);
+  return response;
 }
 
 export async function POST(request: Request) {
-  const userId = await requireActor();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     assertSameOrigin(request);
   } catch {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const actor = await requireWorkspaceActor();
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    await enforceRateLimit(actor, request, "api.sessions.create", 20, 60_000);
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429, headers: { "Retry-After": String(error.retryAfterSeconds) } });
+    }
+    throw error;
   }
 
   let body = null;
@@ -55,6 +90,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid session data.", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const session = await createSession({ clerkUserId: userId }, parsed.data);
-  return NextResponse.json({ session }, { status: 201 });
+  const session = await createSession(actor, parsed.data);
+  const response = NextResponse.json({ session }, { status: 201 });
+  await recordAuditEvent(actor, request, "sessions.create", response.status, {
+    sessionId: session.id,
+    clientId: session.clientId,
+    status: session.status,
+  }).catch(() => undefined);
+  return response;
 }

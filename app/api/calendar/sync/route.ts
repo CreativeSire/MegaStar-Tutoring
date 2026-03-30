@@ -1,8 +1,30 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { importCalendarEvents } from "@/lib/repository";
+import { findWorkspaceProfileByClerkUserId, importCalendarEvents } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
+import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
+import { canAccessWorkspace } from "@/lib/roles";
+
+async function requireWorkspaceActor() {
+  const { userId } = await auth();
+  if (!userId) {
+    return null;
+  }
+
+  const profile = await findWorkspaceProfileByClerkUserId(userId);
+  if (!profile || !canAccessWorkspace(profile.role)) {
+    return null;
+  }
+
+  return {
+    clerkUserId: userId,
+    profileId: profile.id,
+    role: profile.role,
+    email: profile.email,
+    displayName: profile.displayName,
+  };
+}
 
 const calendarEventSchema = z.object({
   externalEventId: z.string().trim().min(1).max(200),
@@ -20,21 +42,24 @@ const calendarSyncSchema = z.object({
   events: z.array(calendarEventSchema).max(2500),
 });
 
-async function requireActor() {
-  const { userId } = await auth();
-  return userId || null;
-}
-
 export async function POST(request: Request) {
-  const userId = await requireActor();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     assertSameOrigin(request);
   } catch {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const actor = await requireWorkspaceActor();
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    await enforceRateLimit(actor, request, "api.calendar.sync", 8, 60_000);
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429, headers: { "Retry-After": String(error.retryAfterSeconds) } });
+    }
+    throw error;
   }
 
   let body = null;
@@ -48,6 +73,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid calendar payload.", issues: parsed.error.flatten() }, { status: 400 });
   }
 
-  const result = await importCalendarEvents({ clerkUserId: userId }, parsed.data.calendarId, parsed.data.events);
-  return NextResponse.json(result, { status: 201 });
+  const result = await importCalendarEvents(actor, parsed.data.calendarId, parsed.data.events);
+  const response = NextResponse.json(result, { status: 201 });
+  await recordAuditEvent(actor, request, "calendar.sync", response.status, {
+    calendarId: parsed.data.calendarId,
+    imported: result.imported,
+  }).catch(() => undefined);
+  return response;
 }

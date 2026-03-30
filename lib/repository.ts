@@ -3,11 +3,14 @@ import { randomUUID } from "node:crypto";
 import { getDatabase, hasDatabase } from "@/lib/db";
 import { calendarSyncs, clients, invoices, ratings, sessions, userProfiles } from "@/lib/db/schema";
 import { formatMonthYear } from "@/lib/format";
+import { normalizeAppRole, type AppRole } from "@/lib/roles";
 
 export type Actor = {
   clerkUserId: string;
   email?: string | null;
   displayName?: string | null;
+  role?: AppRole;
+  profileId?: string;
 };
 
 export type ClientInput = {
@@ -56,7 +59,7 @@ type ProfileRow = {
   clerkUserId: string;
   email: string | null;
   displayName: string;
-  role: "tutor" | "client" | "admin";
+  role: AppRole;
   createdAt: Date;
 };
 
@@ -180,13 +183,14 @@ function clone<T>(value: T): T {
 
 function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
   const now = new Date();
+  const role = normalizeAppRole(actor.role, "tutor");
   const base: MemoryWorkspace = {
     profile: {
       id: randomUUID(),
       clerkUserId: actor.clerkUserId,
       email: actor.email || "tutor@example.com",
       displayName: actor.displayName || "MegaStar Tutor",
-      role: "tutor",
+      role,
       createdAt: now,
     },
     clients: [
@@ -320,13 +324,44 @@ function getWorkspaceMemory(actor: Actor) {
   return workspace;
 }
 
+function peekWorkspaceMemory(clerkUserId: string) {
+  const store = getMemoryStore();
+  return store.workspaces.get(clerkUserId) || null;
+}
+
+async function findProfileDb(clerkUserId: string): Promise<ProfileRow | null> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const existing = await db.select().from(userProfiles).where(eq(userProfiles.clerkUserId, clerkUserId)).limit(1);
+  return existing[0] ? (existing[0] as ProfileRow) : null;
+}
+
+export async function findWorkspaceProfileByClerkUserId(clerkUserId: string): Promise<ProfileRow | null> {
+  const db = getDatabase();
+  if (!db) {
+    const workspace = peekWorkspaceMemory(clerkUserId);
+    return workspace ? workspace.profile : null;
+  }
+
+  return findProfileDb(clerkUserId);
+}
+
 async function ensureProfileDb(actor: Actor): Promise<ProfileRow> {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
 
   const existing = await db.select().from(userProfiles).where(eq(userProfiles.clerkUserId, actor.clerkUserId)).limit(1);
   if (existing[0]) {
-    return existing[0] as ProfileRow;
+    const profile = existing[0] as ProfileRow;
+    const updated = await db
+      .update(userProfiles)
+      .set({
+        email: actor.email || profile.email,
+        displayName: actor.displayName || profile.displayName,
+      })
+      .where(eq(userProfiles.clerkUserId, actor.clerkUserId))
+      .returning();
+    return updated[0] as ProfileRow;
   }
 
   const inserted = await db
@@ -335,7 +370,7 @@ async function ensureProfileDb(actor: Actor): Promise<ProfileRow> {
       clerkUserId: actor.clerkUserId,
       email: actor.email || null,
       displayName: actor.displayName || actor.email || "Tutor",
-      role: "tutor",
+      role: normalizeAppRole(actor.role, "tutor"),
     })
     .returning();
 
@@ -349,6 +384,10 @@ async function ensureProfile(actor: Actor): Promise<ProfileRow> {
     return workspace.profile;
   }
   return ensureProfileDb(actor);
+}
+
+export async function getWorkspaceProfile(actor: Actor): Promise<ProfileRow> {
+  return ensureProfile(actor);
 }
 
 function listClientsMemory(actor: Actor) {

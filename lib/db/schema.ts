@@ -88,11 +88,51 @@ export const invoices = pgTable("invoices", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const auditEvents = pgTable("audit_events", {
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  ownerUserId: text("owner_user_id")
+    .notNull()
+    .references(() => userProfiles.id, { onDelete: "cascade" }),
+  actorClerkUserId: text("actor_clerk_user_id").notNull(),
+  actorRole: roleEnum("actor_role").notNull(),
+  action: text("action").notNull(),
+  resourceType: text("resource_type").notNull().default(""),
+  resourceId: text("resource_id"),
+  route: text("route").notNull(),
+  method: text("method").notNull(),
+  statusCode: integer("status_code").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  details: text("details").notNull().default("{}"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const rateLimitWindows = pgTable(
+  "rate_limit_windows",
+  {
+    id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    actorClerkUserId: text("actor_clerk_user_id").notNull(),
+    scope: text("scope").notNull(),
+    bucketKey: text("bucket_key").notNull(),
+    hits: integer("hits").notNull().default(0),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    windowEndsAt: timestamp("window_ends_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    bucketIdx: uniqueIndex("rate_limit_windows_bucket_idx").on(table.bucketKey),
+  }),
+);
+
 export const userProfilesRelations = relations(userProfiles, ({ many }) => ({
   clients: many(clients),
   sessions: many(sessions),
   ratings: many(ratings),
   calendarSyncs: many(calendarSyncs),
   invoices: many(invoices),
+  auditEvents: many(auditEvents),
+  rateLimitWindows: many(rateLimitWindows),
 }));
-
