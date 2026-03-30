@@ -215,7 +215,7 @@ export default function HomePage() {
         <div className="section-header">
           <span className="eyebrow">What we teach</span>
           <h2>Expert support in every subject</h2>
-          <p>From primary school to A-Levels, we've got you covered.</p>
+          <p>From primary school to A-Levels, we&apos;ve got you covered.</p>
         </div>
         
         <div className="subjects-scroll-container">
@@ -270,7 +270,7 @@ export default function HomePage() {
                 <span className="improve-badge">{t.improvement}</span>
               </div>
               <div className="testi-content">
-                <blockquote>"{t.quote}"</blockquote>
+                <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
                 <div className="testi-author">
                   <strong>{t.author}</strong>
                   <span>{t.role} • {t.subject}</span>
