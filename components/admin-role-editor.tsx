@@ -62,7 +62,7 @@ export function AdminRoleEditor({ profiles }: AdminRoleEditorProps) {
       <div className="section-head compact">
         <div>
           <h2>Role editor</h2>
-          <p>Update tutor, client, and admin assignments without touching Clerk metadata by hand.</p>
+          <p>Update tutor, student, and admin access without editing account details by hand.</p>
         </div>
         <div className="workspace-badge">{counts.admin} admins</div>
       </div>

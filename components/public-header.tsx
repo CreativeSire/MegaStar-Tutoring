@@ -9,12 +9,12 @@ export function PublicHeader() {
         <div className="brand-mark">MS</div>
         <div>
           <div className="brand-name">MegaStar Tutoring</div>
-          <div className="brand-subtitle">Private tutoring OS</div>
+          <div className="brand-subtitle">Tutoring made simple</div>
         </div>
       </div>
       <nav className="public-nav">
-        <Link href="/app">Tutor app</Link>
-        <Link href="/dashboard">Client portal</Link>
+        <Link href="/app">Dashboard</Link>
+        <Link href="/dashboard">Student area</Link>
         <Link href="/sign-in" className="public-nav-cta">
           Sign in
         </Link>

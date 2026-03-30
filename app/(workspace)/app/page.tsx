@@ -10,14 +10,14 @@ export default async function DashboardPage() {
 
   const actionItems = [
     overview.missedSessionCount > 0
-      ? `${overview.missedSessionCount} missed session${overview.missedSessionCount === 1 ? "" : "s"} need a follow-up`
-      : "No missed sessions are waiting right now",
+      ? `${overview.missedSessionCount} lesson${overview.missedSessionCount === 1 ? "" : "s"} need a follow-up`
+      : "No lessons need attention right now",
     overview.activeSessionCount > 0
-      ? `${overview.activeSessionCount} planned session${overview.activeSessionCount === 1 ? "" : "s"} are lined up`
-      : "Add sessions to start tracking the week",
+      ? `${overview.activeSessionCount} lesson${overview.activeSessionCount === 1 ? "" : "s"} are lined up`
+      : "Add lessons to start planning the week",
     overview.ratingAverage > 0
-      ? `Tutor score is sitting at ${formatScore(overview.ratingAverage)}`
-      : "Rating history will appear once clients leave verified feedback",
+      ? `Your tutor score is sitting at ${formatScore(overview.ratingAverage)}`
+      : "Ratings will appear once students leave feedback",
   ];
 
   return (
@@ -25,21 +25,21 @@ export default async function DashboardPage() {
       <section className="workspace-grid cols-3">
         <article className="panel">
           <div className="stat-value">{overview.clientCount}</div>
-          <div className="stat-label">Private clients</div>
+          <div className="stat-label">Students</div>
         </article>
         <article className="panel">
           <div className="stat-value">{overview.sessionCount}</div>
-          <div className="stat-label">Tracked sessions</div>
+          <div className="stat-label">Lessons</div>
         </article>
         <article className="panel">
           <div className="stat-value">{formatMoney(overview.billableTotal)}</div>
-          <div className="stat-label">Billable total</div>
+          <div className="stat-label">Total due</div>
         </article>
       </section>
 
       <section className="workspace-grid cols-2">
         <article className="panel">
-          <h2>Today&apos;s plan</h2>
+          <h2>Today&apos;s lessons</h2>
           <table className="table">
             <thead>
               <tr>
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={3}>No planned sessions yet. Add one from the Sessions page.</td>
+                  <td colSpan={3}>No lessons yet. Add one from the Lessons page.</td>
                 </tr>
               )}
             </tbody>
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
         </article>
 
         <article className="panel">
-          <h2>Action queue</h2>
+          <h2>What needs attention</h2>
           <div className="workspace-grid">
             {actionItems.map((item) => (
               <div key={item} className="list-card">
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
 
       <section className="workspace-grid cols-3">
         <article className="panel">
-          <h2>Clients that need a glance</h2>
+          <h2>Students to keep an eye on</h2>
           <div className="workspace-grid">
             {overview.recentClients.length ? (
               overview.recentClients.map((client) => (
@@ -101,13 +101,13 @@ export default async function DashboardPage() {
                 </div>
               ))
             ) : (
-              <div className="empty-state">Start by adding a client profile.</div>
+              <div className="empty-state">Start by adding a student profile.</div>
             )}
           </div>
         </article>
 
         <article className="panel">
-          <h2>Recent sessions</h2>
+          <h2>Recent lessons</h2>
           <div className="workspace-grid">
             {overview.recentSessions.length ? (
               overview.recentSessions.map((session) => (
@@ -120,20 +120,20 @@ export default async function DashboardPage() {
                 </div>
               ))
             ) : (
-              <div className="empty-state">The session log will fill as you add lessons.</div>
+              <div className="empty-state">Your lesson history will fill as you add lessons.</div>
             )}
           </div>
         </article>
 
         <article className="panel">
-          <h2>Workspace health</h2>
+          <h2>Setup</h2>
           <div className="workspace-grid">
             <div className="list-card">
-              <strong>{databaseReady ? "Database ready" : "Local demo mode"}</strong>
+              <strong>{databaseReady ? "Data is saved" : "Demo mode"}</strong>
               <span>{databaseReady ? "Real data will persist in Neon." : "Set DATABASE_URL to turn on the live database."}</span>
             </div>
             <div className="list-card">
-              <strong>{overview.syncs[0] ? "Google sync active" : "Calendar not synced"}</strong>
+              <strong>{overview.syncs[0] ? "Calendar connected" : "Calendar not connected"}</strong>
               <span>{overview.syncs[0] ? overview.syncs[0].statusMessage : "Connect Google Calendar from the Calendar page."}</span>
             </div>
           </div>
@@ -142,13 +142,13 @@ export default async function DashboardPage() {
 
       <section className="action-row">
         <Link className="button button-primary" href="/app/clients">
-          Manage clients
+          Add students
         </Link>
         <Link className="button button-secondary" href="/app/calendar">
-          Open calendar sync
+          Open calendar
         </Link>
         <Link className="button button-secondary" href="/app/invoices">
-          Review invoices
+          View invoices
         </Link>
       </section>
     </div>

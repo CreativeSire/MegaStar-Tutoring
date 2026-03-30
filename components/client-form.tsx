@@ -6,7 +6,7 @@ import { useState, useTransition, type FormEvent } from "react";
 export function ClientForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState("The record stays scoped to your workspace.");
+  const [message, setMessage] = useState("The record stays with this account.");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

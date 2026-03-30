@@ -8,21 +8,21 @@ export type NavItem = {
 };
 
 export const workspaceNav: NavItem[] = [
-  { href: "/app", label: "Dashboard", description: "Daily overview", roles: ["tutor", "admin"] },
-  { href: "/app/clients", label: "Clients", description: "Private client list", roles: ["tutor", "admin"] },
-  { href: "/app/calendar", label: "Calendar", description: "Availability and sync", roles: ["tutor", "admin"] },
-  { href: "/app/sessions", label: "Sessions", description: "Work log and attendance", roles: ["tutor", "admin"] },
+  { href: "/app", label: "Dashboard", description: "Today at a glance", roles: ["tutor", "admin"] },
+  { href: "/app/clients", label: "Students", description: "Lesson profiles", roles: ["tutor", "admin"] },
+  { href: "/app/calendar", label: "Calendar", description: "Lessons and availability", roles: ["tutor", "admin"] },
+  { href: "/app/sessions", label: "Lessons", description: "Notes and attendance", roles: ["tutor", "admin"] },
   { href: "/app/invoices", label: "Invoices", description: "Private exports", roles: ["tutor", "admin"] },
-  { href: "/app/ratings", label: "Ratings", description: "Tutor reviews", roles: ["tutor", "admin"] },
-  { href: "/app/ai", label: "AI", description: "Assistant tools", roles: ["tutor", "admin"] },
-  { href: "/app/admin", label: "Admin", description: "Audit and controls", roles: ["admin"] },
-  { href: "/app/settings", label: "Settings", description: "Workspace setup", roles: ["tutor", "admin"] },
+  { href: "/app/ratings", label: "Reviews", description: "Tutor feedback", roles: ["tutor", "admin"] },
+  { href: "/app/ai", label: "Help", description: "Smart suggestions", roles: ["tutor", "admin"] },
+  { href: "/app/admin", label: "Admin", description: "People and access", roles: ["admin"] },
+  { href: "/app/settings", label: "Settings", description: "App preferences", roles: ["tutor", "admin"] },
 ];
 
 export const clientNav: NavItem[] = [
   { href: "/dashboard", label: "Overview", description: "Your lessons", roles: ["client", "admin"] },
-  { href: "/dashboard/sessions", label: "Sessions", description: "Attendance and notes", roles: ["client", "admin"] },
+  { href: "/dashboard/sessions", label: "Lessons", description: "Attendance and notes", roles: ["client", "admin"] },
   { href: "/dashboard/invoices", label: "Invoices", description: "Billing history", roles: ["client", "admin"] },
-  { href: "/dashboard/reschedule", label: "Reschedule", description: "Request a change", roles: ["client", "admin"] },
+  { href: "/dashboard/reschedule", label: "Change time", description: "Request a new slot", roles: ["client", "admin"] },
   { href: "/dashboard/review", label: "Review", description: "Rate your tutor", roles: ["client", "admin"] },
 ];

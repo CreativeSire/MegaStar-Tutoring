@@ -42,19 +42,19 @@ export function AppShell({ title, subtitle, nav, role, children }: AppShellProps
         </nav>
 
         <div className="workspace-note">
-          Google Calendar sync, ratings, and invoices stay private by default.
+          Lessons, calendars, and invoices stay separate so each student only sees their own work.
         </div>
       </aside>
 
       <main className="workspace-main">
         <div className="workspace-topbar">
           <div>
-            <div className="workspace-kicker">Operational workspace</div>
+            <div className="workspace-kicker">Tutor dashboard</div>
             <h1 className="workspace-title">{title}</h1>
           </div>
           <div className="workspace-topbar-actions">
             <div className="workspace-badge">{role}</div>
-            <div className="workspace-badge">Web app on Vercel</div>
+            <div className="workspace-badge">Private web app</div>
             <Link className="workspace-badge workspace-badge-link" href="/sign-in">
               Sign in
             </Link>

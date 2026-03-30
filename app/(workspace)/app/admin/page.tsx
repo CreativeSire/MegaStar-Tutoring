@@ -13,10 +13,9 @@ export default async function AdminPage() {
       <section className="panel admin-hero">
         <div>
           <span className="eyebrow">Admin console</span>
-          <h2>Control roles, review audit trails, and keep every workspace private.</h2>
+          <h2>Manage people, access, and activity in one place.</h2>
           <p className="stat-label">
-            This is the ops layer for MegaStar Tutoring — the place to manage people, permissions, and accountability
-            without editing Clerk metadata by hand.
+            A simple place to assign tutor, client, and admin access without touching Clerk metadata by hand.
           </p>
         </div>
         <div className="workspace-grid cols-3 admin-stats">
@@ -30,7 +29,7 @@ export default async function AdminPage() {
           </div>
           <div className="list-card">
             <strong>{actor.role}</strong>
-            <span>Your current access</span>
+            <span>Your role</span>
           </div>
         </div>
       </section>
@@ -41,7 +40,7 @@ export default async function AdminPage() {
         <div className="section-head compact">
           <div>
             <h2>Audit trail</h2>
-            <p>Recent security-sensitive actions are captured here so we can review changes before launch.</p>
+            <p>Recent changes are listed here so you can review role edits and other important updates.</p>
           </div>
         </div>
 

@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   return (
     <section className="panel">
       <h2>Workspace settings</h2>
-      <p className="stat-label">Keep the operational foundation clear before we add more automation.</p>
+      <p className="stat-label">A quick place to check the tools that power your tutoring setup.</p>
       <div className="workspace-grid cols-2">
         <div className="list-card">
           <strong>Current role</strong>
@@ -18,15 +18,15 @@ export default async function SettingsPage() {
         </div>
         <div className="list-card">
           <strong>Authentication</strong>
-          <span>{clerkReady ? "Clerk environment detected" : "Set Clerk env vars in Vercel and .env.local"}</span>
+          <span>{clerkReady ? "Sign-in is ready" : "Set Clerk env vars in Vercel and .env.local"}</span>
         </div>
         <div className="list-card">
           <strong>Database</strong>
-          <span>{databaseReady ? "Connected to Neon/Postgres" : "Add DATABASE_URL to switch from demo mode to real storage"}</span>
+          <span>{databaseReady ? "Connected to the database" : "Add DATABASE_URL to switch from demo mode to real storage"}</span>
         </div>
         <div className="list-card">
           <strong>Google Calendar</strong>
-          <span>{googleClientConfigured ? "Client ID is ready" : "Set NEXT_PUBLIC_GOOGLE_CLIENT_ID for live sync"}</span>
+          <span>{googleClientConfigured ? "Calendar sync is ready" : "Set NEXT_PUBLIC_GOOGLE_CLIENT_ID for live sync"}</span>
         </div>
         <div className="list-card">
           <strong>Privacy</strong>
@@ -34,7 +34,7 @@ export default async function SettingsPage() {
         </div>
         <div className="list-card">
           <strong>Roles</strong>
-          <span>Set the user role in Clerk metadata as tutor, client, or admin to control access.</span>
+          <span>Use the admin editor to set each person as tutor, client, or admin.</span>
         </div>
       </div>
     </section>
