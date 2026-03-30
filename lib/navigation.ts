@@ -21,8 +21,8 @@ export const workspaceNav: NavItem[] = [
 
 export const clientNav: NavItem[] = [
   { href: "/dashboard", label: "Overview", description: "Your lessons", roles: ["client", "admin"] },
-  { href: "/dashboard/sessions", label: "Lessons", description: "Attendance and notes", roles: ["client", "admin"] },
-  { href: "/dashboard/invoices", label: "Invoices", description: "Billing history", roles: ["client", "admin"] },
-  { href: "/dashboard/reschedule", label: "Change time", description: "Request a new slot", roles: ["client", "admin"] },
+  { href: "/dashboard/sessions", label: "Lessons", description: "Times and notes", roles: ["client", "admin"] },
+  { href: "/dashboard/invoices", label: "Payments", description: "Billing history", roles: ["client", "admin"] },
+  { href: "/dashboard/reschedule", label: "Change time", description: "Ask for a new slot", roles: ["client", "admin"] },
   { href: "/dashboard/review", label: "Review", description: "Rate your tutor", roles: ["client", "admin"] },
 ];

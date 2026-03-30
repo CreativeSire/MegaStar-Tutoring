@@ -23,3 +23,4 @@ SECURITY_REVIEW.md
 /.clerk/
 
 .vercel
+.env*.local
