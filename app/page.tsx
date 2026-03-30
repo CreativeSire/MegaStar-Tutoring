@@ -3,21 +3,45 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+// Premium curated imagery
 const IMAGES = {
-  heroMain: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1400&q=90",
-  student1: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&q=85",
-  student2: "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=600&q=85",
-  tutor1: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&q=85",
-  tutor2: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=85",
+  hero: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&q=90",
+  studentThinking: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=85",
+  studentWriting: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=85",
+  studentLaptop: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=85",
+  mathTutor: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&q=85",
+  englishTutor: "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=600&q=85",
+  scienceTutor: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&q=85",
+  parent: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=85",
+  studentSuccess: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=85",
+  tutor: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=85",
 };
 
 const subjects = [
-  { name: "Mathematics", icon: "∑", students: "240+ students", color: "#4f46e5", gradient: "from-indigo-500 to-purple-600" },
-  { name: "English", icon: "✦", students: "180+ students", color: "#10b981", gradient: "from-emerald-500 to-teal-600" },
-  { name: "Science", icon: "◈", students: "200+ students", color: "#8b5cf6", gradient: "from-violet-500 to-purple-600" },
-  { name: "11+ Prep", icon: "◆", students: "150+ students", color: "#f59e0b", gradient: "from-amber-500 to-orange-600" },
-  { name: "GCSE", icon: "◇", students: "320+ students", color: "#ef4444", gradient: "from-red-500 to-rose-600" },
-  { name: "A-Level", icon: "✹", students: "190+ students", color: "#06b6d4", gradient: "from-cyan-500 to-blue-600" },
+  { name: "Mathematics", students: "240+ students", image: IMAGES.mathTutor },
+  { name: "English", students: "180+ students", image: IMAGES.englishTutor },
+  { name: "Science", students: "200+ students", image: IMAGES.scienceTutor },
+];
+
+const steps = [
+  { 
+    num: "01", 
+    title: "Meet your tutor", 
+    desc: "Book a free session to find your perfect match",
+    image: IMAGES.studentThinking
+  },
+  { 
+    num: "02", 
+    title: "Learn your way", 
+    desc: "Personalised lessons that adapt to your pace",
+    image: IMAGES.studentWriting
+  },
+  { 
+    num: "03", 
+    title: "See results", 
+    desc: "Track improvements with milestone celebrations",
+    image: IMAGES.studentLaptop
+  },
 ];
 
 const testimonials = [
@@ -25,24 +49,23 @@ const testimonials = [
     quote: "My daughter went from a C to an A*. The personalised approach made all the difference.",
     author: "Sarah Mitchell",
     role: "Parent of Year 11",
-    image: IMAGES.student1,
+    image: IMAGES.parent,
     subject: "Mathematics",
-    improvement: "2 grades up",
   },
   {
     quote: "Finally, a tutor who understands how I learn. Physics actually makes sense now.",
     author: "James Kim",
     role: "A-Level Student",
-    image: IMAGES.student2,
+    image: IMAGES.studentSuccess,
     subject: "Physics",
-    improvement: "Confidence +",
   },
-];
-
-const steps = [
-  { num: "01", title: "Meet your tutor", desc: "Free 30-min session to find your perfect match", icon: "🤝", color: "bg-indigo-500" },
-  { num: "02", title: "Learn your way", desc: "Personalised lessons that adapt to your pace", icon: "🎯", color: "bg-emerald-500" },
-  { num: "03", title: "See progress", desc: "Track improvements with clear milestone updates", icon: "📈", color: "bg-amber-500" },
+  {
+    quote: "The platform makes it so easy to focus on teaching. Everything just works.",
+    author: "Dr. Michael Chen",
+    role: "Science Tutor",
+    image: IMAGES.tutor,
+    subject: "Chemistry",
+  },
 ];
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -81,7 +104,7 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -89,8 +112,16 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left - rect.width / 2) / 20,
+      y: (e.clientY - rect.top - rect.height / 2) / 20,
+    });
+  };
+
   return (
-    <div className={`mega-landing ${isDark ? 'dark' : ''}`}>
+    <div className="mega-landing">
       {/* Navigation */}
       <nav className={`mega-nav ${isScrolled ? 'scrolled' : ''}`}>
         <div className="nav-inner">
@@ -100,14 +131,7 @@ export default function HomePage() {
             </div>
             <span className="logo-text">MegaStar</span>
           </Link>
-          <div className="nav-right">
-            <button 
-              onClick={() => setIsDark(!isDark)} 
-              className="theme-toggle"
-              aria-label="Toggle theme"
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button>
+          <div className="nav-links">
             <Link href="/sign-in" className="nav-link">Sign in</Link>
             <Link href="/sign-up" className="nav-cta">Get started</Link>
           </div>
@@ -117,19 +141,20 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="mega-hero">
         <div className="hero-bg">
-          <div className="gradient-blob blob-1"></div>
-          <div className="gradient-blob blob-2"></div>
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+          <div className="blob blob-3"></div>
         </div>
         
         <div className="hero-content">
           <div className="hero-badge">
             <span className="pulse-dot"></span>
-            Trusted by 500+ families
+            Trusted by 500+ families across the UK
           </div>
           
           <h1 className="hero-title">
-            <span className="title-word">Learning</span>
-            <span className="title-word accent">that clicks</span>
+            Learning that
+            <span className="gradient-text"> finally clicks</span>
           </h1>
           
           <p className="hero-lead">
@@ -148,39 +173,52 @@ export default function HomePage() {
 
           <div className="hero-trust">
             <div className="avatar-group">
-              <img src={IMAGES.student1} alt="Student" />
-              <img src={IMAGES.tutor1} alt="Tutor" />
-              <img src={IMAGES.student2} alt="Student" />
+              <img src={IMAGES.parent} alt="Parent" />
+              <img src={IMAGES.studentSuccess} alt="Student" />
+              <img src={IMAGES.tutor} alt="Tutor" />
               <div className="avatar-more">+</div>
             </div>
             <div className="trust-info">
-              <div className="stars">★★★★★ <span>4.9/5</span></div>
-              <span className="trust-text">from 200+ reviews</span>
+              <div className="stars">★★★★★</div>
+              <span>4.9/5 from 200+ reviews</span>
             </div>
           </div>
         </div>
 
-        <div className="hero-visual">
-          <div className="main-image">
-            <img src={IMAGES.heroMain} alt="Student learning" />
-            <div className="image-overlay"></div>
+        <div 
+          className="hero-visual"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => setMousePos({ x: 0, y: 0 })}
+        >
+          <div 
+            className="main-image-3d"
+            style={{
+              transform: `perspective(1000px) rotateY(${mousePos.x}deg) rotateX(${-mousePos.y}deg)`,
+            }}
+          >
+            <img src={IMAGES.hero} alt="Student learning" />
+            <div className="image-shine"></div>
           </div>
           
-          <div className="float-card stats-float">
-            <div className="float-icon">📊</div>
+          <div className="floating-pill pill-stats" style={{ animationDelay: "0s" }}>
+            <div className="pill-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 6l-9.5 9.5-5-5L1 18" />
+              </svg>
+            </div>
             <div>
-              <span className="float-value">+2 grades</span>
-              <span className="float-label">avg. improvement</span>
+              <span className="pill-value">+2 grades</span>
+              <span className="pill-label">avg. improvement</span>
             </div>
           </div>
           
-          <div className="float-card tutor-float">
-            <div className="live-indicator">
-              <span className="live-dot"></span>
-              Live now
+          <div className="floating-pill pill-live" style={{ animationDelay: "1s" }}>
+            <div className="live-badge">
+              <span className="live-pulse"></span>
+              Live session
             </div>
-            <div className="tutor-info">
-              <img src={IMAGES.tutor1} alt="Tutor" />
+            <div className="tutor-mini">
+              <img src={IMAGES.tutor} alt="Tutor" />
               <div>
                 <strong>Dr. Sarah M.</strong>
                 <span>Mathematics</span>
@@ -190,66 +228,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Bar - HORIZONTAL */}
+      {/* Stats Bar */}
       <section className="stats-section">
-        <div className="stats-scroll">
-          <div className="stat-box">
+        <div className="stats-container">
+          <div className="stat-item">
             <span className="stat-num gradient-text"><AnimatedCounter value={94} suffix="%" /></span>
-            <span className="stat-label">Improve grades</span>
+            <span className="stat-label">Improve their grades</span>
           </div>
           <div className="stat-divider"></div>
-          <div className="stat-box">
+          <div className="stat-item">
             <span className="stat-num gradient-text"><AnimatedCounter value={500} suffix="+" /></span>
             <span className="stat-label">Happy families</span>
           </div>
           <div className="stat-divider"></div>
-          <div className="stat-box">
+          <div className="stat-item">
             <span className="stat-num gradient-text"><AnimatedCounter value={4} suffix=".9" /></span>
             <span className="stat-label">Average rating</span>
           </div>
         </div>
       </section>
 
-      {/* Subjects - HORIZONTAL SCROLL ON MOBILE */}
+      {/* Subjects Section */}
       <section className="subjects-section">
         <div className="section-header">
-          <span className="eyebrow">What we teach</span>
-          <h2>Expert support in every subject</h2>
-          <p>From primary school to A-Levels, we've got you covered.</p>
+          <span className="eyebrow">Expert tutors</span>
+          <h2>Support in every subject</h2>
+          <p>From primary to A-Level, we've got you covered.</p>
         </div>
         
-        <div className="subjects-scroll-container">
-          <div className="subjects-track">
-            {subjects.map((subject, i) => (
-              <div key={subject.name} className="subject-card" style={{ animationDelay: `${i * 0.1}s` }}>
-                <div className={`subject-icon ${subject.gradient}`}>
-                  <span>{subject.icon}</span>
-                </div>
-                <h3>{subject.name}</h3>
-                <span className="subject-meta">{subject.students}</span>
+        <div className="subjects-grid">
+          {subjects.map((subject, i) => (
+            <div 
+              key={subject.name} 
+              className="subject-card-3d"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            >
+              <div className="card-image-wrapper">
+                <img src={subject.image} alt={subject.name} />
+                <div className="card-overlay"></div>
               </div>
-            ))}
-          </div>
-          <div className="scroll-hint">
-            <span>← Swipe to explore →</span>
-          </div>
+              <div className="card-content">
+                <h3>{subject.name}</h3>
+                <p>{subject.students}</p>
+                <span className="card-arrow">→</span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* How It Works */}
       <section className="process-section">
-        <div className="section-header">
-          <span className="eyebrow">How it works</span>
-          <h2>Three steps to success</h2>
+        <div className="section-header light">
+          <span className="eyebrow">Simple process</span>
+          <h2>Three steps to better grades</h2>
         </div>
         
         <div className="process-grid">
           {steps.map((step, i) => (
-            <div key={i} className="step-card">
-              <div className={`step-icon ${step.color}`}>{step.icon}</div>
-              <span className="step-num">{step.num}</span>
-              <h3>{step.title}</h3>
-              <p>{step.desc}</p>
+            <div key={i} className="step-card-3d" style={{ animationDelay: `${i * 0.2}s` }}>
+              <div className="step-image-wrapper">
+                <img src={step.image} alt={step.title} />
+                <div className="step-number-badge">{step.num}</div>
+              </div>
+              <div className="step-content">
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -262,19 +307,20 @@ export default function HomePage() {
           <h2>Real results from real students</h2>
         </div>
         
-        <div className="testimonials-scroll">
+        <div className="testimonials-carousel">
           {testimonials.map((t, i) => (
-            <div key={i} className="testimonial-card">
-              <div className="testi-image">
+            <div key={i} className="testimonial-card-3d">
+              <div className="testi-header">
                 <img src={t.image} alt={t.author} />
-                <span className="improve-badge">{t.improvement}</span>
-              </div>
-              <div className="testi-content">
-                <blockquote>"{t.quote}"</blockquote>
-                <div className="testi-author">
+                <div className="testi-meta">
                   <strong>{t.author}</strong>
-                  <span>{t.role} • {t.subject}</span>
+                  <span>{t.role}</span>
                 </div>
+              </div>
+              <blockquote>"{t.quote}"</blockquote>
+              <div className="testi-footer">
+                <span className="subject-tag">{t.subject}</span>
+                <span className="stars">★★★★★</span>
               </div>
             </div>
           ))}
@@ -283,12 +329,9 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="cta-section">
-        <div className="cta-bg">
-          <div className="cta-blob"></div>
-        </div>
         <div className="cta-content">
-          <h2>Ready to see the difference?</h2>
-          <p>Your first lesson is completely free.</p>
+          <h2>Ready to transform your grades?</h2>
+          <p>Your first lesson is completely free. No commitment required.</p>
           <Link href="/sign-up" className="btn-white">
             Book free lesson
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -312,7 +355,7 @@ export default function HomePage() {
             <Link href="/sign-in">Sign in</Link>
           </div>
         </div>
-        <p className="copyright">© 2025 MegaStar Tutoring</p>
+        <p className="copyright">© 2025 MegaStar Tutoring. All rights reserved.</p>
       </footer>
     </div>
   );
