@@ -9,9 +9,13 @@ export type NavItem = {
 
 export const workspaceNav: NavItem[] = [
   { href: "/app", label: "Dashboard", description: "Today at a glance", roles: ["tutor", "admin"] },
+  { href: "/app/start", label: "Start here", description: "Simple setup", roles: ["tutor", "admin"] },
   { href: "/app/clients", label: "Students", description: "Lesson profiles", roles: ["tutor", "admin"] },
   { href: "/app/calendar", label: "Calendar", description: "Lessons and availability", roles: ["tutor", "admin"] },
   { href: "/app/sessions", label: "Lessons", description: "Notes and attendance", roles: ["tutor", "admin"] },
+  { href: "/app/notes", label: "Notes", description: "Lesson details", roles: ["tutor", "admin"] },
+  { href: "/app/messages", label: "Messages", description: "Student conversations", roles: ["tutor", "admin"] },
+  { href: "/app/alerts", label: "Alerts", description: "Things to check", roles: ["tutor", "admin"] },
   { href: "/app/invoices", label: "Invoices", description: "Private exports", roles: ["tutor", "admin"] },
   { href: "/app/ratings", label: "Reviews", description: "Tutor feedback", roles: ["tutor", "admin"] },
   { href: "/app/ai", label: "Help", description: "Smart suggestions", roles: ["tutor", "admin"] },
@@ -22,6 +26,8 @@ export const workspaceNav: NavItem[] = [
 export const clientNav: NavItem[] = [
   { href: "/dashboard", label: "Overview", description: "Your lessons", roles: ["client", "admin"] },
   { href: "/dashboard/sessions", label: "Lessons", description: "Times and notes", roles: ["client", "admin"] },
+  { href: "/dashboard/progress", label: "Progress", description: "How things are going", roles: ["client", "admin"] },
+  { href: "/dashboard/messages", label: "Messages", description: "Talk with your tutor", roles: ["client", "admin"] },
   { href: "/dashboard/invoices", label: "Payments", description: "Billing history", roles: ["client", "admin"] },
   { href: "/dashboard/reschedule", label: "Change time", description: "Ask for a new slot", roles: ["client", "admin"] },
   { href: "/dashboard/review", label: "Review", description: "Rate your tutor", roles: ["client", "admin"] },

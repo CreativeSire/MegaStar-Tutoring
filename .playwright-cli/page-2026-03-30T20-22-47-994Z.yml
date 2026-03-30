@@ -1,0 +1,438 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "M MegaStar Tutoring Excellence in Education" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]: M
+          - generic [ref=e7]:
+            - generic [ref=e8]: MegaStar Tutoring
+            - generic [ref=e9]: Excellence in Education
+        - navigation [ref=e10]:
+          - link "Get Started" [ref=e11] [cursor=pointer]:
+            - /url: /sign-up
+          - link "Sign In" [ref=e12] [cursor=pointer]:
+            - /url: /sign-in
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: Trusted by 500+ families across the UK
+          - heading "Personalised Online Tutoring That Actually Works" [level=1] [ref=e18]
+          - paragraph [ref=e19]: AI-powered scheduling, expert tutors, and proven results. Join 500+ students who've improved their grades with MegaStar Tutoring.
+          - generic [ref=e20]:
+            - link "Start Your Free Trial" [ref=e21] [cursor=pointer]:
+              - /url: /sign-up
+              - text: Start Your Free Trial
+              - img [ref=e22]
+            - link "See How It Works" [ref=e24] [cursor=pointer]:
+              - /url: "#how-it-works"
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - img "Student" [ref=e27]
+              - img "Tutor" [ref=e28]
+              - img "Student" [ref=e29]
+            - generic [ref=e30]:
+              - generic [ref=e31]: ⭐⭐⭐⭐⭐
+              - generic [ref=e32]: 4.9/5 from 200+ reviews
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - img "Student learning online" [ref=e35]
+            - generic [ref=e37]: Live Session
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - img [ref=e41]
+              - generic [ref=e44]: 85%
+            - generic [ref=e45]:
+              - strong [ref=e46]: Maths Progress
+              - generic [ref=e47]: +12% this month
+          - generic [ref=e48]:
+            - img "Tutor" [ref=e49]
+            - generic [ref=e50]:
+              - strong [ref=e51]: Dr. Sarah M.
+              - generic [ref=e52]: Physics Specialist
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]: "0"
+          - generic [ref=e57]: Student Success Rate
+        - generic [ref=e58]:
+          - generic [ref=e59]: "0"
+          - generic [ref=e60]: Expert Tutors
+        - generic [ref=e61]:
+          - generic [ref=e62]: "0"
+          - generic [ref=e63]: Lessons Delivered
+        - generic [ref=e64]:
+          - generic [ref=e66]: 0.9/5
+          - generic [ref=e67]: Average Rating
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - generic [ref=e70]: Comprehensive Coverage
+          - heading "Expert Tutoring in Every Subject" [level=2] [ref=e71]
+          - paragraph [ref=e72]: From primary school to A-Levels, we've got every subject covered with specialist tutors who know exactly how to help you succeed.
+        - generic [ref=e73]:
+          - generic [ref=e74] [cursor=pointer]:
+            - generic [ref=e75]: 📐
+            - generic [ref=e76]: Mathematics
+          - generic [ref=e77] [cursor=pointer]:
+            - generic [ref=e78]: 📚
+            - generic [ref=e79]: English
+          - generic [ref=e80] [cursor=pointer]:
+            - generic [ref=e81]: 🔬
+            - generic [ref=e82]: Science
+          - generic [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]: 🎯
+            - generic [ref=e85]: 11+ Prep
+          - generic [ref=e86] [cursor=pointer]:
+            - generic [ref=e87]: 📝
+            - generic [ref=e88]: GCSE
+          - generic [ref=e89] [cursor=pointer]:
+            - generic [ref=e90]: 🎓
+            - generic [ref=e91]: A-Level
+          - generic [ref=e92] [cursor=pointer]:
+            - generic [ref=e93]: ⚛️
+            - generic [ref=e94]: Physics
+          - generic [ref=e95] [cursor=pointer]:
+            - generic [ref=e96]: 🧪
+            - generic [ref=e97]: Chemistry
+          - generic [ref=e98] [cursor=pointer]:
+            - generic [ref=e99]: 🧬
+            - generic [ref=e100]: Biology
+          - generic [ref=e101] [cursor=pointer]:
+            - generic [ref=e102]: 🇫🇷
+            - generic [ref=e103]: French
+          - generic [ref=e104] [cursor=pointer]:
+            - generic [ref=e105]: 🇪🇸
+            - generic [ref=e106]: Spanish
+          - generic [ref=e107] [cursor=pointer]:
+            - generic [ref=e108]: 💻
+            - generic [ref=e109]: Computer Science
+        - link "Find Your Perfect Subject Match" [ref=e111] [cursor=pointer]:
+          - /url: /sign-up
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]: Platform Features
+          - heading "Everything You Need to Succeed" [level=2] [ref=e115]
+          - paragraph [ref=e116]: Our platform combines cutting-edge AI technology with human expertise to deliver the best tutoring experience possible.
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]: 🤖
+            - heading "AI-Powered Scheduling" [level=3] [ref=e120]
+            - paragraph [ref=e121]: Smart calendar that finds optimal lesson times, detects conflicts, and suggests reschedules automatically.
+          - generic [ref=e122]:
+            - generic [ref=e123]: 📊
+            - heading "Progress Tracking" [level=3] [ref=e124]
+            - paragraph [ref=e125]: Visual dashboards show improvement over time with detailed session notes and milestone achievements.
+          - generic [ref=e126]:
+            - generic [ref=e127]: 📋
+            - heading "Private Work Logs" [level=3] [ref=e128]
+            - paragraph [ref=e129]: Every session documented with attendance, topics covered, homework assigned, and next steps.
+          - generic [ref=e130]:
+            - generic [ref=e131]: 💳
+            - heading "Auto Invoicing" [level=3] [ref=e132]
+            - paragraph [ref=e133]: Generate professional invoices instantly with custom rates, session history, and payment tracking.
+          - generic [ref=e134]:
+            - generic [ref=e135]: ⭐
+            - heading "Rating System" [level=3] [ref=e136]
+            - paragraph [ref=e137]: Upwork-style tutor ratings with verified reviews, helping you choose the perfect match.
+          - generic [ref=e138]:
+            - generic [ref=e139]: 🔒
+            - heading "Secure Platform" [level=3] [ref=e140]
+            - paragraph [ref=e141]: End-to-end encryption, GDPR compliant, and strict privacy controls for your peace of mind.
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]: Simple Process
+          - heading "Three Steps to Academic Success" [level=2] [ref=e145]
+          - paragraph [ref=e146]: Getting started is easy. We've streamlined the process so you can focus on what matters - learning.
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - generic [ref=e149]: "01"
+            - generic [ref=e150]:
+              - img "Book Your Free Trial" [ref=e152]
+              - generic [ref=e153]:
+                - heading "Book Your Free Trial" [level=3] [ref=e154]
+                - paragraph [ref=e155]: Schedule a complimentary 30-minute session. We'll match you with the perfect tutor based on your goals, learning style, and schedule.
+          - generic [ref=e156]:
+            - generic [ref=e157]: "02"
+            - generic [ref=e158]:
+              - img "Experience Personalised Learning" [ref=e160]
+              - generic [ref=e161]:
+                - heading "Experience Personalised Learning" [level=3] [ref=e162]
+                - paragraph [ref=e163]: Your tutor creates a custom learning plan tailored to your needs. Interactive sessions with real-time progress tracking and AI-enhanced tools.
+          - generic [ref=e164]:
+            - generic [ref=e165]: "03"
+            - generic [ref=e166]:
+              - img "Watch Your Grades Soar" [ref=e168]
+              - generic [ref=e169]:
+                - heading "Watch Your Grades Soar" [level=3] [ref=e170]
+                - paragraph [ref=e171]: Track improvements with detailed reports. Our students see an average 2-grade improvement within one academic term.
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: Elite Tutors
+          - heading "Only the Best Make the Cut" [level=2] [ref=e176]
+          - paragraph [ref=e177]: We accept just 8% of tutor applicants. Every MegaStar tutor is rigorously vetted, thoroughly trained, and continuously evaluated to ensure exceptional teaching quality.
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e180]: ✓
+              - generic [ref=e181]:
+                - heading "Rigorous Vetting" [level=4] [ref=e182]
+                - paragraph [ref=e183]: Only 8% of tutor applicants pass our 5-stage selection process including background checks and teaching assessments.
+            - generic [ref=e184]:
+              - generic [ref=e185]: 🎓
+              - generic [ref=e186]:
+                - heading "Subject Experts" [level=4] [ref=e187]
+                - paragraph [ref=e188]: All tutors hold degrees in their teaching subjects from top UK universities. Many have PGCE qualifications.
+            - generic [ref=e189]:
+              - generic [ref=e190]: 👨‍🏫
+              - generic [ref=e191]:
+                - heading "Teaching Experience" [level=4] [ref=e192]
+                - paragraph [ref=e193]: Minimum 2 years of tutoring experience required. Many are former teachers and university lecturers.
+            - generic [ref=e194]:
+              - generic [ref=e195]: 🤝
+              - generic [ref=e196]:
+                - heading "Personality Match" [level=4] [ref=e197]
+                - paragraph [ref=e198]: We match students with tutors based on learning style, personality, and specific academic goals.
+        - generic [ref=e199]:
+          - img "Students studying together" [ref=e200]
+          - generic [ref=e201]:
+            - generic [ref=e202]: 8%
+            - text: Acceptance Rate
+      - generic [ref=e203]:
+        - generic [ref=e204]:
+          - generic [ref=e205]: Success Stories
+          - heading "Loved by Students and Parents" [level=2] [ref=e206]
+          - paragraph [ref=e207]: Don't just take our word for it. Here's what families and tutors say about working with MegaStar.
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - generic [ref=e210]: ⭐⭐⭐⭐⭐
+            - blockquote [ref=e211]: “My daughter went from a C to an A* in GCSE Maths in just 3 months. The personalised attention and structured approach made all the difference.”
+            - generic [ref=e212]:
+              - img "Sarah Mitchell" [ref=e213]
+              - generic [ref=e214]:
+                - strong [ref=e215]: Sarah Mitchell
+                - generic [ref=e216]: Parent of Year 11 Student
+          - generic [ref=e217]:
+            - generic [ref=e218]: ⭐⭐⭐⭐⭐
+            - blockquote [ref=e219]: “The AI scheduling feature saves me hours every week. I can focus entirely on teaching while the platform handles all the admin work.”
+            - generic [ref=e220]:
+              - img "Dr. James Chen" [ref=e221]
+              - generic [ref=e222]:
+                - strong [ref=e223]: Dr. James Chen
+                - generic [ref=e224]: Physics Tutor
+          - generic [ref=e225]:
+            - generic [ref=e226]: ⭐⭐⭐⭐⭐
+            - blockquote [ref=e227]: “Finally, a platform that understands what tutors actually need. The invoice generation alone has transformed my business operations.”
+            - generic [ref=e228]:
+              - img "Emma Thompson" [ref=e229]
+              - generic [ref=e230]:
+                - strong [ref=e231]: Emma Thompson
+                - generic [ref=e232]: English Literature Tutor
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]: ✓
+            - generic [ref=e236]: DBS Checked
+          - generic [ref=e237]:
+            - generic [ref=e238]: ✓
+            - generic [ref=e239]: GDPR Compliant
+          - generic [ref=e240]:
+            - generic [ref=e241]: ✓
+            - generic [ref=e242]: Qualified Teachers
+          - generic [ref=e243]:
+            - generic [ref=e244]: ✓
+            - generic [ref=e245]: Money Back Guarantee
+      - generic [ref=e246]:
+        - generic [ref=e247]:
+          - generic [ref=e248]: Transparent Pricing
+          - heading "Simple, Fair Pricing for Every Budget" [level=2] [ref=e249]
+          - paragraph [ref=e250]: No hidden fees, no long-term contracts. Pay only for the lessons you need.
+        - generic [ref=e251]:
+          - generic [ref=e252]:
+            - heading "Starter" [level=3] [ref=e253]
+            - generic [ref=e254]:
+              - generic [ref=e255]: £35
+              - generic [ref=e256]: /hour
+            - paragraph [ref=e257]: Perfect for occasional support and homework help
+            - list [ref=e258]:
+              - listitem [ref=e259]:
+                - generic [ref=e260]: ✓
+                - text: 1-to-1 online tutoring
+              - listitem [ref=e261]:
+                - generic [ref=e262]: ✓
+                - text: All core subjects
+              - listitem [ref=e263]:
+                - generic [ref=e264]: ✓
+                - text: Session recordings
+              - listitem [ref=e265]:
+                - generic [ref=e266]: ✓
+                - text: Progress reports
+              - listitem [ref=e267]:
+                - generic [ref=e268]: ✓
+                - text: Cancel anytime
+            - link "Start Free Trial" [ref=e269] [cursor=pointer]:
+              - /url: /sign-up
+          - generic [ref=e270]:
+            - generic [ref=e271]: Most Popular
+            - heading "Academic" [level=3] [ref=e272]
+            - generic [ref=e273]:
+              - generic [ref=e274]: £45
+              - generic [ref=e275]: /hour
+            - paragraph [ref=e276]: Ideal for students aiming for top grades
+            - list [ref=e277]:
+              - listitem [ref=e278]:
+                - generic [ref=e279]: ✓
+                - text: Everything in Starter
+              - listitem [ref=e280]:
+                - generic [ref=e281]: ✓
+                - text: Exam preparation focus
+              - listitem [ref=e282]:
+                - generic [ref=e283]: ✓
+                - text: Personalised study plan
+              - listitem [ref=e284]:
+                - generic [ref=e285]: ✓
+                - text: 24/7 messaging support
+              - listitem [ref=e286]:
+                - generic [ref=e287]: ✓
+                - text: Parent dashboard access
+              - listitem [ref=e288]:
+                - generic [ref=e289]: ✓
+                - text: Mock exam marking
+            - link "Start Free Trial" [ref=e290] [cursor=pointer]:
+              - /url: /sign-up
+          - generic [ref=e291]:
+            - heading "Elite" [level=3] [ref=e292]
+            - generic [ref=e293]:
+              - generic [ref=e294]: £65
+              - generic [ref=e295]: /hour
+            - paragraph [ref=e296]: Comprehensive support for ambitious students
+            - list [ref=e297]:
+              - listitem [ref=e298]:
+                - generic [ref=e299]: ✓
+                - text: Everything in Academic
+              - listitem [ref=e300]:
+                - generic [ref=e301]: ✓
+                - text: Premium tutor matching
+              - listitem [ref=e302]:
+                - generic [ref=e303]: ✓
+                - text: Oxbridge preparation
+              - listitem [ref=e304]:
+                - generic [ref=e305]: ✓
+                - text: University admissions support
+              - listitem [ref=e306]:
+                - generic [ref=e307]: ✓
+                - text: Priority scheduling
+              - listitem [ref=e308]:
+                - generic [ref=e309]: ✓
+                - text: Dedicated account manager
+            - link "Contact Us" [ref=e310] [cursor=pointer]:
+              - /url: /contact
+      - generic [ref=e311]:
+        - generic [ref=e312]:
+          - generic [ref=e313]: Common Questions
+          - heading "Frequently Asked Questions" [level=2] [ref=e314]
+          - paragraph [ref=e315]: Everything you need to know about MegaStar Tutoring.
+        - generic [ref=e316]:
+          - generic [ref=e317]:
+            - button "How does the free trial work? +" [ref=e318] [cursor=pointer]:
+              - generic [ref=e319]: How does the free trial work?
+              - generic [ref=e320]: +
+            - paragraph [ref=e321]: Your first 30-minute session is completely free with no obligation. It's a chance to meet your tutor, discuss your goals, and experience our platform. If you're not satisfied, we'll match you with a different tutor or there's no charge.
+          - generic [ref=e322]:
+            - button "What subjects and levels do you cover? +" [ref=e323] [cursor=pointer]:
+              - generic [ref=e324]: What subjects and levels do you cover?
+              - generic [ref=e325]: +
+            - paragraph [ref=e326]: We cover all core subjects from KS2 through A-Level including Maths, English, Science (Physics, Chemistry, Biology), Modern Languages, and Computer Science. We also support 11+ entrance exam preparation and university admissions.
+          - generic [ref=e327]:
+            - button "How are tutors selected and vetted? +" [ref=e328] [cursor=pointer]:
+              - generic [ref=e329]: How are tutors selected and vetted?
+              - generic [ref=e330]: +
+            - paragraph [ref=e331]: Our rigorous process includes application screening, qualification verification, background checks, teaching demonstration, and reference checks. Only 8% of applicants become MegaStar tutors. All tutors are regularly reviewed based on student outcomes.
+          - generic [ref=e332]:
+            - button "Can I change my tutor if it's not a good fit? +" [ref=e333] [cursor=pointer]:
+              - generic [ref=e334]: Can I change my tutor if it's not a good fit?
+              - generic [ref=e335]: +
+            - paragraph [ref=e336]: Absolutely. We understand that the tutor-student relationship is crucial. If you're not completely satisfied, you can switch to a different tutor at any time with no additional fees or questions asked.
+          - generic [ref=e337]:
+            - button "What technology do I need for online lessons? +" [ref=e338] [cursor=pointer]:
+              - generic [ref=e339]: What technology do I need for online lessons?
+              - generic [ref=e340]: +
+            - paragraph [ref=e341]: All you need is a computer, tablet, or smartphone with a stable internet connection, webcam, and microphone. Our platform works in any modern browser with no downloads required. We recommend headphones for the best experience.
+          - generic [ref=e342]:
+            - button "How does billing work? +" [ref=e343] [cursor=pointer]:
+              - generic [ref=e344]: How does billing work?
+              - generic [ref=e345]: +
+            - paragraph [ref=e346]: Lessons are billed after each session or monthly, depending on your preference. You'll receive detailed invoices via email and can manage payments through your parent/student dashboard. We accept all major credit cards and bank transfers.
+      - generic [ref=e348]:
+        - heading "Ready to Transform Your Grades?" [level=2] [ref=e349]
+        - paragraph [ref=e350]: Join 500+ students who've achieved their academic goals with MegaStar Tutoring. Your first session is completely free.
+        - generic [ref=e351]:
+          - link "Start Free Trial" [ref=e352] [cursor=pointer]:
+            - /url: /sign-up
+            - text: Start Free Trial
+            - img [ref=e353]
+          - link "Tutor Login" [ref=e355] [cursor=pointer]:
+            - /url: /sign-in
+        - generic [ref=e356]:
+          - generic [ref=e357]: 🛡️
+          - generic [ref=e358]: 30-day money-back guarantee • No credit card required
+      - generic [ref=e359]:
+        - generic [ref=e360]:
+          - generic [ref=e361]:
+            - generic [ref=e362]:
+              - generic [ref=e363]: M
+              - generic [ref=e364]:
+                - generic [ref=e365]: MegaStar Tutoring
+                - generic [ref=e366]: Excellence in Education
+            - paragraph [ref=e367]: AI-powered tutoring platform helping students achieve academic excellence through personalised, expert-led online lessons.
+            - generic [ref=e368]:
+              - link "Facebook" [ref=e369] [cursor=pointer]:
+                - /url: "#"
+                - text: 📘
+              - link "Twitter" [ref=e370] [cursor=pointer]:
+                - /url: "#"
+                - text: 🐦
+              - link "Instagram" [ref=e371] [cursor=pointer]:
+                - /url: "#"
+                - text: 📷
+              - link "LinkedIn" [ref=e372] [cursor=pointer]:
+                - /url: "#"
+                - text: 💼
+          - generic [ref=e373]:
+            - heading "For Students" [level=4] [ref=e374]
+            - link "Find a Tutor" [ref=e375] [cursor=pointer]:
+              - /url: "#"
+            - link "Subjects" [ref=e376] [cursor=pointer]:
+              - /url: "#"
+            - link "Pricing" [ref=e377] [cursor=pointer]:
+              - /url: "#"
+            - link "Success Stories" [ref=e378] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=e379]:
+            - heading "For Tutors" [level=4] [ref=e380]
+            - link "Become a Tutor" [ref=e381] [cursor=pointer]:
+              - /url: "#"
+            - link "Tutor Resources" [ref=e382] [cursor=pointer]:
+              - /url: "#"
+            - link "Platform Guide" [ref=e383] [cursor=pointer]:
+              - /url: "#"
+            - link "Support" [ref=e384] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=e385]:
+            - heading "Company" [level=4] [ref=e386]
+            - link "About Us" [ref=e387] [cursor=pointer]:
+              - /url: "#"
+            - link "Careers" [ref=e388] [cursor=pointer]:
+              - /url: "#"
+            - link "Blog" [ref=e389] [cursor=pointer]:
+              - /url: "#"
+            - link "Contact" [ref=e390] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e391]:
+          - paragraph [ref=e392]: © 2025 MegaStar Tutoring. All rights reserved.
+          - generic [ref=e393]:
+            - link "Privacy Policy" [ref=e394] [cursor=pointer]:
+              - /url: "#"
+            - link "Terms of Service" [ref=e395] [cursor=pointer]:
+              - /url: "#"
+            - link "Cookie Policy" [ref=e396] [cursor=pointer]:
+              - /url: "#"
+  - button "Open Next.js Dev Tools" [ref=e402] [cursor=pointer]:
+    - img [ref=e403]
+  - alert [ref=e406]

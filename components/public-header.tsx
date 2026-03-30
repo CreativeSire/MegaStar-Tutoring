@@ -8,15 +8,12 @@ export function PublicHeader() {
       <div className="public-header-inner">
         <Link href="/" className="brand-lockup">
           <div className="brand-mark">M</div>
-          <div>
-            <div className="brand-name">MegaStar Tutoring</div>
-            <div className="brand-tagline">Excellence in Education</div>
-          </div>
+          <div className="brand-name">MegaStar Tutoring</div>
         </Link>
         <nav className="public-nav">
-          <Link href="/sign-up">Get Started</Link>
-          <Link href="/sign-in" className="public-nav-cta">
-            Sign In
+          <Link href="/sign-in">Sign in</Link>
+          <Link href="/sign-up" className="nav-cta">
+            Get started
           </Link>
         </nav>
       </div>
