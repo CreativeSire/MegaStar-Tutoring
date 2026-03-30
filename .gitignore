@@ -3,3 +3,9 @@ __pycache__/
 .tmp_megastar/
 tmp_*/
 *.log
+node_modules/
+.next/
+out/
+coverage/
+.env.local
+.env*.local
