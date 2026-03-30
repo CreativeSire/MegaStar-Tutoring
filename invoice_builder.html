@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mega Invoice Builder</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #182233;
+      --muted: #63708a;
+      --line: #d9e1ee;
+      --accent: #1f6feb;
+      --accent-dark: #1857bb;
+      --soft: #eef4ff;
+      --shadow: 0 14px 40px rgba(19, 34, 68, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eaf1ff 0%, var(--bg) 180px);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.45;
+    }
+
+    .badge {
+      background: var(--soft);
+      color: var(--accent-dark);
+      border: 1px solid #cfe0ff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(18, 36, 70, 0.08);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .section-title small {
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #35445e;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus, textarea:focus {
+      outline: 2px solid rgba(31, 111, 235, 0.15);
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+      background: white;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fbff;
+      font-size: 13px;
+      color: #42526b;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .primary:hover { background: var(--accent-dark); }
+
+    .secondary {
+      background: #edf2fb;
+      color: #21314d;
+    }
+
+    .danger {
+      background: #ffe9ea;
+      color: #9b2430;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 8px;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filename {
+      font-weight: 700;
+      color: #21314d;
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mini-input {
+      min-width: 120px;
+    }
+
+    .remove-btn {
+      padding: 8px 10px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 960px) {
+      .span-8, .span-6, .span-4, .span-3 { grid-column: span 12; }
+      .hero { align-items: start; flex-direction: column; }
+      table { min-width: 900px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Mega Invoice Builder</h1>
+        <p>Upload your invoice, choose the date, and the app will make the file for you.</p>
+      </div>
+      <div class="badge" id="filenamePreview">Ready to generate</div>
+    </div>
+
+    <form id="invoiceForm" action="/generate" method="post">
+      <div class="grid">
+        <section class="card span-12">
+          <div class="section-title">
+            <h2>Import Source Invoice</h2>
+            <small>Upload the invoice and, if you want, a calendar export.</small>
+          </div>
+          <div class="grid">
+            <div class="span-6">
+              <label for="sourceFile">Source DOCX</label>
+              <input id="sourceFile" type="file" accept=".docx" />
+            </div>
+            <div class="span-6">
+              <label for="calendarFile">Calendar Export</label>
+              <input id="calendarFile" type="file" accept=".ics" />
+            </div>
+          </div>
+          <input id="invoice_date" name="invoice_date" type="hidden" required />
+          <div class="hint" id="importStatus">Upload the invoice file. If you add a calendar export, the date will come from there too.</div>
+        </section>
+
+        <section class="card span-12">
+          <div class="section-title">
+            <h2>Client Profiles</h2>
+            <small>Pick a client and the app remembers their details.</small>
+          </div>
+          <div class="grid">
+            <div class="span-4">
+              <label for="clientProfileSelect">Saved Client</label>
+              <select id="clientProfileSelect" style="width:100%; border:1px solid var(--line); border-radius:12px; padding:11px 12px; font:inherit; background:#fff; color:var(--text);"></select>
+            </div>
+            <div class="span-4">
+              <label for="clientProfileName">Profile Name</label>
+              <input id="clientProfileName" type="text" placeholder="Client A" autocomplete="off" />
+            </div>
+            <div class="span-4">
+              <label for="clientBillTo">Bill To</label>
+              <input id="clientBillTo" type="text" placeholder="Company or person to bill" autocomplete="off" />
+            </div>
+            <div class="span-3">
+              <label for="clientRate">Rate per session</label>
+              <input id="clientRate" type="number" min="0" step="any" placeholder="15" />
+            </div>
+            <div class="span-3">
+              <label for="clientMeetings">Meetings per week</label>
+              <input id="clientMeetings" type="number" min="0" step="1" placeholder="3" />
+            </div>
+            <div class="span-3">
+              <label for="clientDays">Preferred days</label>
+              <input id="clientDays" type="text" placeholder="Mon, Wed, Fri" autocomplete="off" />
+            </div>
+            <div class="span-3">
+              <label for="clientDescription">Default line item</label>
+              <input id="clientDescription" type="text" placeholder="Session" autocomplete="off" />
+            </div>
+            <div class="span-12">
+              <label for="clientNotes">Notes</label>
+              <textarea id="clientNotes" placeholder="Reschedule rules, special cost, or anything helpful."></textarea>
+            </div>
+          </div>
+          <div class="row-actions" style="margin-top: 12px;">
+            <button type="button" class="secondary" id="saveClientProfile">Save profile</button>
+            <button type="button" class="secondary" id="newClientProfile">New profile</button>
+            <button type="button" class="danger" id="deleteClientProfile">Delete profile</button>
+          </div>
+          <div class="hint" id="clientProfileHint">Each client can keep its own rate, billing name, and schedule notes.</div>
+        </section>
+
+        <details class="card span-12" id="googleCalendarCard">
+          <summary style="cursor:pointer; font-weight:700;">Google Calendar sync (optional)</summary>
+          <div class="hint" style="margin-top:10px;">
+            This is only for people who want Calendar help. It does not change the manual upload flow.
+            It works from `localhost` or a secure website, not from `file://`.
+          </div>
+          <div class="grid" style="margin-top: 12px;">
+            <div class="span-6">
+              <label for="googleCalendarId">Calendar ID</label>
+              <input id="googleCalendarId" type="text" value="primary" autocomplete="off" />
+            </div>
+            <input id="googleClientId" type="hidden" autocomplete="off" />
+          </div>
+          <div class="row-actions" style="margin-top: 12px;">
+            <button type="button" class="secondary" id="connectGoogleBtn">Connect Google</button>
+            <button type="button" class="secondary" id="syncGoogleBtn">Sync Calendar</button>
+            <button type="button" class="danger" id="clearGoogleBtn">Forget</button>
+          </div>
+          <div class="hint" id="googleStatus" style="margin-top: 8px;">Not connected yet.</div>
+        </details>
+
+        <section class="card span-12" style="display:none;">
+          <div class="section-title">
+            <h2>Invoice Details</h2>
+            <small>The date shapes the file name automatically.</small>
+          </div>
+          <div class="grid">
+            <div class="span-3">
+              <label for="invoice_no">Invoice No</label>
+              <input id="invoice_no" name="invoice_no" type="text" placeholder="052" />
+            </div>
+            <div class="span-6">
+              <label for="terms">Terms</label>
+              <input id="terms" name="terms" type="text" value="Due upon receipt" />
+            </div>
+          </div>
+          <div class="hint">The Excel file name will be something like <strong>Mega Invoice FEBRUARY 2026.xlsx</strong>.</div>
+        </section>
+
+        <section class="card span-12" style="display:none;">
+          <div class="section-title">
+            <h2>How to Use</h2>
+            <small>Simple steps, no extra setup.</small>
+          </div>
+          <ol style="margin:0; padding-left: 20px; color: var(--text); line-height: 1.7;">
+            <li>Open the page in your browser.</li>
+            <li>Upload your old invoice file.</li>
+            <li>Check the date at the top.</li>
+            <li>Click <strong>Generate Excel</strong>.</li>
+            <li>Save the file with your month’s invoice name.</li>
+          </ol>
+        </section>
+
+        <section class="card span-12" style="display:none;">
+          <div class="section-title">
+            <h2>Invoice Line Items</h2>
+            <small>Add or remove rows as needed.</small>
+          </div>
+          <div class="table-wrap">
+            <table id="lineItemsTable">
+              <thead>
+                <tr>
+                  <th style="width: 52%;">Description</th>
+                  <th style="width: 12%;">Qty</th>
+                  <th style="width: 18%;">Unit Price</th>
+                  <th style="width: 18%;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="lineItemsBody">
+                <tr>
+                  <td><input name="line_desc" type="text" placeholder="Year 11 Chemistry lesson" /></td>
+                  <td><input name="line_qty" type="number" step="any" min="0" placeholder="1" /></td>
+                  <td><input name="line_unit_price" type="number" step="any" min="0" placeholder="15" /></td>
+                  <td><button type="button" class="danger remove-btn" data-remove>Remove</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row-actions" style="margin-top: 12px;">
+            <button type="button" class="secondary" id="addLineRow">Add line item</button>
+          </div>
+        </section>
+
+        <section class="card span-6" style="display:none;">
+          <div class="section-title">
+            <h2>Payment Details</h2>
+            <small>These go into the template’s payment block.</small>
+          </div>
+          <div class="grid">
+            <div class="span-12">
+              <label for="account_name">Account Name</label>
+              <input id="account_name" name="account_name" type="text" value="Oghenemega  Yvette Akpobor-Okoro" />
+            </div>
+            <div class="span-12">
+              <label for="account_number">Account Number</label>
+              <input id="account_number" name="account_number" type="text" value="36181541" />
+            </div>
+            <div class="span-6">
+              <label for="swift_code">Swift Code</label>
+              <input id="swift_code" name="swift_code" type="text" value="CLJUGB21XXX" />
+            </div>
+            <div class="span-6">
+              <label for="sort_code">Sort Code</label>
+              <input id="sort_code" name="sort_code" type="text" value="041307" />
+            </div>
+            <div class="span-12">
+              <label for="bank_name">Bank Name</label>
+              <input id="bank_name" name="bank_name" type="text" value="Clear Junction Limited" />
+            </div>
+            <div class="span-12">
+              <label for="location">Location</label>
+              <input id="location" name="location" type="text" value="United Kingdom" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card span-6" style="display:none;">
+          <div class="section-title">
+            <h2>Previous Month Report</h2>
+            <small>Dates and student names for the report section.</small>
+          </div>
+          <div class="table-wrap">
+            <table id="reportTable">
+              <thead>
+                <tr>
+                  <th style="width: 40%;">Date</th>
+                  <th style="width: 44%;">Student</th>
+                  <th style="width: 16%;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="reportBody">
+                <tr>
+                  <td><input name="report_date" type="text" placeholder="2/02/2026" /></td>
+                  <td><input name="report_student" type="text" placeholder="ASHWIN" /></td>
+                  <td><button type="button" class="danger remove-btn" data-remove>Remove</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row-actions" style="margin-top: 12px;">
+            <button type="button" class="secondary" id="addReportRow">Add report row</button>
+          </div>
+        </section>
+
+        <section class="card span-12">
+          <div class="footer-row">
+            <div>
+              <div class="filename" id="filenameText">Your file name will appear after you choose a date.</div>
+              <div class="tiny">Your browser will download the file after you click the button.</div>
+            </div>
+            <button type="submit" class="primary">Generate Excel</button>
+          </div>
+        </section>
+      </div>
+    </form>
+  </div>
+
+  <template id="lineRowTemplate">
+    <tr>
+      <td><input name="line_desc" type="text" /></td>
+      <td><input name="line_qty" type="number" step="any" min="0" /></td>
+      <td><input name="line_unit_price" type="number" step="any" min="0" /></td>
+      <td><button type="button" class="danger remove-btn" data-remove>Remove</button></td>
+    </tr>
+  </template>
+
+  <template id="reportRowTemplate">
+    <tr>
+      <td><input name="report_date" type="text" /></td>
+      <td><input name="report_student" type="text" /></td>
+      <td><button type="button" class="danger remove-btn" data-remove>Remove</button></td>
+    </tr>
+  </template>
+
+  <script>
+    const invoiceForm = document.querySelector('form');
+    const invoiceDateInput = document.getElementById('invoice_date');
+    const invoiceNoInput = document.getElementById('invoice_no');
+    const filenamePreview = document.getElementById('filenamePreview');
+    const filenameText = document.getElementById('filenameText');
+    const lineItemsBody = document.getElementById('lineItemsBody');
+    const reportBody = document.getElementById('reportBody');
+    const lineRowTemplate = document.getElementById('lineRowTemplate');
+    const reportRowTemplate = document.getElementById('reportRowTemplate');
+    const sourceFileInput = document.getElementById('sourceFile');
+    const calendarFileInput = document.getElementById('calendarFile');
+    const importStatus = document.getElementById('importStatus');
+    const clientProfileSelect = document.getElementById('clientProfileSelect');
+    const clientProfileNameInput = document.getElementById('clientProfileName');
+    const clientBillToInput = document.getElementById('clientBillTo');
+    const clientRateInput = document.getElementById('clientRate');
+    const clientMeetingsInput = document.getElementById('clientMeetings');
+    const clientDaysInput = document.getElementById('clientDays');
+    const clientDescriptionInput = document.getElementById('clientDescription');
+    const clientNotesInput = document.getElementById('clientNotes');
+    const clientProfileHint = document.getElementById('clientProfileHint');
+    const googleClientIdInput = document.getElementById('googleClientId');
+    const googleCalendarIdInput = document.getElementById('googleCalendarId');
+    const googleStatus = document.getElementById('googleStatus');
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const WORD_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    let importedSourceDate = '';
+    let googleAccessToken = '';
+    let googleTokenClient = null;
+    let clientProfiles = {};
+    let activeClientProfileKey = '';
+
+    function setFieldValue(id, value) {
+      const input = document.getElementById(id);
+      if (input) input.value = value || '';
+    }
+
+    async function inflateRaw(bytes) {
+      if (!('DecompressionStream' in window)) throw new Error('Your browser does not support DOCX import.');
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function readDocxXml(buffer, path) {
+      const bytes = new Uint8Array(buffer);
+      const view = new DataView(buffer);
+      let eocd = -1;
+      for (let index = bytes.length - 22; index >= 0; index--) {
+        if (view.getUint32(index, true) === 0x06054b50) { eocd = index; break; }
+      }
+      if (eocd < 0) throw new Error('Could not read DOCX archive.');
+      const centralOffset = view.getUint32(eocd + 16, true);
+      const entryCount = view.getUint16(eocd + 10, true);
+      let offset = centralOffset;
+
+      for (let entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+        if (view.getUint32(offset, true) !== 0x02014b50) break;
+        const method = view.getUint16(offset + 10, true);
+        const compressedSize = view.getUint32(offset + 20, true);
+        const nameLength = view.getUint16(offset + 28, true);
+        const extraLength = view.getUint16(offset + 30, true);
+        const commentLength = view.getUint16(offset + 32, true);
+        const localOffset = view.getUint32(offset + 42, true);
+        const name = decoder.decode(bytes.slice(offset + 46, offset + 46 + nameLength));
+        const localNameLength = view.getUint16(localOffset + 26, true);
+        const localExtraLength = view.getUint16(localOffset + 28, true);
+        const dataStart = localOffset + 30 + localNameLength + localExtraLength;
+        if (name === path) {
+          const compressed = bytes.slice(dataStart, dataStart + compressedSize);
+          const data = method === 0 ? compressed : await inflateRaw(compressed);
+          return decoder.decode(data);
+        }
+        offset += 46 + nameLength + extraLength + commentLength;
+      }
+      throw new Error(`Missing ${path} in DOCX.`);
+    }
+
+    function xmlDoc(text) {
+      return new DOMParser().parseFromString(text, 'application/xml');
+    }
+
+    function nodeText(node) {
+      return Array.from(node.getElementsByTagNameNS(WORD_NS, 't')).map((part) => part.textContent || '').join('').trim();
+    }
+
+    function parseDateText(text) {
+      const match = String(text).match(/(\d{1,2}\/\d{1,2}\/\d{4})/);
+      if (!match) return '';
+      const [day, month, year] = match[1].split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    function parseDocxInvoice(documentXml) {
+      const paragraphs = Array.from(documentXml.getElementsByTagNameNS(WORD_NS, 'p'))
+        .map(nodeText)
+        .filter(Boolean);
+
+      const tables = Array.from(documentXml.getElementsByTagNameNS(WORD_NS, 'tbl')).map((table) =>
+        Array.from(table.getElementsByTagNameNS(WORD_NS, 'tr')).map((row) =>
+          Array.from(row.children)
+            .filter((cell) => cell.localName === 'tc')
+            .map(nodeText),
+        ),
+      );
+
+      const invoiceHeader = tables[0] || [];
+      const invoiceRow = invoiceHeader[1] || [];
+      const invoiceDate = parseDateText(invoiceRow[0] || paragraphs.find((entry) => /\d{1,2}\/\d{1,2}\/\d{4}/.test(entry)) || '');
+      const invoiceNoMatch = String(invoiceRow[1] || '').match(/(\d+)/);
+      const invoiceNo = invoiceNoMatch ? invoiceNoMatch[1] : '';
+
+      const payment = {
+        accountName: (paragraphs.find((entry) => entry.startsWith('Account Name:')) || '').replace('Account Name:', '').trim(),
+        accountNumber: (paragraphs.find((entry) => entry.startsWith('Account Number:')) || '').replace('Account Number:', '').trim(),
+        swiftCode: (paragraphs.find((entry) => entry.startsWith('Swift Code:')) || '').replace('Swift Code:', '').trim(),
+        bankName: (paragraphs.find((entry) => entry.startsWith('Bank Name:')) || '').replace('Bank Name:', '').trim(),
+        sortCode: (paragraphs.find((entry) => entry.startsWith('Sort Code:')) || '').replace('Sort Code:', '').trim(),
+        location: (paragraphs.find((entry) => entry.startsWith('Location:')) || '').replace('Location:', '').trim(),
+      };
+
+      const lineItems = (tables[1] || [])
+        .slice(1)
+        .map((row) => ({
+          description: row[1] || '',
+          quantity: row[0] || '',
+          unitPrice: String(row[2] || '').replace(/[^\d.]/g, ''),
+        }))
+        .filter((row) => row.description || row.quantity || row.unitPrice);
+
+      const reportRows = (tables[2] || [])
+        .slice(1)
+        .map((row) => ({
+          date: row[0] || '',
+          student: row[2] || '',
+        }))
+        .filter((row) => row.date || row.student);
+
+      return { invoiceDate, invoiceNo, payment, lineItems, reportRows };
+    }
+
+    function parseIcsDate(value) {
+      const text = String(value || '').trim();
+      if (!text) return '';
+      const dateOnly = text.match(/^(\d{4})(\d{2})(\d{2})$/);
+      if (dateOnly) return `${dateOnly[1]}-${dateOnly[2]}-${dateOnly[3]}`;
+      const dateTime = text.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/);
+      if (dateTime) return `${dateTime[1]}-${dateTime[2]}-${dateTime[3]}`;
+      return '';
+    }
+
+    function parseIcsCalendar(text) {
+      const events = [];
+      const rawLines = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      const lines = [];
+      for (const line of rawLines) {
+        if ((line.startsWith(' ') || line.startsWith('\t')) && lines.length) {
+          lines[lines.length - 1] += line.slice(1);
+        } else {
+          lines.push(line);
+        }
+      }
+      let current = null;
+
+      for (const line of lines) {
+        if (line === 'BEGIN:VEVENT') {
+          current = { startDate: '', summary: '' };
+          continue;
+        }
+
+        if (line === 'END:VEVENT') {
+          if (current) events.push(current);
+          current = null;
+          continue;
+        }
+
+        if (!current) continue;
+
+        const colonIndex = line.indexOf(':');
+        if (colonIndex < 0) continue;
+
+        const keyPart = line.slice(0, colonIndex);
+        const value = line.slice(colonIndex + 1).trim();
+        const key = keyPart.split(';')[0].toUpperCase();
+
+        if (key === 'DTSTART') {
+          current.startDate = parseIcsDate(value);
+        } else if (key === 'SUMMARY') {
+          current.summary = value;
+        }
+      }
+
+      return events;
+    }
+
+    function chooseCalendarEvent(events) {
+      if (!events.length) return null;
+      const preferred = events.find((event) => /invoice|brashan|chemistry|staff/i.test(event.summary || ''));
+      return preferred || events[0];
+    }
+
+    function formatLocalDate(dateValue) {
+      const day = String(dateValue.getDate()).padStart(2, '0');
+      const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+      const year = dateValue.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function setGoogleStatus(message) {
+      googleStatus.textContent = message;
+    }
+
+    function setClientHint(message) {
+      clientProfileHint.textContent = message;
+    }
+
+    function loadClientProfiles() {
+      try {
+        clientProfiles = JSON.parse(localStorage.getItem('megaInvoiceClientProfiles') || '{}') || {};
+      } catch (error) {
+        console.warn(error);
+        clientProfiles = {};
+      }
+
+      const keys = Object.keys(clientProfiles).sort((left, right) => left.localeCompare(right));
+      clientProfileSelect.innerHTML = '';
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Choose a client';
+      clientProfileSelect.appendChild(placeholder);
+
+      for (const key of keys) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        clientProfileSelect.appendChild(option);
+      }
+
+      if (activeClientProfileKey && clientProfiles[activeClientProfileKey]) {
+        clientProfileSelect.value = activeClientProfileKey;
+      }
+    }
+
+    function saveClientProfiles() {
+      try {
+        localStorage.setItem('megaInvoiceClientProfiles', JSON.stringify(clientProfiles));
+      } catch (error) {
+        console.warn(error);
+      }
+      loadClientProfiles();
+    }
+
+    function readClientForm() {
+      return {
+        billTo: clientBillToInput.value.trim(),
+        rate: clientRateInput.value.trim(),
+        meetingsPerWeek: clientMeetingsInput.value.trim(),
+        preferredDays: clientDaysInput.value.trim(),
+        defaultDescription: clientDescriptionInput.value.trim(),
+        notes: clientNotesInput.value.trim(),
+      };
+    }
+
+    function writeClientForm(profileName, profile) {
+      clientProfileNameInput.value = profileName || '';
+      clientBillToInput.value = profile?.billTo || '';
+      clientRateInput.value = profile?.rate || '';
+      clientMeetingsInput.value = profile?.meetingsPerWeek || '';
+      clientDaysInput.value = profile?.preferredDays || '';
+      clientDescriptionInput.value = profile?.defaultDescription || '';
+      clientNotesInput.value = profile?.notes || '';
+    }
+
+    function refreshClientSummary() {
+      const profile = clientProfiles[activeClientProfileKey];
+      if (!profile) {
+        setClientHint('Each client can keep its own rate, billing name, and schedule notes.');
+        return;
+      }
+      const parts = [];
+      if (profile.billTo) parts.push(`Bill to ${profile.billTo}`);
+      if (profile.rate) parts.push(`Rate ${profile.rate}`);
+      if (profile.meetingsPerWeek) parts.push(`${profile.meetingsPerWeek} per week`);
+      if (profile.preferredDays) parts.push(profile.preferredDays);
+      setClientHint(parts.length ? parts.join(' • ') : 'This client profile is ready to use.');
+    }
+
+    function applyClientProfile(profileName) {
+      const profile = clientProfiles[profileName];
+      activeClientProfileKey = profileName || '';
+      writeClientForm(profileName, profile);
+      refreshClientSummary();
+      if (profile?.defaultDescription) {
+        const firstDescriptionInput = lineItemsBody.querySelector('input[name="line_desc"]');
+        if (firstDescriptionInput && !firstDescriptionInput.value.trim()) {
+          firstDescriptionInput.value = profile.defaultDescription;
+        }
+      }
+      if (profile?.rate) {
+        const firstRateInput = lineItemsBody.querySelector('input[name="line_unit_price"]');
+        if (firstRateInput && !firstRateInput.value.trim()) {
+          firstRateInput.value = profile.rate;
+        }
+      }
+    }
+
+    function currentBillToName() {
+      const profile = clientProfiles[activeClientProfileKey];
+      return profile?.billTo?.trim() || 'BRASHAN CHEMISTRY';
+    }
+
+    function loadGooglePrefs() {
+      try {
+        googleClientIdInput.value = localStorage.getItem('megaInvoiceGoogleClientId') || '15848892923-3dg5jineqt3nbnvqspvlf8uqalsqh0uv.apps.googleusercontent.com';
+        googleCalendarIdInput.value = localStorage.getItem('megaInvoiceGoogleCalendarId') || 'primary';
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
+    function saveGooglePrefs() {
+      try {
+        localStorage.setItem('megaInvoiceGoogleClientId', googleClientIdInput.value.trim());
+        localStorage.setItem('megaInvoiceGoogleCalendarId', googleCalendarIdInput.value.trim() || 'primary');
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
+    function ensureGoogleClientId() {
+      const clientId = googleClientIdInput.value.trim();
+      if (!clientId) {
+        throw new Error('Add your Google Client ID first.');
+      }
+      return clientId;
+    }
+
+    function ensureGoogleLibrary() {
+      if (window.google?.accounts?.oauth2) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        let script = document.getElementById('googleIdentityScript');
+        if (!script) {
+          script = document.createElement('script');
+          script.id = 'googleIdentityScript';
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', resolve, { once: true });
+        script.addEventListener('error', () => reject(new Error('Could not load Google sign-in.')), { once: true });
+        if (window.google?.accounts?.oauth2) resolve();
+      });
+    }
+
+    function initGoogleTokenClient() {
+      googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: ensureGoogleClientId(),
+        scope: 'https://www.googleapis.com/auth/calendar.readonly',
+        callback: (tokenResponse) => {
+          if (!tokenResponse || tokenResponse.error) {
+            setGoogleStatus(tokenResponse?.error || 'Google sign-in was not completed.');
+            return;
+          }
+          googleAccessToken = tokenResponse.access_token || '';
+          setGoogleStatus('Connected. You can now sync Calendar.');
+        },
+      });
+    }
+
+    async function connectGoogleCalendar() {
+      saveGooglePrefs();
+      await ensureGoogleLibrary();
+      initGoogleTokenClient();
+      googleTokenClient.requestAccessToken({ prompt: googleAccessToken ? '' : 'consent' });
+      setGoogleStatus('Waiting for Google sign-in...');
+    }
+
+    async function fetchGoogleCalendarEvents() {
+      if (!googleAccessToken) {
+        await connectGoogleCalendar();
+        if (!googleAccessToken) {
+          throw new Error('Google sign-in did not finish.');
+        }
+      }
+
+      const calendarId = encodeURIComponent(googleCalendarIdInput.value.trim() || 'primary');
+      const today = new Date();
+      const rangeStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const rangeEnd = new Date(today.getFullYear(), today.getMonth(), 1);
+      const params = new URLSearchParams({
+        timeMin: rangeStart.toISOString(),
+        timeMax: rangeEnd.toISOString(),
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '2500',
+        fields: 'items(summary,start),nextPageToken',
+      });
+
+      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?${params}`, {
+        headers: { Authorization: `Bearer ${googleAccessToken}` },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Google Calendar request failed (${response.status}).`);
+      }
+
+      const payload = await response.json();
+      return Array.isArray(payload.items) ? payload.items : [];
+    }
+
+    function fillReportRowsFromCalendar(events) {
+      const usableEvents = events
+        .map((event) => {
+          const rawStart = event?.start?.dateTime || event?.start?.date || '';
+          if (!rawStart) return null;
+          const startDate = new Date(`${rawStart.slice(0, 10)}T00:00:00`);
+          if (Number.isNaN(startDate.getTime())) return null;
+          return {
+            date: formatLocalDate(startDate),
+            student: String(event.summary || '').trim(),
+          };
+        })
+        .filter(Boolean);
+
+      if (!usableEvents.length) {
+        setGoogleStatus('No calendar events were found for the previous month.');
+        return;
+      }
+
+      reportBody.innerHTML = '';
+      usableEvents.forEach(() => addRow(reportBody, reportRowTemplate));
+      reportBody.querySelectorAll('tr').forEach((row, index) => {
+        const inputs = row.querySelectorAll('input');
+        const event = usableEvents[index];
+        inputs[0].value = event.date || '';
+        inputs[1].value = event.student || '';
+      });
+      setGoogleStatus(`Filled ${usableEvents.length} report rows from Calendar.`);
+    }
+
+    async function syncGoogleCalendar() {
+      saveGooglePrefs();
+      const events = await fetchGoogleCalendarEvents();
+      fillReportRowsFromCalendar(events);
+    }
+
+    async function importSourceInvoice(file) {
+      const buffer = await file.arrayBuffer();
+      const xmlText = await readDocxXml(buffer, 'word/document.xml');
+      const documentXml = xmlDoc(xmlText);
+      const data = parseDocxInvoice(documentXml);
+
+      setFieldValue('invoice_date', data.invoiceDate);
+      setFieldValue('invoice_no', data.invoiceNo);
+      setFieldValue('account_name', data.payment.accountName);
+      setFieldValue('account_number', data.payment.accountNumber);
+      setFieldValue('swift_code', data.payment.swiftCode);
+      setFieldValue('bank_name', data.payment.bankName);
+      setFieldValue('sort_code', data.payment.sortCode);
+      setFieldValue('location', data.payment.location);
+      importedSourceDate = data.invoiceDate || '';
+
+      if (data.lineItems.length) {
+        lineItemsBody.innerHTML = '';
+        data.lineItems.forEach(() => addRow(lineItemsBody, lineRowTemplate));
+        lineItemsBody.querySelectorAll('tr').forEach((row, index) => {
+          const inputs = row.querySelectorAll('input');
+          const item = data.lineItems[index];
+          inputs[0].value = item.description || '';
+          inputs[1].value = item.quantity || '';
+          inputs[2].value = item.unitPrice || '';
+        });
+      }
+
+      if (data.reportRows.length) {
+        reportBody.innerHTML = '';
+        data.reportRows.forEach(() => addRow(reportBody, reportRowTemplate));
+        reportBody.querySelectorAll('tr').forEach((row, index) => {
+          const inputs = row.querySelectorAll('input');
+          const item = data.reportRows[index];
+          inputs[0].value = item.date || '';
+          inputs[1].value = item.student || '';
+        });
+      }
+
+      importStatus.textContent = `Detected ${data.lineItems.length} line items and ${data.reportRows.length} report rows from ${file.name}.`;
+      buildFilename();
+      refreshClientSummary();
+    }
+
+    async function importCalendar(file) {
+      const text = await file.text();
+      const events = parseIcsCalendar(text);
+      const chosen = chooseCalendarEvent(events);
+      if (!chosen || !chosen.startDate) {
+        importStatus.textContent = `No usable date was found in ${file.name}.`;
+        return;
+      }
+
+      if (!invoiceDateInput.value || (!importedSourceDate && invoiceDateInput.value !== chosen.startDate)) {
+        invoiceDateInput.value = chosen.startDate;
+      }
+
+      buildFilename();
+      const summaryText = chosen.summary ? ` for "${chosen.summary}"` : '';
+      importStatus.textContent = `Calendar date found${summaryText} in ${file.name}. Manual upload still works on its own.`;
+    }
+
+    function escapeXml(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+    }
+
+    function monthName(dateValue) {
+      return dateValue.toLocaleString('en-US', { month: 'long' }).toUpperCase();
+    }
+
+    function previousMonthName(dateValue) {
+      return new Date(dateValue.getFullYear(), dateValue.getMonth(), 0).toLocaleString('en-US', { month: 'long' }).toUpperCase();
+    }
+
+    function excelSerial(dateValue) {
+      const utc = Date.UTC(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
+      return Math.floor((utc - Date.UTC(1899, 11, 30)) / 86400000);
+    }
+
+    function buildFilename() {
+      const value = invoiceDateInput.value;
+      if (!value) {
+        const fallback = 'Mega Invoice.xlsx';
+        filenamePreview.textContent = 'Ready to generate';
+        filenameText.textContent = 'Your file name will appear after you choose a date.';
+        return fallback;
+      }
+      const dateValue = new Date(`${value}T00:00:00`);
+      const filename = `Mega Invoice ${monthName(dateValue)} ${dateValue.getFullYear()}.xlsx`;
+      filenamePreview.textContent = 'Ready to generate';
+      filenameText.textContent = 'Your file name is built automatically from the date.';
+      return filename;
+    }
+
+    function addRow(body, template) {
+      const row = template.content.firstElementChild.cloneNode(true);
+      body.appendChild(row);
+    }
+
+    function collectRows(body, names) {
+      const rows = [];
+      for (const tr of body.querySelectorAll('tr')) {
+        const row = {};
+        let hasValue = false;
+        tr.querySelectorAll('input').forEach((input, index) => {
+          const value = input.value.trim();
+          row[names[index]] = value;
+          if (value) hasValue = true;
+        });
+        if (hasValue) rows.push(row);
+      }
+      return rows;
+    }
+
+    function xmlTextCell(ref, value, styleId) {
+      return `<c r="${ref}" s="${styleId}" t="inlineStr"><is><t xml:space="preserve">${escapeXml(value)}</t></is></c>`;
+    }
+
+    function xmlNumberCell(ref, value, styleId) {
+      return `<c r="${ref}" s="${styleId}"><v>${value}</v></c>`;
+    }
+
+    function xmlFormulaCell(ref, formula, cachedValue, styleId) {
+      return `<c r="${ref}" s="${styleId}"><f>${formula}</f><v>${cachedValue}</v></c>`;
+    }
+
+    function buildStylesXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="15"/><name val="Calibri"/><family val="2"/></font><font><b/><color rgb="FF21314D"/><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><color rgb="FF63708A"/><sz val="10"/><name val="Calibri"/><family val="2"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F6FEB"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF8FBFF"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD9E1EE"/></left><right style="thin"><color rgb="FFD9E1EE"/></right><top style="thin"><color rgb="FFD9E1EE"/></top><bottom style="thin"><color rgb="FFD9E1EE"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="11"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="4" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="14" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="4" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf></cellXfs></styleSheet>`;
+    }
+
+    function buildWorkbookXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Invoice" sheetId="1" r:id="rId1"/></sheets><calcPr calcId="191028" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>`;
+    }
+
+    function buildWorkbookRelsXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+    }
+
+    function buildRootRelsXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
+    }
+
+    function buildContentTypesXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+    }
+
+    function buildCoreXml(title) {
+      const now = new Date().toISOString();
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${escapeXml(title)}</dc:title><dc:creator>Mega Invoice Builder</dc:creator><cp:lastModifiedBy>Mega Invoice Builder</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`;
+    }
+
+    function buildAppXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Microsoft Excel</Application><HeadingPairs><vt:vector size="2" baseType="variant"><vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant><vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs><TitlesOfParts><vt:vector size="1" baseType="lpstr"><vt:lpstr>Invoice</vt:lpstr></vt:vector></TitlesOfParts></Properties>`;
+    }
+
+    function crc32(bytes) {
+      let crc = ~0;
+      for (let i = 0; i < bytes.length; i++) {
+        crc ^= bytes[i];
+        for (let j = 0; j < 8; j++) {
+          crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
+        }
+      }
+      return (~crc) >>> 0;
+    }
+
+    function writeU16(arr, offset, value) {
+      arr[offset] = value & 255;
+      arr[offset + 1] = (value >>> 8) & 255;
+    }
+
+    function writeU32(arr, offset, value) {
+      arr[offset] = value & 255;
+      arr[offset + 1] = (value >>> 8) & 255;
+      arr[offset + 2] = (value >>> 16) & 255;
+      arr[offset + 3] = (value >>> 24) & 255;
+    }
+
+    function dosDateTime(dateValue) {
+      const year = dateValue.getFullYear();
+      const month = dateValue.getMonth() + 1;
+      const day = dateValue.getDate();
+      const hours = dateValue.getHours();
+      const minutes = dateValue.getMinutes();
+      const seconds = Math.floor(dateValue.getSeconds() / 2);
+      return { dosTime: (hours << 11) | (minutes << 5) | seconds, dosDate: ((year - 1980) << 9) | (month << 5) | day };
+    }
+
+    function concatUint8(parts) {
+      const total = parts.reduce((sum, part) => sum + part.length, 0);
+      const result = new Uint8Array(total);
+      let offset = 0;
+      for (const part of parts) {
+        result.set(part, offset);
+        offset += part.length;
+      }
+      return result;
+    }
+
+    function buildZip(files) {
+      const localParts = [];
+      const centralParts = [];
+      let offset = 0;
+      const now = dosDateTime(new Date());
+
+      for (const file of files) {
+        const nameBytes = encoder.encode(file.name);
+        const data = typeof file.data === 'string' ? encoder.encode(file.data) : file.data;
+        const crc = crc32(data);
+
+        const localHeader = new Uint8Array(30 + nameBytes.length);
+        writeU32(localHeader, 0, 0x04034b50);
+        writeU16(localHeader, 4, 20);
+        writeU16(localHeader, 6, 0);
+        writeU16(localHeader, 8, 0);
+        writeU16(localHeader, 10, now.dosTime);
+        writeU16(localHeader, 12, now.dosDate);
+        writeU32(localHeader, 14, crc);
+        writeU32(localHeader, 18, data.length);
+        writeU32(localHeader, 22, data.length);
+        writeU16(localHeader, 26, nameBytes.length);
+        writeU16(localHeader, 28, 0);
+        localHeader.set(nameBytes, 30);
+        localParts.push(localHeader, data);
+
+        const centralHeader = new Uint8Array(46 + nameBytes.length);
+        writeU32(centralHeader, 0, 0x02014b50);
+        writeU16(centralHeader, 4, 20);
+        writeU16(centralHeader, 6, 20);
+        writeU16(centralHeader, 8, 0);
+        writeU16(centralHeader, 10, 0);
+        writeU16(centralHeader, 12, now.dosTime);
+        writeU16(centralHeader, 14, now.dosDate);
+        writeU32(centralHeader, 16, crc);
+        writeU32(centralHeader, 20, data.length);
+        writeU32(centralHeader, 24, data.length);
+        writeU16(centralHeader, 28, nameBytes.length);
+        writeU16(centralHeader, 30, 0);
+        writeU16(centralHeader, 32, 0);
+        writeU16(centralHeader, 34, 0);
+        writeU16(centralHeader, 36, 0);
+        writeU32(centralHeader, 38, 0);
+        writeU32(centralHeader, 42, offset);
+        centralHeader.set(nameBytes, 46);
+        centralParts.push(centralHeader);
+
+        offset += localHeader.length + data.length;
+      }
+
+      const centralDirectory = concatUint8(centralParts);
+      const endRecord = new Uint8Array(22);
+      writeU32(endRecord, 0, 0x06054b50);
+      writeU16(endRecord, 4, 0);
+      writeU16(endRecord, 6, 0);
+      writeU16(endRecord, 8, files.length);
+      writeU16(endRecord, 10, files.length);
+      writeU32(endRecord, 12, centralDirectory.length);
+      writeU32(endRecord, 16, offset);
+      writeU16(endRecord, 20, 0);
+
+      return new Blob([concatUint8([...localParts, centralDirectory, endRecord])], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
+
+    function buildSheetXml(data) {
+      const lineRows = [];
+      for (let index = 0; index < 15; index++) {
+        const rowNumber = 12 + index;
+        const item = data.lineItems[index] || {};
+        const description = item.description || '';
+        const quantity = item.quantity === '' || item.quantity == null ? '' : Number(item.quantity);
+        const unitPrice = item.unitPrice === '' || item.unitPrice == null ? '' : Number(item.unitPrice);
+        const amount = quantity === '' || unitPrice === '' ? 0 : Number((quantity * unitPrice).toFixed(2));
+        const cells = [];
+        if (description) cells.push(xmlTextCell(`B${rowNumber}`, description, 5));
+        if (quantity !== '') cells.push(xmlNumberCell(`D${rowNumber}`, quantity, 6));
+        if (unitPrice !== '') cells.push(xmlNumberCell(`E${rowNumber}`, unitPrice, 7));
+        cells.push(xmlFormulaCell(`F${rowNumber}`, `IF(D${rowNumber}="",ROUND(1*E${rowNumber},2),ROUND(D${rowNumber}*E${rowNumber},2))`, amount, 7));
+        lineRows.push(`<row r="${rowNumber}" spans="2:6" ht="19.9" customHeight="1">${cells.join('')}</row>`);
+      }
+
+      const subtotal = data.lineItems.reduce((sum, item) => {
+        const quantity = item.quantity === '' || item.quantity == null ? 1 : Number(item.quantity);
+        const unitPrice = item.unitPrice === '' || item.unitPrice == null ? 0 : Number(item.unitPrice);
+        return Number((sum + quantity * unitPrice).toFixed(2));
+      }, 0);
+
+      const reportRows = [];
+      for (let index = 0; index < 35; index++) {
+        const rowNumber = 45 + index;
+        const item = data.reportRows[index] || {};
+        const cells = [];
+        if (item.date) cells.push(xmlTextCell(`A${rowNumber}`, item.date, 5));
+        if (item.student) cells.push(xmlTextCell(`C${rowNumber}`, item.student, 5));
+        reportRows.push(`<row r="${rowNumber}" spans="1:6">${cells.join('')}</row>`);
+      }
+
+      const invoiceDate = new Date(`${data.invoiceDate}T00:00:00`);
+      const serial = excelSerial(invoiceDate);
+      const reportLabel = `REPORT OF PREVIOUS MONTH (${previousMonthName(invoiceDate)})`;
+
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetFormatPr defaultRowHeight="15"/><cols><col min="1" max="1" width="14" customWidth="1"/><col min="2" max="2" width="44" customWidth="1"/><col min="3" max="3" width="12" customWidth="1"/><col min="4" max="4" width="12" customWidth="1"/><col min="5" max="5" width="14" customWidth="1"/><col min="6" max="6" width="14" customWidth="1"/></cols><sheetData><row r="1" ht="8"/><row r="2" ht="28" customHeight="1"><c r="B2" s="1" t="inlineStr"><is><t>INVOICE</t></is></c></row><row r="4"><c r="B4" s="3" t="inlineStr"><is><t>BILL TO</t></is></c><c r="E4" s="3" t="inlineStr"><is><t>INVOICE #</t></is></c><c r="F4" s="3" t="inlineStr"><is><t>DATE</t></is></c></row><row r="5"><c r="B5" s="4" t="inlineStr"><is><t>${escapeXml(data.billTo || 'BRASHAN CHEMISTRY')}</t></is></c><c r="E5" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.invoiceNo || '')}</t></is></c><c r="F5" s="8"><v>${serial}</v></c></row><row r="6"><c r="B6" s="5" t="inlineStr"><is><t>631 London Road</t></is></c><c r="E6" s="3" t="inlineStr"><is><t>TERMS</t></is></c><c r="F6" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.terms || 'Due upon receipt')}</t></is></c></row><row r="7"><c r="B7" s="5" t="inlineStr"><is><t>Ditton, Aylesford, Kent ME20 6DJ</t></is></c></row><row r="8"><c r="B8" s="5" t="inlineStr"><is><t>Phone: +447360538080</t></is></c></row><row r="9"><c r="B9" s="5" t="inlineStr"><is><t>david@brashanchemistry.com</t></is></c></row><row r="11" ht="20" customHeight="1"><c r="B11" s="2" t="inlineStr"><is><t>DESCRIPTION</t></is></c><c r="D11" s="2" t="inlineStr"><is><t>QTY</t></is></c><c r="E11" s="2" t="inlineStr"><is><t>UNIT PRICE</t></is></c><c r="F11" s="2" t="inlineStr"><is><t>AMOUNT</t></is></c></row>${lineRows.join('')}<row r="27"><c r="B27" s="4" t="inlineStr"><is><t>Thank you for your business!</t></is></c><c r="E27" s="3" t="inlineStr"><is><t>SUBTOTAL</t></is></c><c r="F27" s="7"><f>SUM(F12:F26)</f><v>${subtotal}</v></c></row><row r="28"><c r="E28" s="3" t="inlineStr"><is><t>TOTAL</t></is></c><c r="F28" s="10"><f>F27</f><v>${subtotal}</v></c></row><row r="34" ht="18" customHeight="1"><c r="A34" s="3" t="inlineStr"><is><t>Payment Details</t></is></c></row><row r="35"><c r="A35" s="4" t="inlineStr"><is><t>Account Name:</t></is></c><c r="B35" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.accountName || '')}</t></is></c></row><row r="36"><c r="A36" s="4" t="inlineStr"><is><t>Account Number:</t></is></c><c r="B36" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.accountNumber || '')}</t></is></c></row><row r="37"><c r="A37" s="4" t="inlineStr"><is><t>Swift Code:</t></is></c><c r="B37" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.swiftCode || '')}</t></is></c></row><row r="38"><c r="A38" s="4" t="inlineStr"><is><t>Bank Name:</t></is></c><c r="B38" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.bankName || '')}</t></is></c></row><row r="39"><c r="A39" s="4" t="inlineStr"><is><t>Sort Code:</t></is></c><c r="B39" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.sortCode || '')}</t></is></c></row><row r="40"><c r="A40" s="4" t="inlineStr"><is><t>Location:</t></is></c><c r="B40" s="5" t="inlineStr"><is><t xml:space="preserve">${escapeXml(data.location || '')}</t></is></c></row><row r="43" ht="18" customHeight="1"><c r="A43" s="3" t="inlineStr"><is><t xml:space="preserve">${escapeXml(reportLabel)}</t></is></c></row><row r="44"><c r="A44" s="2" t="inlineStr"><is><t>DATE</t></is></c><c r="C44" s="2" t="inlineStr"><is><t>STUDENT</t></is></c></row>${reportRows.join('')}</sheetData><mergeCells count="3"><mergeCell ref="B2:F2"/><mergeCell ref="A34:F34"/><mergeCell ref="A43:F43"/></mergeCells><pageMargins left="0.5" right="0.5" top="0.5" bottom="0.5" header="0.25" footer="0.25"/><pageSetup orientation="portrait" fitToWidth="1" fitToHeight="1"/></worksheet>`;
+    }
+
+    function buildWorkbook() {
+      const data = {
+        invoiceDate: invoiceDateInput.value,
+        invoiceNo: invoiceNoInput.value.trim(),
+        billTo: currentBillToName(),
+        terms: document.getElementById('terms').value.trim(),
+        accountName: document.getElementById('account_name').value.trim(),
+        accountNumber: document.getElementById('account_number').value.trim(),
+        swiftCode: document.getElementById('swift_code').value.trim(),
+        bankName: document.getElementById('bank_name').value.trim(),
+        sortCode: document.getElementById('sort_code').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        lineItems: collectRows(lineItemsBody, ['description', 'quantity', 'unitPrice']),
+        reportRows: collectRows(reportBody, ['date', 'student']),
+      };
+
+      const files = [
+        { name: '[Content_Types].xml', data: buildContentTypesXml() },
+        { name: '_rels/.rels', data: buildRootRelsXml() },
+        { name: 'docProps/core.xml', data: buildCoreXml(`Mega Invoice ${buildFilename().replace('Mega Invoice ', '').replace('.xlsx', '')}`) },
+        { name: 'docProps/app.xml', data: buildAppXml() },
+        { name: 'xl/workbook.xml', data: buildWorkbookXml() },
+        { name: 'xl/_rels/workbook.xml.rels', data: buildWorkbookRelsXml() },
+        { name: 'xl/styles.xml', data: buildStylesXml() },
+        { name: 'xl/worksheets/sheet1.xml', data: buildSheetXml(data) },
+      ];
+
+      return buildZip(files);
+    }
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    document.getElementById('addLineRow').addEventListener('click', () => addRow(lineItemsBody, lineRowTemplate));
+    document.getElementById('addReportRow').addEventListener('click', () => addRow(reportBody, reportRowTemplate));
+
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-remove]');
+      if (!button) return;
+      const row = button.closest('tr');
+      const tbody = row.parentElement;
+      if (tbody.children.length > 1) row.remove();
+      else row.querySelectorAll('input').forEach((input) => (input.value = ''));
+      buildFilename();
+    });
+
+    invoiceDateInput.addEventListener('input', buildFilename);
+    invoiceNoInput.addEventListener('input', buildFilename);
+    sourceFileInput.addEventListener('change', async () => {
+      const file = sourceFileInput.files && sourceFileInput.files[0];
+      if (!file) return;
+      importStatus.textContent = `Reading ${file.name}...`;
+      try {
+        await importSourceInvoice(file);
+      } catch (error) {
+        console.error(error);
+        importStatus.textContent = error.message || 'Could not import the source DOCX.';
+      }
+    });
+
+    calendarFileInput.addEventListener('change', async () => {
+      const file = calendarFileInput.files && calendarFileInput.files[0];
+      if (!file) return;
+      importStatus.textContent = `Reading ${file.name}...`;
+      try {
+        await importCalendar(file);
+      } catch (error) {
+        console.error(error);
+        importStatus.textContent = error.message || 'Could not read the calendar file.';
+      }
+    });
+
+    document.getElementById('connectGoogleBtn').addEventListener('click', async () => {
+      try {
+        setGoogleStatus('Opening Google sign-in...');
+        await connectGoogleCalendar();
+      } catch (error) {
+        console.error(error);
+        setGoogleStatus(error.message || 'Could not connect to Google.');
+      }
+    });
+
+    document.getElementById('syncGoogleBtn').addEventListener('click', async () => {
+      try {
+        setGoogleStatus('Syncing Calendar...');
+        await syncGoogleCalendar();
+      } catch (error) {
+        console.error(error);
+        setGoogleStatus(error.message || 'Could not sync Google Calendar.');
+      }
+    });
+
+    document.getElementById('clearGoogleBtn').addEventListener('click', () => {
+      googleAccessToken = '';
+      googleTokenClient = null;
+      try {
+        localStorage.removeItem('megaInvoiceGoogleClientId');
+        localStorage.removeItem('megaInvoiceGoogleCalendarId');
+      } catch (error) {
+        console.warn(error);
+      }
+      googleClientIdInput.value = '';
+      googleCalendarIdInput.value = 'primary';
+      setGoogleStatus('Google settings cleared.');
+    });
+
+    clientProfileSelect.addEventListener('change', () => {
+      applyClientProfile(clientProfileSelect.value);
+    });
+
+    document.getElementById('saveClientProfile').addEventListener('click', () => {
+      try {
+        const profileName = clientProfileNameInput.value.trim();
+        if (!profileName) throw new Error('Give the client profile a name first.');
+        clientProfiles[profileName] = readClientForm();
+        activeClientProfileKey = profileName;
+        saveClientProfiles();
+        applyClientProfile(profileName);
+        setClientHint(`Saved ${profileName}.`);
+      } catch (error) {
+        setClientHint(error.message || 'Could not save the client profile.');
+      }
+    });
+
+    document.getElementById('newClientProfile').addEventListener('click', () => {
+      activeClientProfileKey = '';
+      clientProfileSelect.value = '';
+      writeClientForm('', null);
+      setClientHint('Start a fresh client profile.');
+    });
+
+    document.getElementById('deleteClientProfile').addEventListener('click', () => {
+      const profileName = clientProfileNameInput.value.trim();
+      if (!profileName || !clientProfiles[profileName]) {
+        setClientHint('Choose a saved profile to remove.');
+        return;
+      }
+      delete clientProfiles[profileName];
+      activeClientProfileKey = '';
+      saveClientProfiles();
+      writeClientForm('', null);
+      setClientHint(`Deleted ${profileName}.`);
+    });
+
+    const today = new Date();
+    const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+    invoiceDateInput.value = localToday.toISOString().slice(0, 10);
+    buildFilename();
+    importStatus.textContent = 'Choose a source invoice. Adding a calendar file is optional.';
+    loadClientProfiles();
+    loadGooglePrefs();
+    saveGooglePrefs();
+    refreshClientSummary();
+
+    invoiceForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      downloadBlob(buildWorkbook(), buildFilename());
+    });
+  </script>
+</body>
+</html>

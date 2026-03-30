@@ -1,0 +1,5 @@
+Mega.aac
+__pycache__/
+.tmp_megastar/
+tmp_*/
+*.log
