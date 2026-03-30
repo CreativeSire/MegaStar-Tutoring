@@ -1,3 +1,5 @@
+import { PageIntro } from "@/components/page-intro";
+import { buildStudentNotices } from "@/lib/notifications";
 import { formatShortDateTime } from "@/lib/format";
 import { getWorkspaceOverview } from "@/lib/repository";
 import { requireClientActor } from "@/lib/current-actor";
@@ -5,61 +7,82 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientUpdatesPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
-
-  const updates = [
-    overview.syncs[0]
-      ? `Calendar last updated ${formatShortDateTime(overview.syncs[0].lastSyncedAt)}.`
-      : "Calendar is ready to connect.",
-    overview.missedSessionCount > 0
-      ? `${overview.missedSessionCount} lesson${overview.missedSessionCount === 1 ? "" : "s"} need a follow-up.`
-      : "No lesson needs a follow-up right now.",
-    overview.recentSessions.length
-      ? `Latest lesson: ${overview.recentSessions[0].title}.`
-      : "Your latest lesson will appear here.",
-  ];
+  const { notices, sessionCards } = buildStudentNotices(overview);
+  const nextLesson = overview.upcomingSessions[0];
 
   return (
-    <div className="workspace-grid cols-2">
-      <section className="panel">
-        <div className="section-head compact">
-          <div>
-            <h2>Updates</h2>
-            <p>Short reminders from your lessons and calendar.</p>
-          </div>
-        </div>
-        <div className="workspace-grid">
-          {updates.map((update) => (
-            <div key={update} className="list-card">
-              {update}
+    <div className="workspace-grid">
+      <PageIntro
+        eyebrow="Notifications"
+        title="A clear view of what’s next."
+        description="See the reminders, lesson notes, and calendar updates that matter to you."
+        aside={
+          <>
+            <div className="list-card">
+              <strong>{overview.upcomingSessions.length}</strong>
+              <span>Upcoming lessons</span>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="list-card">
+              <strong>{overview.missedSessionCount}</strong>
+              <span>Lessons needing a new time</span>
+            </div>
+            <div className="list-card">
+              <strong>{overview.syncs[0] ? "Connected" : "Ready"}</strong>
+              <span>Calendar</span>
+            </div>
+          </>
+        }
+      >
+        <span className="pill neutral">Friendly reminders</span>
+        <span className="pill neutral">Lesson notes</span>
+        <span className="pill neutral">Calendar updates</span>
+      </PageIntro>
 
-      <section className="panel">
-        <div className="section-head compact">
-          <div>
-            <h2>Recent lessons</h2>
-            <p>The latest thing you covered.</p>
+      <section className="workspace-grid cols-2">
+        <article className="panel">
+          <div className="section-head compact">
+            <div>
+              <h2>What to know today</h2>
+              <p>Short reminders from your lesson rhythm and calendar.</p>
+            </div>
           </div>
-        </div>
-        <div className="student-timeline">
-          {overview.recentSessions.length ? (
-            overview.recentSessions.slice(0, 4).map((session) => (
-              <div key={session.id} className="student-timeline-row">
-                <div>
-                  <strong>{session.title}</strong>
-                  <span>{session.notes || "No note added yet."}</span>
-                </div>
-                <span className={`pill ${session.status === "missed" ? "danger" : session.status === "completed" ? "success" : "neutral"}`}>
-                  {session.status}
-                </span>
+
+          <div className="notice-grid">
+            {notices.map((notice) => (
+              <div key={notice.title} className={`notice-card ${notice.tone}`}>
+                <strong>{notice.title}</strong>
+                <span>{notice.detail}</span>
               </div>
-            ))
+            ))}
+          </div>
+        </article>
+
+        <article className="panel">
+          <div className="section-head compact">
+            <div>
+              <h2>Next lesson</h2>
+              <p>The next lesson sits here so it is always easy to find.</p>
+            </div>
+          </div>
+          {nextLesson ? (
+            <div className="list-card">
+              <strong>{nextLesson.title}</strong>
+              <span>{formatShortDateTime(nextLesson.startsAt)}</span>
+              <span>{nextLesson.notes || "A short note from your tutor will appear here."}</span>
+            </div>
           ) : (
-            <div className="empty-state">Updates will appear here after the first lesson.</div>
+            <div className="empty-state">Your next lesson will appear here once it is booked.</div>
           )}
-        </div>
+
+          <div className="workspace-grid" style={{ marginTop: 16 }}>
+            {sessionCards.map((card) => (
+              <div key={card.title} className={`notice-card ${card.tone}`}>
+                <strong>{card.title}</strong>
+                <span>{card.detail}</span>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </div>
   );

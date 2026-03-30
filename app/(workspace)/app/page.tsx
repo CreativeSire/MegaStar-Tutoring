@@ -147,6 +147,9 @@ export default async function DashboardPage() {
         <Link className="button button-secondary" href="/app/calendar">
           Open calendar
         </Link>
+        <Link className="button button-secondary" href="/app/alerts">
+          View reminders
+        </Link>
         <Link className="button button-secondary" href="/app/invoices">
           View invoices
         </Link>

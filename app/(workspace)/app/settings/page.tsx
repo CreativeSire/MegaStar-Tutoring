@@ -79,6 +79,29 @@ export default async function SettingsPage() {
           </div>
         </article>
       </section>
+
+      <section className="panel">
+        <div className="section-head compact">
+          <div>
+            <h2>Reminder preferences</h2>
+            <p>Simple defaults for the kinds of notes the app should keep close.</p>
+          </div>
+        </div>
+        <div className="workspace-grid cols-3">
+          <div className="notice-card info">
+            <strong>Lesson reminders</strong>
+            <span>Let the app keep the next lesson easy to spot.</span>
+          </div>
+          <div className="notice-card warm">
+            <strong>Follow-up reminders</strong>
+            <span>Highlight lessons that need a new time or a quick message.</span>
+          </div>
+          <div className="notice-card good">
+            <strong>Review reminders</strong>
+            <span>Ask for a short review after a completed lesson.</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

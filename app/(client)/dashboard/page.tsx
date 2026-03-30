@@ -88,7 +88,7 @@ export default async function ClientDashboardPage() {
           Weekly plan
         </Link>
         <Link className="button button-secondary" href="/dashboard/updates">
-          Updates
+          Notifications
         </Link>
       </section>
 
