@@ -1,7 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { canAccessClientPortal, canAccessWorkspace, normalizeAppRole, type AppRole } from "@/lib/roles";
-import { getWorkspaceProfile, type Actor } from "@/lib/repository";
+import { isClerkConfigured } from "@/lib/clerk-config";
+import { canAccessClientPortal, canAccessWorkspace, getBootstrapRoleForEmail, normalizeAppRole, type AppRole } from "@/lib/roles";
+import { findWorkspaceProfileByClerkUserId, getWorkspaceProfile, type Actor } from "@/lib/repository";
 
 type RequireActorOptions = {
   bootstrapRole?: AppRole;
@@ -20,7 +21,15 @@ function getRoleFromUserMetadata(user: Awaited<ReturnType<typeof currentUser>>) 
   return publicMetadata?.role;
 }
 
+function isWorkspaceBootstrapEmail(email: string | null | undefined) {
+  return Boolean(email && (getBootstrapRoleForEmail(email) === "tutor" || getBootstrapRoleForEmail(email) === "admin"));
+}
+
 export async function requireActor(options: RequireActorOptions = {}): Promise<Actor> {
+  if (!isClerkConfigured()) {
+    redirect("/sign-in");
+  }
+
   const actor = await resolveActor(options);
   if (!actor) {
     redirect("/sign-in");
@@ -30,23 +39,33 @@ export async function requireActor(options: RequireActorOptions = {}): Promise<A
 }
 
 export async function resolveActor(options: RequireActorOptions = {}): Promise<Actor | null> {
+  if (!isClerkConfigured()) {
+    return null;
+  }
+
   const user = await currentUser();
   if (!user) {
     return null;
   }
 
+  const existingProfile = await findWorkspaceProfileByClerkUserId(user.id);
   const actorSeed = {
     clerkUserId: user.id,
     email: user.primaryEmailAddress?.emailAddress ?? null,
     displayName:
       user.fullName ||
       user.firstName ||
-      user.username ||
-      user.primaryEmailAddress?.emailAddress ||
-      "Tutor",
-    role: normalizeAppRole(getRoleFromUserMetadata(user), options.bootstrapRole || getDefaultRoleFromEnvironment()),
+    user.username ||
+    user.primaryEmailAddress?.emailAddress ||
+    "Tutor",
+    role:
+      existingProfile?.role ||
+      normalizeAppRole(
+        getRoleFromUserMetadata(user) || getBootstrapRoleForEmail(user.primaryEmailAddress?.emailAddress),
+        options.bootstrapRole || getDefaultRoleFromEnvironment(),
+      ),
   };
-  const profile = await getWorkspaceProfile(actorSeed);
+  const profile = existingProfile || (await getWorkspaceProfile(actorSeed));
 
   return {
     clerkUserId: user.id,
@@ -58,8 +77,22 @@ export async function resolveActor(options: RequireActorOptions = {}): Promise<A
 }
 
 export async function requireWorkspaceActor(options: RequireActorOptions = {}) {
-  const actor = await requireActor({ bootstrapRole: options.bootstrapRole || "tutor" });
-  if (!canAccessWorkspace(actor.role || getDefaultRoleFromEnvironment())) {
+  if (!isClerkConfigured()) {
+    redirect("/sign-in");
+  }
+
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const existingProfile = await findWorkspaceProfileByClerkUserId(user.id);
+  if (!existingProfile && !isWorkspaceBootstrapEmail(user.primaryEmailAddress?.emailAddress)) {
+    redirect("/dashboard");
+  }
+
+  const actor = await resolveActor({ bootstrapRole: options.bootstrapRole || "tutor" });
+  if (!actor || !canAccessWorkspace(actor.role || getDefaultRoleFromEnvironment())) {
     redirect("/dashboard");
   }
 
@@ -67,8 +100,22 @@ export async function requireWorkspaceActor(options: RequireActorOptions = {}) {
 }
 
 export async function requireClientActor(options: RequireActorOptions = {}) {
-  const actor = await requireActor({ bootstrapRole: options.bootstrapRole || "client" });
-  if (!canAccessClientPortal(actor.role || getDefaultRoleFromEnvironment())) {
+  if (!isClerkConfigured()) {
+    redirect("/sign-in");
+  }
+
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const existingProfile = await findWorkspaceProfileByClerkUserId(user.id);
+  if (!existingProfile && isWorkspaceBootstrapEmail(user.primaryEmailAddress?.emailAddress)) {
+    redirect("/app");
+  }
+
+  const actor = await resolveActor({ bootstrapRole: options.bootstrapRole || "client" });
+  if (!actor || !canAccessClientPortal(actor.role || getDefaultRoleFromEnvironment())) {
     redirect("/app");
   }
 
@@ -76,6 +123,21 @@ export async function requireClientActor(options: RequireActorOptions = {}) {
 }
 
 export async function requireAdminActor(options: RequireRoleOptions = {}) {
+  if (!isClerkConfigured()) {
+    redirect("/sign-in");
+  }
+
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const existingProfile = await findWorkspaceProfileByClerkUserId(user.id);
+  const email = user.primaryEmailAddress?.emailAddress ?? null;
+  if (!existingProfile && getBootstrapRoleForEmail(email) !== "admin") {
+    redirect(options.redirectTo || "/app");
+  }
+
   const actor = await requireActor(options);
   if (actor.role !== "admin") {
     redirect(options.redirectTo || "/app");

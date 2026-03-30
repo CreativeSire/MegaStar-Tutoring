@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { isClerkConfigured } from "@/lib/clerk-config";
 
 export const metadata: Metadata = {
   title: "MegaStar Tutoring",
@@ -8,11 +9,11 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className="antialiased">{children}</body>
-      </html>
-    </ClerkProvider>
+  const app = (
+    <html lang="en">
+      <body className="antialiased">{children}</body>
+    </html>
   );
+
+  return isClerkConfigured() ? <ClerkProvider>{app}</ClerkProvider> : app;
 }

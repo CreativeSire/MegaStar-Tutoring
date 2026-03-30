@@ -54,6 +54,15 @@ export type SyncEventInput = {
   notes: string;
 };
 
+export type WorkspaceProfileSummary = {
+  id: string;
+  clerkUserId: string;
+  email: string | null;
+  displayName: string;
+  role: AppRole;
+  createdAt: Date;
+};
+
 type ProfileRow = {
   id: string;
   clerkUserId: string;
@@ -344,6 +353,73 @@ export async function findWorkspaceProfileByClerkUserId(clerkUserId: string): Pr
   }
 
   return findProfileDb(clerkUserId);
+}
+
+function listWorkspaceProfilesMemory(): WorkspaceProfileSummary[] {
+  const store = getMemoryStore();
+  return Array.from(store.workspaces.values())
+    .map((workspace) => ({
+      id: workspace.profile.id,
+      clerkUserId: workspace.profile.clerkUserId,
+      email: workspace.profile.email,
+      displayName: workspace.profile.displayName,
+      role: workspace.profile.role,
+      createdAt: workspace.profile.createdAt,
+    }))
+    .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+}
+
+export async function listWorkspaceProfiles(): Promise<WorkspaceProfileSummary[]> {
+  const db = getDatabase();
+  if (!db) {
+    return listWorkspaceProfilesMemory();
+  }
+
+  const rows = await db.select().from(userProfiles).orderBy(desc(userProfiles.createdAt));
+  return rows.map((row) => ({
+    id: row.id,
+    clerkUserId: row.clerkUserId,
+    email: row.email,
+    displayName: row.displayName,
+    role: row.role,
+    createdAt: row.createdAt,
+  }));
+}
+
+async function updateProfileRoleDb(profileId: string, role: AppRole) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const updated = await db
+    .update(userProfiles)
+    .set({ role })
+    .where(eq(userProfiles.id, profileId))
+    .returning();
+  return updated[0] ? (updated[0] as ProfileRow) : null;
+}
+
+function updateProfileRoleMemory(clerkUserId: string, role: AppRole) {
+  const store = getMemoryStore();
+  const workspace = store.workspaces.get(clerkUserId);
+  if (!workspace) {
+    return null;
+  }
+
+  workspace.profile.role = role;
+  return workspace.profile;
+}
+
+export async function setWorkspaceProfileRole(clerkUserId: string, role: AppRole) {
+  const db = getDatabase();
+  if (!db) {
+    return updateProfileRoleMemory(clerkUserId, role);
+  }
+
+  const profile = await findProfileDb(clerkUserId);
+  if (!profile) {
+    return null;
+  }
+
+  return updateProfileRoleDb(profile.id, role);
 }
 
 async function ensureProfileDb(actor: Actor): Promise<ProfileRow> {

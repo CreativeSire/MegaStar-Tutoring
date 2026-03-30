@@ -49,6 +49,16 @@ button, input, textarea, select { font: inherit; }
 .brand-subtitle { font-size: 0.88rem; color: var(--muted); }
 .public-nav { display: flex; align-items: center; gap: 18px; color: var(--muted); font-weight: 600; }
 .public-nav a:hover { color: var(--text); }
+.public-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 12px 28px rgba(31, 111, 235, 0.22);
+}
 .landing { max-width: 1200px; margin: 0 auto; padding: 42px 20px 80px; }
 .hero {
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr); gap: 32px;
@@ -62,6 +72,7 @@ button, input, textarea, select { font: inherit; }
 .hero h1 { margin: 18px 0 14px; font-size: clamp(3rem, 5vw, 5.7rem); line-height: 0.95; letter-spacing: -0.06em; }
 .hero p { max-width: 62ch; margin: 0; color: var(--muted); font-size: 1.08rem; line-height: 1.6; }
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+.hero-actions .button { min-width: 180px; }
 .button {
   display: inline-flex; align-items: center; justify-content: center; min-height: 46px;
   padding: 0 18px; border-radius: 14px; font-weight: 700; border: 1px solid transparent;
@@ -77,6 +88,17 @@ button, input, textarea, select { font: inherit; }
   border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 32px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
   box-shadow: var(--shadow); overflow: hidden; padding: 24px;
+  position: relative;
+}
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: auto -60px -80px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(31, 111, 235, 0.16), transparent 72%);
+  pointer-events: none;
 }
 .visual-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; color: var(--muted); font-weight: 700; }
 .visual-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -175,10 +197,87 @@ button, input, textarea, select { font: inherit; }
   color: var(--muted);
   background: rgba(255, 255, 255, 0.55);
 }
+.admin-hero {
+  background:
+    radial-gradient(circle at top right, rgba(31, 111, 235, 0.16), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(29, 127, 76, 0.08), transparent 22%),
+    var(--panel);
+}
+.admin-stats .list-card strong,
+.list-card strong,
+.client-card strong { font-size: 1.06rem; }
+.audit-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-table {
+  display: grid;
+  gap: 10px;
+}
+.admin-table-head,
+.admin-table-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.3fr) minmax(220px, 1fr) 120px 160px;
+  gap: 16px;
+  align-items: center;
+}
+.admin-table-head {
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.admin-table-row {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+}
+.admin-role-controls select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 11px 12px;
+}
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.auth-panel {
+  max-width: 680px;
+  width: 100%;
+}
+.auth-panel h1 {
+  margin: 14px 0 12px;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: -0.06em;
+}
+.auth-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 66ch;
+}
+.auth-callout {
+  margin-top: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 111, 235, 0.18);
+  background: rgba(255, 255, 255, 0.76);
+}
+.auth-callout code {
+  font-size: 0.94em;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(31, 111, 235, 0.08);
+}
 @media (max-width: 1100px) {
   .hero, .workspace-shell { grid-template-columns: 1fr; }
   .workspace-sidebar { position: static; min-height: auto; }
   .feature-grid, .workspace-grid.cols-3, .workspace-grid.cols-2 { grid-template-columns: 1fr; }
+  .admin-table-head, .admin-table-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
   .public-header { flex-direction: column; align-items: start; }

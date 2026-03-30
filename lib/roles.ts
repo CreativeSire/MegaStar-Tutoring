@@ -17,3 +17,34 @@ export function canAccessWorkspace(role: AppRole) {
 export function canAccessClientPortal(role: AppRole) {
   return role === "client" || role === "admin";
 }
+
+function splitCsv(value: string | undefined) {
+  return value
+    ?.split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean) || [];
+}
+
+export function emailMatchesList(email: string | null | undefined, csvList: string | undefined) {
+  if (!email) {
+    return false;
+  }
+
+  return splitCsv(csvList).includes(email.toLowerCase());
+}
+
+export function getBootstrapRoleForEmail(email: string | null | undefined) {
+  if (emailMatchesList(email, process.env.MEGASTAR_ADMIN_EMAILS)) {
+    return "admin" as const;
+  }
+
+  if (emailMatchesList(email, process.env.MEGASTAR_WORKSPACE_EMAILS)) {
+    return "tutor" as const;
+  }
+
+  if (emailMatchesList(email, process.env.MEGASTAR_CLIENT_EMAILS)) {
+    return "client" as const;
+  }
+
+  return null;
+}

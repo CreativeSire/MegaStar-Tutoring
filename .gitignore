@@ -21,3 +21,5 @@ SECURITY_REVIEW.md
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+.vercel

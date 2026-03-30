@@ -1,12 +1,17 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isClerkConfigured } from "@/lib/clerk-config";
 import { createClient, findWorkspaceProfileByClerkUserId, getWorkspaceOverview, listClients } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
 import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
 import { canAccessWorkspace } from "@/lib/roles";
 
 async function requireWorkspaceActor() {
+  if (!isClerkConfigured()) {
+    return null;
+  }
+
   const { userId } = await auth();
   if (!userId) {
     return null;
@@ -43,7 +48,7 @@ const clientSchema = z.object({
 export async function GET(request: Request) {
   const actor = await requireWorkspaceActor();
   if (!actor) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }
   try {
     await enforceRateLimit(actor, request, "api.clients.read", 60, 60_000);
@@ -71,7 +76,7 @@ export async function POST(request: Request) {
 
   const actor = await requireWorkspaceActor();
   if (!actor) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }
   try {
     await enforceRateLimit(actor, request, "api.clients.create", 12, 60_000);

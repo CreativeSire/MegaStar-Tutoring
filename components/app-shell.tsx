@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { UserButton, useAuth } from "@clerk/nextjs";
 import type { NavItem } from "@/lib/navigation";
 import type { AppRole } from "@/lib/roles";
 
@@ -17,7 +16,6 @@ type AppShellProps = {
 
 export function AppShell({ title, subtitle, nav, role, children }: AppShellProps) {
   const pathname = usePathname();
-  const { isSignedIn } = useAuth();
   const visibleNav = nav.filter((item) => !item.roles || item.roles.includes(role));
 
   return (
@@ -57,13 +55,9 @@ export function AppShell({ title, subtitle, nav, role, children }: AppShellProps
           <div className="workspace-topbar-actions">
             <div className="workspace-badge">{role}</div>
             <div className="workspace-badge">Web app on Vercel</div>
-            {isSignedIn ? (
-              <UserButton />
-            ) : (
-              <Link className="workspace-badge workspace-badge-link" href="/sign-in">
-                Sign in
-              </Link>
-            )}
+            <Link className="workspace-badge workspace-badge-link" href="/sign-in">
+              Sign in
+            </Link>
           </div>
         </div>
         {children}
