@@ -80,6 +80,18 @@ export default async function ClientDashboardPage() {
         </div>
       </section>
 
+      <section className="action-row">
+        <Link className="button button-primary" href="/dashboard/start">
+          Start here
+        </Link>
+        <Link className="button button-secondary" href="/dashboard/plan">
+          Weekly plan
+        </Link>
+        <Link className="button button-secondary" href="/dashboard/updates">
+          Updates
+        </Link>
+      </section>
+
       <section className="student-pills">
         <div className="student-pill">
           <strong>{lessonCount}</strong>

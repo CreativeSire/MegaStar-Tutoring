@@ -5,7 +5,7 @@ import { clientNav } from "@/lib/navigation";
 export default async function ClientLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const actor = await requireClientActor();
   return (
-    <AppShell title="Student area" subtitle="Private lessons" nav={clientNav} role={actor.role || "client"}>
+    <AppShell title="Student area" subtitle="Your lessons" nav={clientNav} role={actor.role || "client"}>
       {children}
     </AppShell>
   );
