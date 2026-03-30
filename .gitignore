@@ -9,3 +9,10 @@ out/
 coverage/
 .env.local
 .env*.local
+MegaStar-Tutoring-Blueprint.md
+MegaStar-Tutoring-Blueprint.pdf
+MegaStar-Tutoring-Build-Order.md
+MegaStar-Tutoring-Build-Order.pdf
+MegaStar-Tutoring-Implementation-Backlog.md
+MegaStar-Tutoring-Implementation-Backlog.pdf
+output/pdf/
