@@ -16,3 +16,8 @@ MegaStar-Tutoring-Build-Order.pdf
 MegaStar-Tutoring-Implementation-Backlog.md
 MegaStar-Tutoring-Implementation-Backlog.pdf
 output/pdf/
+security-ownership-out/
+SECURITY_REVIEW.md
+
+# clerk configuration (can include secrets)
+/.clerk/

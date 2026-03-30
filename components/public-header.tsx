@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { UserButton, useAuth } from "@clerk/nextjs";
 
 export function PublicHeader() {
+  const { isSignedIn } = useAuth();
+
   return (
     <header className="public-header">
       <div className="brand-lockup">
@@ -13,7 +18,13 @@ export function PublicHeader() {
       <nav className="public-nav">
         <Link href="/app">Tutor app</Link>
         <Link href="/dashboard">Client portal</Link>
-        <Link href="/MegaStar-Tutoring-Blueprint.pdf">Blueprint</Link>
+        {!isSignedIn ? (
+          <Link href="/sign-in" className="public-nav-cta">
+            Sign in
+          </Link>
+        ) : (
+          <UserButton />
+        )}
       </nav>
     </header>
   );
