@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -54,58 +53,10 @@ const subjects = [
 ];
 
 const features = [
-  {
-    title: "AI-Powered Matching",
-    desc: "Our matching engine studies the way you learn and pairs you with a tutor who fits naturally.",
-    stat: "98% match satisfaction",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&q=90",
-    badge: "Smart match",
-    points: ["Learns your pace", "Balances subject + style"],
-    inset: {
-      title: "Matched in seconds",
-      note: "A calm start with the right tutor",
-      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=90",
-    },
-  },
-  {
-    title: "Interactive Classroom",
-    desc: "Lessons feel like a real room, with live conversation, shared notes, and visual support.",
-    stat: "Live and collaborative",
-    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&q=90",
-    badge: "Live lesson",
-    points: ["Shared whiteboard", "Screen share ready"],
-    inset: {
-      title: "Feels like a real room",
-      note: "Simple, natural, and easy to follow",
-      image: "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=600&q=90",
-    },
-  },
-  {
-    title: "Progress Tracking",
-    desc: "Your progress stays visible, with updates that show what’s improving and what comes next.",
-    stat: "Weekly reports",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=90",
-    badge: "Clear progress",
-    points: ["Simple milestones", "Easy to review"],
-    inset: {
-      title: "Progress at a glance",
-      note: "See what is moving forward",
-      image: "https://images.unsplash.com/photo-1553484771-0a7b0f8b1f3f?w=600&q=90",
-    },
-  },
-  {
-    title: "Safe & Secure",
-    desc: "Every lesson stays private and protected with tutor checks, safe account access, and clear controls.",
-    stat: "Fully protected",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1600&q=90",
-    badge: "Protected space",
-    points: ["Trusted tutors", "Privacy first"],
-    inset: {
-      title: "Quiet confidence",
-      note: "Private, secure, and built with care",
-      image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600&q=90",
-    },
-  },
+  { icon: "🎯", title: "AI-Powered Matching", desc: "Our algorithm analyses your learning style and personality to find your perfect tutor match.", stat: "98% match satisfaction" },
+  { icon: "📹", title: "Interactive Classroom", desc: "HD video with collaborative whiteboard, screen sharing, and real-time document editing.", stat: "99.9% uptime" },
+  { icon: "📊", title: "Progress Tracking", desc: "Visual dashboards show your improvement with AI-generated insights and recommendations.", stat: "Weekly reports" },
+  { icon: "🛡️", title: "100% Safe & Secure", desc: "All tutors DBS checked, sessions recorded, GDPR compliant, strict safeguarding policies.", stat: "Fully protected" },
 ];
 
 const tutors = [
@@ -438,283 +389,21 @@ export default function HomePage() {
       <section className="features-section">
         <div className="section-header">
           <span className="eyebrow">Why MegaStar</span>
-          <h2>Built to feel real</h2>
-          <p>Each feature sits in one large image-led card with a floating detail panel, so it feels grounded and easy to scan.</p>
+          <h2>Built for results</h2>
+          <p>Everything you need to succeed, powered by cutting-edge technology.</p>
         </div>
-
-        <div className="feature-story-stack">
+        
+        <div className="features-grid">
           {features.map((feature, i) => (
-            <article key={feature.title} className={`feature-story-card ${i % 2 === 1 ? "reverse" : ""}`}>
-              <div className="feature-story-media">
-                <Image
-                  src={feature.image}
-                  alt={feature.title}
-                  fill
-                  sizes="(max-width: 900px) 100vw, 55vw"
-                  className="feature-story-image"
-                  priority={i === 0}
-                />
-                <div className="feature-story-overlay" />
-                <div className="feature-image-badge">{feature.badge}</div>
-                <div className="feature-story-stat">
-                  <span>{feature.stat}</span>
-                </div>
-                <div className="feature-story-inset">
-                  <div className="feature-story-inset-media">
-                    <Image
-                      src={feature.inset.image}
-                      alt={feature.inset.title}
-                      fill
-                      sizes="96px"
-                      className="feature-story-inset-image"
-                    />
-                  </div>
-                  <div className="feature-story-inset-copy">
-                    <span>{feature.inset.title}</span>
-                    <strong>{feature.inset.note}</strong>
-                  </div>
-                </div>
-              </div>
-              <div className="feature-story-body">
-                <span className="eyebrow">0{i + 1}</span>
-                <h3>{feature.title}</h3>
-                <p>{feature.desc}</p>
-                <div className="feature-point-row">
-                  {feature.points.map((point) => (
-                    <span key={point} className="feature-point-pill">
-                      {point}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </article>
+            <div key={i} className="feature-card">
+              <div className="feature-icon">{feature.icon}</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.desc}</p>
+              <span className="feature-stat">{feature.stat}</span>
+            </div>
           ))}
         </div>
       </section>
-
-      <style jsx global>{`
-        .feature-story-stack {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: grid;
-          gap: 28px;
-        }
-
-        .feature-story-card {
-          display: grid;
-          grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
-          align-items: stretch;
-          position: relative;
-          overflow: hidden;
-          border-radius: 30px;
-          border: 1px solid rgba(15, 23, 42, 0.08);
-          background: #ffffff;
-          box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-        }
-
-        .feature-story-card.reverse {
-          grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-        }
-
-        .feature-story-card.reverse .feature-story-media {
-          order: 2;
-        }
-
-        .feature-story-card.reverse .feature-story-body {
-          order: 1;
-        }
-
-        .feature-story-media {
-          position: relative;
-          min-height: 460px;
-          overflow: hidden;
-          background: #cbd5e1;
-        }
-
-        .feature-story-image {
-          object-fit: cover;
-          object-position: center;
-        }
-
-        .feature-story-overlay {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.42) 100%);
-          z-index: 1;
-        }
-
-        .feature-image-badge,
-        .feature-story-stat,
-        .feature-story-inset {
-          position: relative;
-          z-index: 2;
-          backdrop-filter: blur(18px);
-        }
-
-        .feature-image-badge {
-          position: absolute;
-          top: 20px;
-          left: 20px;
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          padding: 10px 14px;
-          background: rgba(255, 255, 255, 0.85);
-          color: #0f172a;
-          font-size: 0.78rem;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .feature-story-stat {
-          position: absolute;
-          right: 20px;
-          bottom: 24px;
-          display: inline-flex;
-          align-items: center;
-          border-radius: 18px;
-          padding: 14px 16px;
-          background: rgba(255, 255, 255, 0.9);
-          color: #0f172a;
-          font-size: 0.95rem;
-          font-weight: 700;
-          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-          z-index: 2;
-        }
-
-        .feature-story-inset {
-          position: absolute;
-          left: 20px;
-          bottom: 24px;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          border-radius: 24px;
-          border: 1px solid rgba(255, 255, 255, 0.45);
-          background: rgba(255, 255, 255, 0.9);
-          box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
-          padding: 14px;
-          z-index: 2;
-          max-width: min(360px, calc(100% - 40px));
-        }
-
-        .feature-story-inset-media {
-          position: relative;
-          width: 76px;
-          height: 76px;
-          flex: 0 0 auto;
-          overflow: hidden;
-          border-radius: 20px;
-        }
-
-        .feature-story-inset-image {
-          object-fit: cover;
-          object-position: center;
-        }
-
-        .feature-story-inset-copy {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .feature-story-inset-copy span {
-          color: #fb923c;
-          font-size: 0.72rem;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .feature-story-inset-copy strong {
-          color: #0f172a;
-          font-size: 0.95rem;
-          line-height: 1.35;
-        }
-
-        .feature-story-body {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          gap: 18px;
-          padding: 40px;
-          background: linear-gradient(180deg, #ffffff 0%, #fffaf7 100%);
-        }
-
-        .feature-story-body .eyebrow {
-          width: fit-content;
-        }
-
-        .feature-story-body h3 {
-          font-size: 1.8rem;
-          line-height: 1.06;
-          color: #0f172a;
-        }
-
-        .feature-story-body p {
-          color: #64748b;
-          font-size: 1rem;
-          line-height: 1.7;
-        }
-
-        .feature-point-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-          margin-top: 4px;
-        }
-
-        .feature-point-pill {
-          display: flex;
-          align-items: center;
-          min-height: 58px;
-          border-radius: 18px;
-          border: 1px solid rgba(249, 115, 22, 0.16);
-          background: #fff7ed;
-          padding: 14px 16px;
-          color: #9a3412;
-          font-size: 0.92rem;
-          font-weight: 700;
-        }
-
-        @media (max-width: 900px) {
-          .feature-story-card,
-          .feature-story-card.reverse {
-            grid-template-columns: 1fr;
-          }
-
-          .feature-story-card.reverse .feature-story-media,
-          .feature-story-card.reverse .feature-story-body {
-            order: initial;
-          }
-
-          .feature-story-media {
-            min-height: 320px;
-          }
-
-          .feature-story-body {
-            padding: 28px;
-          }
-
-          .feature-point-row {
-            grid-template-columns: 1fr;
-          }
-
-          .feature-story-inset {
-            left: 16px;
-            right: 16px;
-            bottom: 16px;
-            max-width: none;
-          }
-
-          .feature-story-stat {
-            right: 16px;
-            bottom: 110px;
-          }
-        }
-      `}</style>
 
       {/* Tutors Showcase */}
       <section id="tutors" className="tutors-section">
