@@ -423,10 +423,12 @@ body {
   padding: 60px 40px;
 }
 
-.stat-box {
+.stats-strip .stat-box {
   text-align: center;
   padding: 0 20px;
   position: relative;
+  background: transparent !important;
+  border: none !important;
 }
 
 .stat-box:not(:last-child)::after {
@@ -446,20 +448,20 @@ body {
   font-weight: 800;
   line-height: 1;
   margin-bottom: 8px;
-  color: white;
+  color: white !important;
 }
 
-.stat-label {
+.stats-strip .stat-label {
   display: block;
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.9) !important;
   margin-bottom: 4px;
 }
 
 .stat-sub {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.6) !important;
 }
 
 /* ============================================
