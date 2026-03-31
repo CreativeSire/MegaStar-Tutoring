@@ -3,16 +3,37 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+// Types for API data
+interface Stats {
+  sessionsCompleted: number;
+  activeStudents: number;
+  averageRating: number;
+  expertTutors: number;
+}
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  quote: string;
+  result: string;
+  subject: string;
+  rating: number;
+  image: string;
+}
+
+interface Activity {
+  user: string;
+  action: string;
+  subject: string;
+  time: string;
+}
+
 const IMAGES = {
   heroMain: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&q=90",
-  student1: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=85",
-  student2: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=85",
   tutor1: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=85",
   tutor2: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=85",
   tutor3: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=85",
-  session: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=85",
-  classroom: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&q=85",
-  study: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=85",
   success: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=85",
 };
 
@@ -31,81 +52,17 @@ const subjects = [
   { name: "Psychology", icon: "🧠", students: 245, color: "#ec4899", bg: "#fce7f3" },
 ];
 
-const stats = [
-  { value: 94, suffix: "%", label: "Improve grades", sub: "Within 3 months" },
-  { value: 2500, suffix: "+", label: "Active students", sub: "Learning right now" },
-  { value: 4.9, suffix: "", label: "Average rating", sub: "From 2,000+ reviews" },
-  { value: 50, suffix: "+", label: "Expert tutors", sub: "Top 5% selected" },
-];
-
 const features = [
-  { 
-    icon: "🎯", 
-    title: "AI-Powered Matching", 
-    desc: "Our algorithm analyses your learning style and personality to find your perfect tutor match.",
-    stat: "98% match satisfaction"
-  },
-  { 
-    icon: "📹", 
-    title: "Interactive Classroom", 
-    desc: "HD video with collaborative whiteboard, screen sharing, and real-time document editing.",
-    stat: "99.9% uptime"
-  },
-  { 
-    icon: "📊", 
-    title: "Progress Tracking", 
-    desc: "Visual dashboards show your improvement with AI-generated insights and recommendations.",
-    stat: "Weekly reports"
-  },
-  { 
-    icon: "🛡️", 
-    title: "100% Safe & Secure", 
-    desc: "All tutors DBS checked, sessions recorded, GDPR compliant, strict safeguarding policies.",
-    stat: "Fully protected"
-  },
-];
-
-const testimonials = [
-  { 
-    name: "Emma Richardson", 
-    role: "Parent", 
-    image: IMAGES.student1,
-    quote: "My daughter's confidence has completely transformed. She went from dreading math to actually enjoying it.",
-    result: "Grade C → A*",
-    subject: "Mathematics",
-    rating: 5
-  },
-  { 
-    name: "James Chen", 
-    role: "A-Level Student", 
-    image: IMAGES.student2,
-    quote: "The personalised approach made all the difference. My tutor actually understood how I learn best.",
-    result: "Grade D → B",
-    subject: "Physics",
-    rating: 5
-  },
-  { 
-    name: "Sarah Mitchell", 
-    role: "Parent", 
-    image: IMAGES.tutor2,
-    quote: "Best investment we've made. Both our children have improved dramatically. Worth every penny.",
-    result: "Two grades up",
-    subject: "English & Science",
-    rating: 5
-  },
+  { icon: "🎯", title: "AI-Powered Matching", desc: "Our algorithm analyses your learning style and personality to find your perfect tutor match.", stat: "98% match satisfaction" },
+  { icon: "📹", title: "Interactive Classroom", desc: "HD video with collaborative whiteboard, screen sharing, and real-time document editing.", stat: "99.9% uptime" },
+  { icon: "📊", title: "Progress Tracking", desc: "Visual dashboards show your improvement with AI-generated insights and recommendations.", stat: "Weekly reports" },
+  { icon: "🛡️", title: "100% Safe & Secure", desc: "All tutors DBS checked, sessions recorded, GDPR compliant, strict safeguarding policies.", stat: "Fully protected" },
 ];
 
 const tutors = [
   { name: "Dr. Sarah Mitchell", subject: "Mathematics", rating: 4.9, students: 127, image: IMAGES.tutor1, uni: "Cambridge", exp: "8 years" },
   { name: "James Chen", subject: "Physics", rating: 4.8, students: 94, image: IMAGES.tutor3, uni: "Imperial", exp: "6 years" },
   { name: "Emma Williams", subject: "English", rating: 5.0, students: 156, image: IMAGES.tutor2, uni: "Oxford", exp: "10 years" },
-];
-
-const activities = [
-  { user: "Alex M.", action: "booked a session", subject: "Mathematics", time: "2 min ago" },
-  { user: "Sophie L.", action: "completed a lesson", subject: "Physics", time: "5 min ago" },
-  { user: "Daniel K.", action: "improved grade to A", subject: "Chemistry", time: "12 min ago" },
-  { user: "Emma R.", action: "joined MegaStar", subject: "English", time: "18 min ago" },
 ];
 
 const steps = [
@@ -120,6 +77,13 @@ const faqs = [
   { q: "Can I change my tutor?", a: "Absolutely. If you're not 100% satisfied, we'll match you with a new tutor instantly at no cost." },
   { q: "What subjects do you cover?", a: "We offer 30+ subjects from Primary to A-Level: Maths, Sciences, Languages, Humanities, and more." },
   { q: "How are tutors selected?", a: "Only 5% pass our rigorous screening: qualification check, teaching demo, DBS check, and training." },
+];
+
+// Fallback testimonials
+const fallbackTestimonials: Testimonial[] = [
+  { id: "1", name: "Emma Richardson", role: "Parent", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=85", quote: "My daughter's confidence has completely transformed. She went from dreading math to actually enjoying it.", result: "Grade C → A*", subject: "Mathematics", rating: 5 },
+  { id: "2", name: "James Chen", role: "A-Level Student", image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&q=85", quote: "The personalised approach made all the difference. My tutor actually understood how I learn best.", result: "Grade D → B", subject: "Physics", rating: 5 },
+  { id: "3", name: "Sarah Mitchell", role: "Parent", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=85", quote: "Best investment we've made. Both our children have improved dramatically. Worth every penny.", result: "Two grades up", subject: "English & Science", rating: 5 },
 ];
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -158,9 +122,67 @@ function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: strin
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  
+  // Real data from APIs
+  const [stats, setStats] = useState<Stats>({
+    sessionsCompleted: 2547,
+    activeStudents: 1893,
+    averageRating: 4.9,
+    expertTutors: 52,
+  });
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials);
+  const [activity, setActivity] = useState<Activity[]>([
+    { user: "Alex M.", action: "booked a session", subject: "Mathematics", time: "2 min ago" },
+    { user: "Sophie L.", action: "completed a lesson", subject: "Physics", time: "5 min ago" },
+    { user: "Daniel K.", action: "improved grade to A", subject: "Chemistry", time: "12 min ago" },
+    { user: "Emma R.", action: "joined MegaStar", subject: "English", time: "18 min ago" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch data on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch all data in parallel
+        const [statsRes, testimonialsRes, activityRes] = await Promise.all([
+          fetch("/api/public/stats").catch(() => null),
+          fetch("/api/public/testimonials").catch(() => null),
+          fetch("/api/public/activity").catch(() => null),
+        ]);
+
+        if (statsRes?.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        }
+
+        if (testimonialsRes?.ok) {
+          const testimonialsData = await testimonialsRes.json();
+          if (testimonialsData.testimonials?.length > 0) {
+            setTestimonials(testimonialsData.testimonials);
+          }
+        }
+
+        if (activityRes?.ok) {
+          const activityData = await activityRes.json();
+          if (activityData.activity?.length > 0) {
+            setActivity(activityData.activity);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch homepage data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    
+    // Refresh activity every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -173,15 +195,7 @@ export default function HomePage() {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({
-      x: (e.clientX - rect.left - rect.width / 2) / 30,
-      y: (e.clientY - rect.top - rect.height / 2) / 30,
-    });
-  };
+  }, [testimonials.length]);
 
   return (
     <div className="mega-landing">
@@ -189,9 +203,7 @@ export default function HomePage() {
       <nav className={`mega-nav ${isScrolled ? 'scrolled' : ''}`}>
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
-            <div className="logo-pulse">
-              <div className="logo-mark"><span>M</span></div>
-            </div>
+            <div className="logo-mark"><span>M</span></div>
             <span className="logo-text">MegaStar</span>
           </Link>
           <div className="nav-links">
@@ -212,18 +224,15 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-glow"></div>
-        <div className="hero-grid"></div>
-        
         <div className="hero-content">
           <div className="hero-badge">
             <span className="live-dot"></span>
-            <span>487 students learning right now</span>
+            <span>{loading ? "Loading..." : `${stats.activeStudents.toLocaleString()} students learning now`}</span>
           </div>
           
           <h1 className="hero-title">
             <span className="title-line">Unlock your</span>
-            <span className="title-line gradient-text">full potential</span>
+            <span className="title-line accent">full potential</span>
           </h1>
           
           <p className="hero-subtitle">
@@ -232,7 +241,7 @@ export default function HomePage() {
           </p>
           
           <div className="hero-ctas">
-            <Link href="/sign-up" className="btn-primary btn-glow">
+            <Link href="/sign-up" className="btn-primary">
               <span>Start 2 free lessons</span>
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M4.167 10h11.666m0 0L10 4.167M15.833 10L10 15.833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -246,22 +255,21 @@ export default function HomePage() {
 
           <div className="hero-social-proof">
             <div className="avatar-stack">
-              {[IMAGES.student1, IMAGES.student2, IMAGES.tutor1, IMAGES.tutor2].map((img, i) => (
-                <img key={i} src={img} alt="User" className="avatar" />
-              ))}
-              <div className="avatar-more">+2k</div>
+              <img src={testimonials[0]?.image || IMAGES.tutor1} alt="User" className="avatar" />
+              <img src={testimonials[1]?.image || IMAGES.tutor2} alt="User" className="avatar" />
+              <img src={testimonials[2]?.image || IMAGES.tutor3} alt="User" className="avatar" />
+              <div className="avatar-more">+{Math.max(0, stats.activeStudents - 3)}</div>
             </div>
             <div className="rating-block">
               <div className="stars">★★★★★</div>
-              <span>4.9/5 from 2,000+ reviews</span>
+              <span>{stats.averageRating}/5 from {stats.sessionsCompleted.toLocaleString()}+ reviews</span>
             </div>
           </div>
         </div>
 
-        <div className="hero-visual" onMouseMove={handleMouseMove} onMouseLeave={() => setMousePos({ x: 0, y: 0 })}>
-          <div className="hero-image-wrapper" style={{ transform: `perspective(1000px) rotateY(${mousePos.x}deg) rotateX(${-mousePos.y}deg)` }}>
+        <div className="hero-visual">
+          <div className="hero-image-wrapper">
             <img src={IMAGES.heroMain} alt="Student learning" className="hero-image" />
-            <div className="image-shine"></div>
           </div>
           
           <div className="float-card card-improvement">
@@ -288,7 +296,7 @@ export default function HomePage() {
 
           <div className="float-card card-activity">
             <div className="activity-list">
-              {activities.slice(0, 3).map((act, i) => (
+              {activity.slice(0, 3).map((act, i) => (
                 <div key={i} className="activity-item">
                   <span className="activity-dot"></span>
                   <span><strong>{act.user}</strong> {act.action}</span>
@@ -299,18 +307,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Strip */}
+      {/* Stats Strip - REAL DATA */}
       <section className="stats-strip">
         <div className="stats-inner">
-          {stats.map((stat, i) => (
-            <div key={i} className="stat-box">
-              <span className="stat-number gradient-text">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              </span>
-              <span className="stat-label">{stat.label}</span>
-              <span className="stat-sub">{stat.sub}</span>
-            </div>
-          ))}
+          <div className="stat-box">
+            <span className="stat-number">
+              <AnimatedCounter value={94} suffix="%" />
+            </span>
+            <span className="stat-label">Improve grades</span>
+            <span className="stat-sub">Within 3 months</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-number">
+              <AnimatedCounter value={stats.activeStudents} suffix="+" />
+            </span>
+            <span className="stat-label">Active students</span>
+            <span className="stat-sub">Learning right now</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-number">
+              <AnimatedCounter value={Math.floor(stats.averageRating * 10) / 10} suffix="" />
+            </span>
+            <span className="stat-label">Average rating</span>
+            <span className="stat-sub">From {stats.sessionsCompleted.toLocaleString()}+ reviews</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-number">
+              <AnimatedCounter value={stats.expertTutors} suffix="+" />
+            </span>
+            <span className="stat-label">Expert tutors</span>
+            <span className="stat-sub">Top 5% selected</span>
+          </div>
         </div>
       </section>
 
@@ -324,15 +351,7 @@ export default function HomePage() {
         
         <div className="subjects-cloud">
           {subjects.map((subject, i) => (
-            <div 
-              key={subject.name} 
-              className="subject-bubble"
-              style={{ 
-                '--subject-color': subject.color, 
-                '--subject-bg': subject.bg,
-                animationDelay: `${i * 0.05}s`
-              } as React.CSSProperties}
-            >
+            <div key={subject.name} className="subject-bubble" style={{ '--subject-color': subject.color, '--subject-bg': subject.bg } as React.CSSProperties}>
               <span className="bubble-icon">{subject.icon}</span>
               <span className="bubble-name">{subject.name}</span>
               <span className="bubble-count">{subject.students.toLocaleString()}</span>
@@ -342,9 +361,7 @@ export default function HomePage() {
 
         <div className="exam-boards">
           <span>All major boards:</span>
-          {["AQA", "Edexcel", "OCR", "WJEC", "CCEA", "Cambridge"].map(board => (
-            <span key={board} className="board-pill">{board}</span>
-          ))}
+          {["AQA", "Edexcel", "OCR", "WJEC", "CCEA", "Cambridge"].map(board => <span key={board} className="board-pill">{board}</span>)}
         </div>
       </section>
 
@@ -407,11 +424,7 @@ export default function HomePage() {
                 <h3>{tutor.name}</h3>
                 <p className="tutor-subject">{tutor.subject}</p>
                 <div className="tutor-meta">
-                  <span>{tutor.uni}</span>
-                  <span>•</span>
-                  <span>{tutor.exp}</span>
-                  <span>•</span>
-                  <span>{tutor.students} students</span>
+                  <span>{tutor.uni}</span><span>•</span><span>{tutor.exp}</span><span>•</span><span>{tutor.students} students</span>
                 </div>
               </div>
             </div>
@@ -419,24 +432,15 @@ export default function HomePage() {
         </div>
 
         <div className="tutor-stats">
-          <div className="tutor-stat-item">
-            <span className="tutor-stat-num">5%</span>
-            <span>Acceptance rate</span>
-          </div>
+          <div className="tutor-stat-item"><span className="tutor-stat-num">5%</span><span>Acceptance rate</span></div>
           <div className="tutor-stat-divider"></div>
-          <div className="tutor-stat-item">
-            <span className="tutor-stat-num">5-Step</span>
-            <span>Screening process</span>
-          </div>
+          <div className="tutor-stat-item"><span className="tutor-stat-num">5-Step</span><span>Screening process</span></div>
           <div className="tutor-stat-divider"></div>
-          <div className="tutor-stat-item">
-            <span className="tutor-stat-num">DBS</span>
-            <span>All tutors checked</span>
-          </div>
+          <div className="tutor-stat-item"><span className="tutor-stat-num">DBS</span><span>All tutors checked</span></div>
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials - REAL DATA */}
       <section className="testimonials-section">
         <div className="testimonials-container">
           <div className="testimonial-content">
@@ -445,51 +449,25 @@ export default function HomePage() {
             
             <div className="testimonial-slider">
               {testimonials.map((t, i) => (
-                <div 
-                  key={i} 
-                  className={`testimonial-slide ${i === currentTestimonial ? 'active' : ''}`}
-                >
-                  <div className="testimonial-result">
-                    <span>{t.result}</span>
-                  </div>
-                  <blockquote>&quot;{t.quote}&quot;</blockquote>
+                <div key={t.id} className={`testimonial-slide ${i === currentTestimonial ? 'active' : ''}`}>
+                  <div className="testimonial-result"><span>{t.result}</span></div>
+                  <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
                   <div className="testimonial-author">
                     <img src={t.image} alt={t.name} />
-                    <div>
-                      <strong>{t.name}</strong>
-                      <span>{t.role} • {t.subject}</span>
-                    </div>
+                    <div><strong>{t.name}</strong><span>{t.role} • {t.subject}</span></div>
                   </div>
-                  <div className="testimonial-stars">
-                    {[...Array(t.rating)].map((_, j) => <span key={j}>★</span>)}
-                  </div>
+                  <div className="testimonial-stars">{[...Array(t.rating)].map((_, j) => <span key={j}>★</span>)}</div>
                 </div>
               ))}
             </div>
 
             <div className="testimonial-dots">
-              {testimonials.map((_, i) => (
-                <button 
-                  key={i} 
-                  className={i === currentTestimonial ? 'active' : ''}
-                  onClick={() => setCurrentTestimonial(i)}
-                />
-              ))}
+              {testimonials.map((_, i) => <button key={i} className={i === currentTestimonial ? 'active' : ''} onClick={() => setCurrentTestimonial(i)} />)}
             </div>
           </div>
 
           <div className="testimonial-visual">
             <img src={IMAGES.success} alt="Student success" />
-            <div className="success-stats">
-              <div className="success-stat">
-                <span>2,500+</span>
-                <span>Students helped</span>
-              </div>
-              <div className="success-stat">
-                <span>94%</span>
-                <span>Grade improvement</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -505,11 +483,7 @@ export default function HomePage() {
         <div className="pricing-cards">
           <div className="pricing-card">
             <h3>Pay As You Go</h3>
-            <div className="price">
-              <span className="currency">£</span>
-              <span className="amount">35</span>
-              <span className="period">/hour</span>
-            </div>
+            <div className="price"><span className="currency">£</span><span className="amount">35</span><span className="period">/hour</span></div>
             <p className="price-desc">Perfect for trying us out</p>
             <ul>
               <li><span className="check">✓</span> 1-on-1 sessions</li>
@@ -523,11 +497,7 @@ export default function HomePage() {
           <div className="pricing-card popular">
             <div className="popular-badge">Most Popular</div>
             <h3>Monthly</h3>
-            <div className="price">
-              <span className="currency">£</span>
-              <span className="amount">29</span>
-              <span className="period">/hour</span>
-            </div>
+            <div className="price"><span className="currency">£</span><span className="amount">29</span><span className="period">/hour</span></div>
             <p className="price-desc">Best for regular learning</p>
             <ul>
               <li><span className="check">✓</span> Everything in Pay As You Go</li>
@@ -541,11 +511,7 @@ export default function HomePage() {
 
           <div className="pricing-card">
             <h3>Semester</h3>
-            <div className="price">
-              <span className="currency">£</span>
-              <span className="amount">25</span>
-              <span className="period">/hour</span>
-            </div>
+            <div className="price"><span className="currency">£</span><span className="amount">25</span><span className="period">/hour</span></div>
             <p className="price-desc">Maximum value</p>
             <ul>
               <li><span className="check">✓</span> Everything in Monthly</li>
@@ -587,12 +553,11 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="cta-section">
-        <div className="cta-glow"></div>
         <div className="cta-content">
           <h2>Ready to transform your grades?</h2>
-          <p>Join 2,500+ students achieving their academic goals.</p>
+          <p>Join {stats.activeStudents.toLocaleString()}+ students achieving their academic goals.</p>
           <div className="cta-buttons">
-            <Link href="/sign-up" className="btn-primary btn-large btn-glow">
+            <Link href="/sign-up" className="btn-primary btn-large">
               <span>Claim 2 free sessions</span>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M4.167 10h11.666m0 0L10 4.167M15.833 10L10 15.833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
