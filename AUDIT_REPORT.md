@@ -55,6 +55,15 @@ Verified in Chromium with fake media devices and two tabs:
 ### Security negative test
 - Cross-origin archive POST returned `403 Forbidden`.
 
+### Schedule and reschedule smoke
+Verified against the local dev server with the tutor workspace actor:
+- `GET /api/clients` returned `200` and exposed the seeded client list.
+- `POST /api/schedule-requests` returned `201` and created a pending change request.
+- `PATCH /api/schedule-requests/[requestId]` returned `200` and marked the request `accepted`.
+- The accepted request showed `accepted` and `Linked` on the calendar surface after refresh.
+- `GET /api/sessions` showed the linked lesson session created by the accept flow.
+- The identity bridge now carries the local test actor consistently through middleware, page renders, and API routes.
+
 ## Notes
 - The reconnect and resume controls are implemented and code-reviewed.
 - In the headless smoke run, the student tab did not surface the visible reconnect banner because the LiveKit connection stayed stable enough to avoid a hard disconnect.
@@ -67,3 +76,4 @@ Verified in Chromium with fake media devices and two tabs:
 - The classroom path now has the core live-session lifecycle, archive handoff, and library persistence in place.
 - The archive banner visibility issue is fixed.
 - The archive save path and same-origin protection are both verified.
+- The schedule/reschedule path now resolves the same local test actor across pages and API routes, so accept/decline actions persist cleanly.

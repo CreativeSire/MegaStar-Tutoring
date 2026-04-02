@@ -1,35 +1,9 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isClerkConfigured } from "@/lib/clerk-config";
-import { createScheduleRequest, findWorkspaceProfileByClerkUserId, listScheduleRequests } from "@/lib/repository";
+import { createScheduleRequest, listScheduleRequests } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
 import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
-import { canAccessWorkspace } from "@/lib/roles";
-
-async function requireWorkspaceActor() {
-  if (!isClerkConfigured()) {
-    return null;
-  }
-
-  const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-
-  const profile = await findWorkspaceProfileByClerkUserId(userId);
-  if (!profile || !canAccessWorkspace(profile.role)) {
-    return null;
-  }
-
-  return {
-    clerkUserId: userId,
-    profileId: profile.id,
-    role: profile.role,
-    email: profile.email,
-    displayName: profile.displayName,
-  };
-}
+import { requireApiActor } from "@/lib/api-actor";
 
 const scheduleRequestSchema = z.object({
   clientId: z.string().trim().min(1).nullable().optional().transform((value) => value || null),
@@ -40,7 +14,7 @@ const scheduleRequestSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const actor = await requireWorkspaceActor();
+  const actor = await requireApiActor(request, "workspace");
   if (!actor) {
     return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }
@@ -67,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const actor = await requireWorkspaceActor();
+  const actor = await requireApiActor(request, "workspace");
   if (!actor) {
     return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }

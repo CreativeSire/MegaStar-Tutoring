@@ -1,43 +1,18 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isClerkConfigured } from "@/lib/clerk-config";
-import { findWorkspaceProfileByClerkUserId, listWorkspaceProfiles, setWorkspaceProfileRole } from "@/lib/repository";
+import { listWorkspaceProfiles, setWorkspaceProfileRole } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
 import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
-import { canAccessWorkspace, normalizeAppRole } from "@/lib/roles";
+import { normalizeAppRole } from "@/lib/roles";
+import { requireApiActor } from "@/lib/api-actor";
 
 const roleUpdateSchema = z.object({
   clerkUserId: z.string().trim().min(1).max(120),
   role: z.enum(["tutor", "client", "admin"]),
 });
 
-async function requireAdminActor() {
-  if (!isClerkConfigured()) {
-    return null;
-  }
-
-  const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-
-  const profile = await findWorkspaceProfileByClerkUserId(userId);
-  if (!profile || !canAccessWorkspace(profile.role) || profile.role !== "admin") {
-    return null;
-  }
-
-  return {
-    clerkUserId: userId,
-    profileId: profile.id,
-    role: profile.role,
-    email: profile.email,
-    displayName: profile.displayName,
-  };
-}
-
 export async function GET(request: Request) {
-  const actor = await requireAdminActor();
+  const actor = await requireApiActor(request, "admin");
   if (!actor) {
     return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }
@@ -58,7 +33,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const actor = await requireAdminActor();
+  const actor = await requireApiActor(request, "admin");
   if (!actor) {
     return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }

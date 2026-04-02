@@ -1,63 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isClerkConfigured } from "@/lib/clerk-config";
-import { LOCAL_TEST_AUTH_COOKIE, getLocalTestActorSeed } from "@/lib/local-test-auth";
 import {
   createLessonArchive,
-  findWorkspaceProfileByClerkUserId,
   listLessonArchives,
   listSessions,
   updateSession,
+  findWorkspaceProfileByClerkUserId,
 } from "@/lib/repository";
 import { assertSameOrigin, readJsonBody } from "@/lib/request-security";
 import { enforceRateLimit, recordAuditEvent, RateLimitError } from "@/lib/security-controls";
-import { canAccessWorkspace } from "@/lib/roles";
-import { getWorkspaceProfile } from "@/lib/repository";
-
-async function requireWorkspaceActor(request: Request) {
-  if (process.env.NODE_ENV !== "production") {
-    const url = new URL(request.url);
-    const testActor = url.searchParams.get("testActor");
-    const cookieHeader = request.headers.get("cookie");
-    const match = cookieHeader?.match(new RegExp(`${LOCAL_TEST_AUTH_COOKIE}=([^;]+)`));
-    const seed = getLocalTestActorSeed(testActor || (match ? decodeURIComponent(match[1]) : null));
-    if (seed) {
-      const profile = await getWorkspaceProfile(seed);
-      if (canAccessWorkspace(profile.role)) {
-        return {
-          clerkUserId: seed.clerkUserId,
-          profileId: profile.id,
-          role: profile.role,
-          email: profile.email,
-          displayName: profile.displayName,
-        };
-      }
-    }
-  }
-
-  if (!isClerkConfigured()) {
-    return null;
-  }
-
-  const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-
-  const profile = await findWorkspaceProfileByClerkUserId(userId);
-  if (!profile || !canAccessWorkspace(profile.role)) {
-    return null;
-  }
-
-  return {
-    clerkUserId: userId,
-    profileId: profile.id,
-    role: profile.role,
-    email: profile.email,
-    displayName: profile.displayName,
-  };
-}
+import { requireApiActor } from "@/lib/api-actor";
 
 const sessionUpdateSchema = z.object({
   status: z.enum(["planned", "completed", "missed", "rescheduled", "partial"]),
@@ -71,7 +23,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ sessi
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const actor = await requireWorkspaceActor(request);
+  const actor = await requireApiActor(request, "workspace");
   if (!actor) {
     return NextResponse.json({ error: "Auth is not configured." }, { status: 503 });
   }

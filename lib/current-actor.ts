@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { isClerkConfigured } from "@/lib/clerk-config";
 import { LOCAL_TEST_AUTH_COOKIE, getLocalTestActorSeed } from "@/lib/local-test-auth";
@@ -32,8 +32,9 @@ async function resolveLocalTestActor(): Promise<Actor | null> {
     return null;
   }
 
+  const headerStore = await headers();
   const cookieStore = await cookies();
-  const testEmail = cookieStore.get(LOCAL_TEST_AUTH_COOKIE)?.value || null;
+  const testEmail = headerStore.get("x-megastar-test-actor") || cookieStore.get(LOCAL_TEST_AUTH_COOKIE)?.value || null;
   const seed = getLocalTestActorSeed(testEmail);
   if (!seed) {
     return null;

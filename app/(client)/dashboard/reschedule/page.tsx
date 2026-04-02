@@ -5,6 +5,19 @@ import { formatShortDateTime } from "@/lib/format";
 import { getWorkspaceOverview } from "@/lib/repository";
 import { requireClientActor } from "@/lib/current-actor";
 
+function getRequestTone(status: string) {
+  if (status === "pending") {
+    return "warning";
+  }
+  if (status === "accepted") {
+    return "success";
+  }
+  if (status === "declined") {
+    return "neutral";
+  }
+  return "neutral";
+}
+
 function toLocalDatetimeInput(value: Date) {
   const timezoneOffset = value.getTimezoneOffset() * 60_000;
   return new Date(value.getTime() - timezoneOffset).toISOString().slice(0, 16);
@@ -49,6 +62,25 @@ export default async function ClientReschedulePage() {
         <span className="pill neutral">Quick to review</span>
       </PageIntro>
 
+      <section className="workspace-grid cols-4">
+        <article className="panel">
+          <div className="stat-value">{overview.scheduleRequests.length}</div>
+          <div className="stat-label">Requests sent</div>
+        </article>
+        <article className="panel">
+          <div className="stat-value">{overview.scheduleRequests.filter((request) => request.status === "pending").length}</div>
+          <div className="stat-label">Waiting on tutor</div>
+        </article>
+        <article className="panel">
+          <div className="stat-value">{overview.scheduleRequests.filter((request) => request.status === "accepted").length}</div>
+          <div className="stat-label">Already approved</div>
+        </article>
+        <article className="panel">
+          <div className="stat-value">{overview.upcomingSessions.length ? formatShortDateTime(overview.upcomingSessions[0].startsAt, market) : "Ready"}</div>
+          <div className="stat-label">Next lesson</div>
+        </article>
+      </section>
+
       <section className="workspace-grid cols-2">
         <ScheduleRequestForm
           clients={overview.clients.map((client) => ({
@@ -63,8 +95,8 @@ export default async function ClientReschedulePage() {
         <article className="panel">
           <div className="section-head compact">
             <div>
-              <h2>Requests waiting</h2>
-              <p>Every change request in one calm list.</p>
+              <h2>Request history</h2>
+              <p>Every change request in one calm list, with status at a glance.</p>
             </div>
           </div>
 
@@ -74,12 +106,18 @@ export default async function ClientReschedulePage() {
                 const client = overview.clients.find((item) => item.id === request.clientId);
                 return (
                   <div key={request.id} className="list-card">
+                    <div className="classroom-room-status" style={{ marginBottom: 10 }}>
+                      <span className={`room-status-chip ${request.status === "pending" ? "room-status-chip-live room-status-chip-pulse" : request.status === "accepted" ? "room-status-chip-saved" : "room-status-chip-sync"}`}>
+                        {request.status}
+                      </span>
+                      <span className="room-status-chip room-status-chip-present">{request.linkedSessionId ? "Linked session" : "Awaiting review"}</span>
+                    </div>
                     <strong>{request.lessonTitle}</strong>
                     <span>{client?.name || "Unassigned student"}</span>
                     <span>{formatShortDateTime(request.requestedStartsAt, market)}</span>
                     <span>{request.reason}</span>
                     <span>{request.details || "No extra note added."}</span>
-                    <span className={`pill ${request.status === "pending" ? "warning" : request.status === "accepted" ? "success" : "neutral"}`}>
+                    <span className={`pill ${getRequestTone(request.status)}`}>
                       {request.status}
                     </span>
                   </div>

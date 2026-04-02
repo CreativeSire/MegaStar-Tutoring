@@ -14,8 +14,22 @@ const middleware = clerkMiddleware(async (auth, request) => {
   if (process.env.NODE_ENV !== "production") {
     const localTestActor = request.cookies.get(LOCAL_TEST_AUTH_COOKIE)?.value;
     const testActorQuery = request.nextUrl.searchParams.get("testActor");
-    if (localTestActor || testActorQuery) {
-      return NextResponse.next();
+    const testActor = localTestActor || testActorQuery;
+    if (testActor) {
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set("x-megastar-test-actor", testActor);
+
+      const response = NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+      response.cookies.set(LOCAL_TEST_AUTH_COOKIE, testActor, {
+        httpOnly: false,
+        sameSite: "lax",
+        path: "/",
+      });
+      return response;
     }
   }
 
