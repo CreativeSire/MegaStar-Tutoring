@@ -35,6 +35,11 @@
 - The workspace supports UK, Nigeria, Germany, Spain, and Mauritius profiles.
 - Premium styling was tightened on room badges, archive banners, and the join shell.
 
+### Public-facing polish
+- Added a dedicated `/pricing` page with premium plan cards and clear CTA paths.
+- Added `/auth/sign-in` and `/auth/sign-up` aliases so the blueprint routes exist alongside the Clerk-backed auth flow.
+- Fixed the marketing layout so public pages no longer nest extra `<html>` or `<body>` tags, removing the hydration mismatch seen in browser smoke.
+
 ## Verification Performed
 
 ### Build and lint
@@ -77,3 +82,4 @@ Verified against the local dev server with the tutor workspace actor:
 - The archive banner visibility issue is fixed.
 - The archive save path and same-origin protection are both verified.
 - The schedule/reschedule path now resolves the same local test actor across pages and API routes, so accept/decline actions persist cleanly.
+- The public marketing surface now matches the blueprint routes and renders without hydration warnings in browser smoke.

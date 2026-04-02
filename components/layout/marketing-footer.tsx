@@ -9,7 +9,7 @@ const footerLinks = {
       { label: "Subjects", href: "/#subjects" },
       { label: "How it works", href: "/#how-it-works" },
       { label: "Tutors", href: "/tutors" },
-      { label: "Students", href: "/sign-up" },
+      { label: "Students", href: "/auth/sign-up" },
     ],
   },
   company: {
@@ -18,7 +18,7 @@ const footerLinks = {
       { label: "About us", href: "/about" },
       { label: "Contact", href: "/contact" },
       { label: "Careers", href: "/tutors" },
-      { label: "Pricing", href: "/#pricing" },
+      { label: "Pricing", href: "/pricing" },
     ],
   },
   support: {
@@ -50,7 +50,7 @@ export function MarketingFooter() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild className="rounded-full bg-white text-navy hover:bg-navy-50">
-                  <Link href="/sign-up">Book free session</Link>
+                  <Link href="/auth/sign-up">Book free session</Link>
                 </Button>
                 <Button asChild variant="outline" className="rounded-full border-white/25 bg-transparent text-white hover:bg-white/10">
                   <Link href="/contact">Talk to us</Link>

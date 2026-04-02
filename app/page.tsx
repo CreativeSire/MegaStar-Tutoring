@@ -212,8 +212,8 @@ export default function HomePage() {
             <Link href="#how-it-works" className="nav-link">How it Works</Link>
             <Link href="#tutors" className="nav-link">Tutors</Link>
             <Link href="#pricing" className="nav-link">Pricing</Link>
-            <Link href="/sign-in" className="nav-link">Sign in</Link>
-            <Link href="/sign-up" className="nav-cta">
+            <Link href="/auth/sign-in" className="nav-link">Sign in</Link>
+            <Link href="/auth/sign-up" className="nav-cta">
               <span>Start free trial</span>
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                 <path d="M4.167 10h11.666m0 0L10 4.167M15.833 10L10 15.833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -242,7 +242,7 @@ export default function HomePage() {
           </p>
           
           <div className="hero-ctas">
-            <Link href="/sign-up" className="btn-primary">
+            <Link href="/auth/sign-up" className="btn-primary">
               <span>Start 2 free lessons</span>
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M4.167 10h11.666m0 0L10 4.167M15.833 10L10 15.833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -516,7 +516,7 @@ export default function HomePage() {
               <li><span className="check">✓</span> Session recordings</li>
               <li><span className="check">✓</span> Email support</li>
             </ul>
-            <Link href="/sign-up" className="btn-outline">Get started</Link>
+            <Link href="/auth/sign-up" className="btn-outline">Get started</Link>
           </div>
 
           <div className="pricing-card popular">
@@ -531,7 +531,7 @@ export default function HomePage() {
               <li><span className="check">✓</span> 24/7 chat support</li>
               <li><span className="check">✓</span> Parent dashboard</li>
             </ul>
-            <Link href="/sign-up" className="btn-primary">Start free trial</Link>
+            <Link href="/auth/sign-up" className="btn-primary">Start free trial</Link>
           </div>
 
           <div className="pricing-card">
@@ -545,7 +545,7 @@ export default function HomePage() {
               <li><span className="check">✓</span> Weekly parent calls</li>
               <li><span className="check">✓</span> Grade guarantee</li>
             </ul>
-            <Link href="/sign-up" className="btn-outline">Get started</Link>
+            <Link href="/auth/sign-up" className="btn-outline">Get started</Link>
           </div>
         </div>
 
@@ -582,7 +582,7 @@ export default function HomePage() {
           <h2>Ready to transform your grades?</h2>
           <p>Join {stats.activeStudents.toLocaleString()}+ students achieving their academic goals.</p>
           <div className="cta-buttons">
-            <Link href="/sign-up" className="btn-primary btn-large">
+            <Link href="/auth/sign-up" className="btn-primary btn-large">
               <span>Claim 2 free sessions</span>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M4.167 10h11.666m0 0L10 4.167M15.833 10L10 15.833" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -643,7 +643,7 @@ export default function HomePage() {
             <div className="footer-col footer-cta">
               <h4>Start simple</h4>
               <p>See the full experience and begin with a free first step.</p>
-              <Link href="/sign-up" className="btn-coral footer-button">Start free trial</Link>
+              <Link href="/auth/sign-up" className="btn-coral footer-button">Start free trial</Link>
             </div>
           </div>
         </div>

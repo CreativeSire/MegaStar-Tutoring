@@ -8,7 +8,7 @@ import { Menu, X } from "lucide-react";
 const navLinks = [
   { href: "/#subjects", label: "Subjects" },
   { href: "/#how-it-works", label: "How it Works" },
-  { href: "/#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/tutors", label: "Tutors" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -59,13 +59,13 @@ export function MarketingHeader() {
           {/* Desktop CTA */}
           <div className="hidden items-center gap-4 md:flex">
             <Link
-              href="/sign-in"
+              href="/auth/sign-in"
               className="text-sm font-semibold text-navy-600 transition-colors hover:text-navy"
             >
               Sign in
             </Link>
             <Button asChild className="rounded-full px-5">
-              <Link href="/sign-up">Book free session</Link>
+              <Link href="/auth/sign-up">Book free session</Link>
             </Button>
           </div>
 
@@ -95,14 +95,14 @@ export function MarketingHeader() {
               ))}
               <hr className="my-2 border-navy-100" />
               <Link
-                href="/sign-in"
+                href="/auth/sign-in"
                 className="text-lg font-medium text-navy-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sign in
               </Link>
               <Button asChild className="w-full">
-                <Link href="/sign-up">Book free session</Link>
+                <Link href="/auth/sign-up">Book free session</Link>
               </Button>
             </div>
           </div>

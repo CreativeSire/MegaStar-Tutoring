@@ -1,17 +1,17 @@
-import { SignUp } from "@clerk/nextjs";
-import { isClerkConfigured } from "@/lib/clerk-config";
+import { SignIn } from "@clerk/nextjs";
 import { AuthGate } from "@/components/auth-gate";
+import { isClerkConfigured } from "@/lib/clerk-config";
 
-export default function SignUpPage() {
+export default function AuthSignInPage() {
   if (!isClerkConfigured()) {
     return (
       <AuthGate
-        eyebrow="Create account"
+        eyebrow="Sign in"
         title="Auth is waiting for Clerk keys."
         description={
           <>
-            New users can sign up once Clerk is connected in Vercel. For now, the site stays open so we can keep
-            testing the rest of the product safely.
+            The blueprint includes a dedicated <code>/auth/sign-in</code> route, and the app is ready to use it once
+            Clerk is wired in Vercel.
           </>
         }
         noteTitle="Need to finish setup?"
@@ -24,5 +24,5 @@ export default function SignUpPage() {
     );
   }
 
-  return <SignUp />;
+  return <SignIn />;
 }
