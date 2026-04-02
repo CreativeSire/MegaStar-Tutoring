@@ -6,6 +6,7 @@ export const roleEnum = pgEnum("role", ["tutor", "client", "admin"]);
 export const sessionStatusEnum = pgEnum("session_status", ["planned", "completed", "missed", "rescheduled", "partial"]);
 export const sessionSourceEnum = pgEnum("session_source", ["manual", "google"]);
 export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "paid"]);
+export const scheduleRequestStatusEnum = pgEnum("schedule_request_status", ["pending", "accepted", "declined", "planned"]);
 
 export const userProfiles = pgTable("user_profiles", {
   id: text("id").primaryKey().$defaultFn(() => randomUUID()),
@@ -57,6 +58,7 @@ export const ratings = pgTable("ratings", {
     .notNull()
     .references(() => userProfiles.id, { onDelete: "cascade" }),
   clientId: text("client_id").references(() => clients.id, { onDelete: "set null" }),
+  sessionId: text("session_id").references(() => sessions.id, { onDelete: "set null" }),
   score: integer("score").notNull(),
   category: text("category").notNull().default("overall"),
   comment: text("comment").notNull().default(""),
@@ -85,6 +87,50 @@ export const invoices = pgTable("invoices", {
   totalCents: integer("total_cents").notNull().default(0),
   status: invoiceStatusEnum("status").notNull().default("draft"),
   fileName: text("file_name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const workspacePreferences = pgTable("workspace_preferences", {
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  ownerUserId: text("owner_user_id")
+    .notNull()
+    .references(() => userProfiles.id, { onDelete: "cascade" }),
+  market: text("market").notNull().default("uk"),
+  preferredDays: text("preferred_days").notNull().default(""),
+  lessonLengthMinutes: integer("lesson_length_minutes").notNull().default(60),
+  primaryGoal: text("primary_goal").notNull().default(""),
+  onboardingCompletedAt: timestamp("onboarding_completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const lessonArchives = pgTable("lesson_archives", {
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  ownerUserId: text("owner_user_id")
+    .notNull()
+    .references(() => userProfiles.id, { onDelete: "cascade" }),
+  sessionId: text("session_id").references(() => sessions.id, { onDelete: "set null" }),
+  clientId: text("client_id").references(() => clients.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  summary: text("summary").notNull().default(""),
+  boardLabel: text("board_label").notNull().default(""),
+  snapshotJson: text("snapshot_json").notNull().default("[]"),
+  fileName: text("file_name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const scheduleRequests = pgTable("schedule_requests", {
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  ownerUserId: text("owner_user_id")
+    .notNull()
+    .references(() => userProfiles.id, { onDelete: "cascade" }),
+  clientId: text("client_id").references(() => clients.id, { onDelete: "set null" }),
+  linkedSessionId: text("linked_session_id").references(() => sessions.id, { onDelete: "set null" }),
+  lessonTitle: text("lesson_title").notNull(),
+  requestedStartsAt: timestamp("requested_starts_at", { withTimezone: true }).notNull(),
+  reason: text("reason").notNull(),
+  details: text("details").notNull().default(""),
+  status: scheduleRequestStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -133,6 +179,9 @@ export const userProfilesRelations = relations(userProfiles, ({ many }) => ({
   ratings: many(ratings),
   calendarSyncs: many(calendarSyncs),
   invoices: many(invoices),
+  lessonArchives: many(lessonArchives),
+  workspacePreferences: many(workspacePreferences),
+  scheduleRequests: many(scheduleRequests),
   auditEvents: many(auditEvents),
   rateLimitWindows: many(rateLimitWindows),
 }));

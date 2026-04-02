@@ -33,6 +33,7 @@ async function requireWorkspaceActor() {
 
 const ratingSchema = z.object({
   clientId: z.string().trim().min(1).nullable().optional().transform((value) => value || null),
+  sessionId: z.string().trim().min(1).nullable().optional().transform((value) => value || null),
   score: z.coerce.number().int().min(1).max(5),
   category: z.string().trim().min(1).max(60),
   comment: z.string().trim().max(2000).default(""),

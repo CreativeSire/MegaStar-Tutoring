@@ -1,14 +1,40 @@
 import { SessionForm } from "@/components/session-form";
+import { SessionActions } from "@/components/session-actions";
 import { formatMoney, formatShortDateTime } from "@/lib/format";
 import { getWorkspaceOverview, listSessions } from "@/lib/repository";
 import { requireActor } from "@/lib/current-actor";
 
+function getSessionStatusLabel(status: string) {
+  if (status === "partial") {
+    return "Live";
+  }
+
+  return status;
+}
+
+function getSessionStatusTone(status: string) {
+  if (status === "completed") {
+    return "room-status-chip-saved";
+  }
+  if (status === "missed") {
+    return "room-status-chip-active";
+  }
+  if (status === "partial") {
+    return "room-status-chip-live room-status-chip-pulse";
+  }
+  if (status === "rescheduled") {
+    return "room-status-chip-sync";
+  }
+  return "room-status-chip-present";
+}
+
 export default async function SessionsPage() {
   const actor = await requireActor();
   const [overview, sessions] = await Promise.all([getWorkspaceOverview(actor), listSessions(actor)]);
-  const plannedCount = sessions.filter((session) => session.status === "planned").length;
-  const completedCount = sessions.filter((session) => session.status === "completed").length;
-  const missedCount = sessions.filter((session) => session.status === "missed").length;
+  const market = overview.preferences.market;
+  const plannedCount = sessions.filter((session: (typeof sessions)[number]) => session.status === "planned").length;
+  const completedCount = sessions.filter((session: (typeof sessions)[number]) => session.status === "completed").length;
+  const missedCount = sessions.filter((session: (typeof sessions)[number]) => session.status === "missed").length;
 
   return (
     <div className="workspace-grid">
@@ -50,24 +76,25 @@ export default async function SessionsPage() {
             </thead>
             <tbody>
               {sessions.length ? (
-                sessions.map((session) => {
+                sessions.map((session: (typeof sessions)[number]) => {
                   const client = overview.clients.find((item) => item.id === session.clientId);
-                  return (
-                    <tr key={session.id}>
-                      <td>{formatShortDateTime(session.startsAt)}</td>
-                      <td>
-                        <strong>{client?.name || session.title}</strong>
-                        <div className="table-subtle">{session.source}</div>
-                      </td>
-                      <td>
-                        <span className={`pill ${session.status === "missed" ? "danger" : session.status === "completed" ? "success" : "neutral"}`}>
-                          {session.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div>{session.billable ? "Yes" : "No"}</div>
-                        <div className="table-subtle">{formatMoney(session.amountCents)}</div>
-                      </td>
+                return (
+                  <tr key={session.id}>
+                    <td>{formatShortDateTime(session.startsAt, market)}</td>
+                    <td>
+                      <strong>{client?.name || session.title}</strong>
+                      <div className="table-subtle">{session.source}</div>
+                    </td>
+                    <td>
+                      <span className={`room-status-chip ${getSessionStatusTone(session.status)}`}>
+                        {getSessionStatusLabel(session.status)}
+                      </span>
+                      <SessionActions sessionId={session.id} currentStatus={session.status} />
+                    </td>
+                    <td>
+                      <div>{session.billable ? "Yes" : "No"}</div>
+                      <div className="table-subtle">{formatMoney(session.amountCents, market)}</div>
+                    </td>
                     </tr>
                   );
                 })

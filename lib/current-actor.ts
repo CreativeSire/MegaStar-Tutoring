@@ -1,6 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isClerkConfigured } from "@/lib/clerk-config";
+import { LOCAL_TEST_AUTH_COOKIE, getLocalTestActorSeed } from "@/lib/local-test-auth";
 import { canAccessClientPortal, canAccessWorkspace, getBootstrapRoleForEmail, normalizeAppRole, type AppRole } from "@/lib/roles";
 import { findWorkspaceProfileByClerkUserId, getWorkspaceProfile, type Actor } from "@/lib/repository";
 
@@ -25,7 +27,34 @@ function isWorkspaceBootstrapEmail(email: string | null | undefined) {
   return Boolean(email && (getBootstrapRoleForEmail(email) === "tutor" || getBootstrapRoleForEmail(email) === "admin"));
 }
 
+async function resolveLocalTestActor(): Promise<Actor | null> {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  const cookieStore = await cookies();
+  const testEmail = cookieStore.get(LOCAL_TEST_AUTH_COOKIE)?.value || null;
+  const seed = getLocalTestActorSeed(testEmail);
+  if (!seed) {
+    return null;
+  }
+
+  const profile = await getWorkspaceProfile(seed);
+  return {
+    clerkUserId: seed.clerkUserId,
+    email: seed.email,
+    displayName: seed.displayName,
+    role: profile.role,
+    profileId: profile.id,
+  };
+}
+
 export async function requireActor(options: RequireActorOptions = {}): Promise<Actor> {
+  const localActor = await resolveLocalTestActor();
+  if (localActor) {
+    return localActor;
+  }
+
   if (!isClerkConfigured()) {
     redirect("/sign-in");
   }
@@ -39,6 +68,11 @@ export async function requireActor(options: RequireActorOptions = {}): Promise<A
 }
 
 export async function resolveActor(options: RequireActorOptions = {}): Promise<Actor | null> {
+  const localActor = await resolveLocalTestActor();
+  if (localActor) {
+    return localActor;
+  }
+
   if (!isClerkConfigured()) {
     return null;
   }
@@ -77,6 +111,11 @@ export async function resolveActor(options: RequireActorOptions = {}): Promise<A
 }
 
 export async function requireWorkspaceActor(options: RequireActorOptions = {}) {
+  const localActor = await resolveLocalTestActor();
+  if (localActor && canAccessWorkspace(localActor.role || getDefaultRoleFromEnvironment())) {
+    return localActor;
+  }
+
   if (!isClerkConfigured()) {
     redirect("/sign-in");
   }
@@ -100,6 +139,11 @@ export async function requireWorkspaceActor(options: RequireActorOptions = {}) {
 }
 
 export async function requireClientActor(options: RequireActorOptions = {}) {
+  const localActor = await resolveLocalTestActor();
+  if (localActor && canAccessClientPortal(localActor.role || getDefaultRoleFromEnvironment())) {
+    return localActor;
+  }
+
   if (!isClerkConfigured()) {
     redirect("/sign-in");
   }
@@ -123,6 +167,11 @@ export async function requireClientActor(options: RequireActorOptions = {}) {
 }
 
 export async function requireAdminActor(options: RequireRoleOptions = {}) {
+  const localActor = await resolveLocalTestActor();
+  if (localActor && localActor.role === "admin") {
+    return localActor;
+  }
+
   if (!isClerkConfigured()) {
     redirect("/sign-in");
   }
@@ -147,6 +196,11 @@ export async function requireAdminActor(options: RequireRoleOptions = {}) {
 }
 
 export async function requireRole(allowedRoles: AppRole[], options: RequireRoleOptions = {}) {
+  const localActor = await resolveLocalTestActor();
+  if (localActor && allowedRoles.includes(localActor.role || getDefaultRoleFromEnvironment())) {
+    return localActor;
+  }
+
   const actor = await requireActor(options);
   if (!allowedRoles.includes(actor.role || getDefaultRoleFromEnvironment())) {
     const redirectTarget = canAccessClientPortal(actor.role || getDefaultRoleFromEnvironment()) ? "/dashboard" : "/app";

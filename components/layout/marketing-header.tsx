@@ -8,9 +8,10 @@ import { Menu, X } from "lucide-react";
 const navLinks = [
   { href: "/#subjects", label: "Subjects" },
   { href: "/#how-it-works", label: "How it Works" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/tutors", label: "Tutors" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function MarketingHeader() {
@@ -29,15 +30,14 @@ export function MarketingHeader() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-soft"
+          ? "bg-white/92 backdrop-blur-xl shadow-soft"
           : "bg-transparent"
       }`}
     >
       <div className="container-premium">
-        <nav className="flex h-20 items-center justify-between">
-          {/* Logo */}
+        <nav className="flex h-20 items-center justify-between rounded-b-3xl border-b border-transparent py-2">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-navy text-lg font-bold text-white shadow-soft">
               M
             </div>
             <span className="text-xl font-bold text-navy">MegaStar</span>
@@ -60,12 +60,12 @@ export function MarketingHeader() {
           <div className="hidden items-center gap-4 md:flex">
             <Link
               href="/sign-in"
-              className="text-sm font-semibold text-navy-600 hover:text-navy"
+              className="text-sm font-semibold text-navy-600 transition-colors hover:text-navy"
             >
               Sign in
             </Link>
-            <Button asChild className="rounded-full">
-              <Link href="/sign-up">Start free trial</Link>
+            <Button asChild className="rounded-full px-5">
+              <Link href="/sign-up">Book free session</Link>
             </Button>
           </div>
 
@@ -102,7 +102,7 @@ export function MarketingHeader() {
                 Sign in
               </Link>
               <Button asChild className="w-full">
-                <Link href="/sign-up">Start free trial</Link>
+                <Link href="/sign-up">Book free session</Link>
               </Button>
             </div>
           </div>

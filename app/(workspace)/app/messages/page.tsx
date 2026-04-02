@@ -7,7 +7,8 @@ import { requireActor } from "@/lib/current-actor";
 export default async function MessagesPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
-  const { threads, replySuggestions, focusCards } = buildTutorMessages(overview);
+  const market = overview.preferences.market;
+  const { threads, replySuggestions, focusCards } = buildTutorMessages(overview, market);
 
   return (
     <div className="workspace-grid">

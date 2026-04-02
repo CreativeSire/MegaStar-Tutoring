@@ -1,8 +1,9 @@
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { getDatabase, hasDatabase } from "@/lib/db";
-import { calendarSyncs, clients, invoices, ratings, sessions, userProfiles } from "@/lib/db/schema";
+import { calendarSyncs, clients, invoices, lessonArchives, ratings, scheduleRequests, sessions, userProfiles, workspacePreferences } from "@/lib/db/schema";
 import { formatMonthYear } from "@/lib/format";
+import { normalizeMarket } from "@/lib/market";
 import { normalizeAppRole, type AppRole } from "@/lib/roles";
 
 export type Actor = {
@@ -36,8 +37,14 @@ export type SessionInput = {
   externalEventId?: string | null;
 };
 
+export type SessionStatusInput = {
+  status: SessionInput["status"];
+  notes?: string;
+};
+
 export type RatingInput = {
   clientId: string | null;
+  sessionId: string | null;
   score: number;
   category: string;
   comment: string;
@@ -52,6 +59,36 @@ export type SyncEventInput = {
   billable: boolean;
   amountCents: number;
   notes: string;
+};
+
+export type LessonArchiveInput = {
+  sessionId: string | null;
+  clientId: string | null;
+  title: string;
+  summary: string;
+  boardLabel: string;
+  snapshotJson: string;
+  fileName?: string | null;
+};
+
+export type WorkspacePreferenceInput = {
+  market: string;
+  preferredDays: string;
+  lessonLengthMinutes: number;
+  primaryGoal: string;
+};
+
+export type ScheduleRequestInput = {
+  clientId: string | null;
+  lessonTitle: string;
+  requestedStartsAt: string;
+  reason: string;
+  details: string;
+};
+
+export type ScheduleRequestStatusInput = {
+  status: "accepted" | "declined" | "planned";
+  linkedSessionId?: string | null;
 };
 
 export type WorkspaceProfileSummary = {
@@ -105,6 +142,7 @@ type RatingRow = {
   id: string;
   ownerUserId: string;
   clientId: string | null;
+  sessionId: string | null;
   score: number;
   category: string;
   comment: string;
@@ -132,17 +170,79 @@ type InvoiceRow = {
   createdAt: Date;
 };
 
+type LessonArchiveRow = {
+  id: string;
+  ownerUserId: string;
+  sessionId: string | null;
+  clientId: string | null;
+  title: string;
+  summary: string;
+  boardLabel: string;
+  snapshotJson: string;
+  fileName: string;
+  createdAt: Date;
+};
+
+type WorkspacePreferenceRow = {
+  id: string;
+  ownerUserId: string;
+  market: string;
+  preferredDays: string;
+  lessonLengthMinutes: number;
+  primaryGoal: string;
+  onboardingCompletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type ScheduleRequestRow = {
+  id: string;
+  ownerUserId: string;
+  clientId: string | null;
+  linkedSessionId: string | null;
+  lessonTitle: string;
+  requestedStartsAt: Date;
+  reason: string;
+  details: string;
+  status: "pending" | "accepted" | "declined" | "planned";
+  createdAt: Date;
+};
+
 type MemoryWorkspace = {
   profile: ProfileRow;
+  preferences: WorkspacePreferenceRow;
   clients: ClientRow[];
   sessions: SessionRow[];
   ratings: RatingRow[];
   syncs: SyncRow[];
   invoices: InvoiceRow[];
+  archives: LessonArchiveRow[];
+  scheduleRequests: ScheduleRequestRow[];
 };
 
 type MemoryStore = {
   workspaces: Map<string, MemoryWorkspace>;
+};
+
+export type WorkspaceOverview = {
+  profile: WorkspaceProfileSummary;
+  preferences: WorkspacePreferenceRow;
+  clientCount: number;
+  sessionCount: number;
+  activeSessionCount: number;
+  missedSessionCount: number;
+  completedSessionCount: number;
+  billableTotal: number;
+  ratingAverage: number;
+  clients: ClientRow[];
+  sessions: SessionRow[];
+  ratings: RatingRow[];
+  syncs: SyncRow[];
+  archives: LessonArchiveRow[];
+  scheduleRequests: ScheduleRequestRow[];
+  upcomingSessions: SessionRow[];
+  recentSessions: SessionRow[];
+  recentClients: ClientRow[];
 };
 
 const globalForMemory = globalThis as typeof globalThis & {
@@ -201,6 +301,17 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
       displayName: actor.displayName || "MegaStar Tutor",
       role,
       createdAt: now,
+    },
+    preferences: {
+      id: randomUUID(),
+      ownerUserId: "",
+      market: "uk",
+      preferredDays: "Mon, Wed, Fri",
+      lessonLengthMinutes: 60,
+      primaryGoal: "Keep each lesson clear and well prepared.",
+      onboardingCompletedAt: null,
+      createdAt: now,
+      updatedAt: now,
     },
     clients: [
       {
@@ -265,6 +376,7 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
         id: randomUUID(),
         ownerUserId: "",
         clientId: "",
+        sessionId: "",
         score: 5,
         category: "communication",
         comment: "Very clear explanations.",
@@ -294,9 +406,42 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
         createdAt: new Date(now.getTime() - 2 * 86400000),
       },
     ],
+    archives: [
+      {
+        id: randomUUID(),
+        ownerUserId: "",
+        sessionId: null,
+        clientId: "",
+        title: "First lesson record",
+        summary: "A starter record for the classroom trail.",
+        boardLabel: "Lesson board",
+        snapshotJson: "[]",
+        fileName: "MegaStar Tutoring Lesson Record.txt",
+        createdAt: new Date(now.getTime() - 86400000),
+      },
+    ],
+    scheduleRequests: [
+      {
+        id: randomUUID(),
+        ownerUserId: "",
+        clientId: "",
+        linkedSessionId: null,
+        lessonTitle: "Move Tuesday lesson",
+        requestedStartsAt: new Date(now.getTime() + 2 * 86400000),
+        reason: "Need a different time",
+        details: "Student asked for a later start so the week stays balanced.",
+        status: "pending",
+        createdAt: new Date(now.getTime() - 4 * 3600000),
+      },
+    ],
   };
 
   base.clients = base.clients.map((client) => ({ ...client, ownerUserId: base.profile.id }));
+  base.preferences = {
+    ...base.preferences,
+    market: "uk",
+    ownerUserId: base.profile.id,
+  };
   base.sessions = base.sessions.map((session, index) => ({
     ...session,
     ownerUserId: base.profile.id,
@@ -306,10 +451,22 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
     ...rating,
     ownerUserId: base.profile.id,
     clientId: base.clients[0].id,
+    sessionId: base.sessions[0].id,
   }));
   base.syncs = base.syncs.map((sync) => ({ ...sync, ownerUserId: base.profile.id }));
   base.invoices = base.invoices.map((invoice) => ({
     ...invoice,
+    ownerUserId: base.profile.id,
+    clientId: base.clients[0].id,
+  }));
+  base.archives = base.archives.map((archive) => ({
+    ...archive,
+    ownerUserId: base.profile.id,
+    clientId: base.clients[0].id,
+    sessionId: base.sessions[0].id,
+  }));
+  base.scheduleRequests = base.scheduleRequests.map((request) => ({
+    ...request,
     ownerUserId: base.profile.id,
     clientId: base.clients[0].id,
   }));
@@ -353,6 +510,102 @@ export async function findWorkspaceProfileByClerkUserId(clerkUserId: string): Pr
   }
 
   return findProfileDb(clerkUserId);
+}
+
+function getWorkspacePreferencesMemory(actor: Actor): WorkspacePreferenceRow {
+  return clone(getWorkspaceMemory(actor).preferences);
+}
+
+async function getWorkspacePreferencesDb(actor: Actor): Promise<WorkspacePreferenceRow> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const existing = await db.select().from(workspacePreferences).where(eq(workspacePreferences.ownerUserId, profile.id)).limit(1);
+  if (existing[0]) {
+    return existing[0] as WorkspacePreferenceRow;
+  }
+
+  const now = new Date();
+  const inserted = await db
+    .insert(workspacePreferences)
+    .values({
+      ownerUserId: profile.id,
+      market: "uk",
+      preferredDays: "",
+      lessonLengthMinutes: 60,
+      primaryGoal: "",
+      onboardingCompletedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+  return inserted[0] as WorkspacePreferenceRow;
+}
+
+export async function getWorkspacePreferences(actor: Actor): Promise<WorkspacePreferenceRow> {
+  const db = getDatabase();
+  return db ? getWorkspacePreferencesDb(actor) : getWorkspacePreferencesMemory(actor);
+}
+
+async function saveWorkspacePreferencesDb(actor: Actor, input: WorkspacePreferenceInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const existing = await db.select().from(workspacePreferences).where(eq(workspacePreferences.ownerUserId, profile.id)).limit(1);
+  const now = new Date();
+  if (existing[0]) {
+    const updated = await db
+      .update(workspacePreferences)
+      .set({
+        market: normalizeMarket(input.market),
+        preferredDays: input.preferredDays,
+        lessonLengthMinutes: Math.max(15, Math.min(240, Math.floor(input.lessonLengthMinutes))),
+        primaryGoal: input.primaryGoal,
+        onboardingCompletedAt: now,
+        updatedAt: now,
+      })
+      .where(eq(workspacePreferences.ownerUserId, profile.id))
+      .returning();
+    return updated[0] as WorkspacePreferenceRow;
+  }
+
+  const inserted = await db
+    .insert(workspacePreferences)
+    .values({
+      ownerUserId: profile.id,
+      market: normalizeMarket(input.market),
+      preferredDays: input.preferredDays,
+      lessonLengthMinutes: Math.max(15, Math.min(240, Math.floor(input.lessonLengthMinutes))),
+      primaryGoal: input.primaryGoal,
+      onboardingCompletedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+  return inserted[0] as WorkspacePreferenceRow;
+}
+
+function saveWorkspacePreferencesMemory(actor: Actor, input: WorkspacePreferenceInput) {
+  const workspace = getWorkspaceMemory(actor);
+  workspace.preferences = {
+    ...workspace.preferences,
+    market: normalizeMarket(input.market),
+    preferredDays: input.preferredDays,
+    lessonLengthMinutes: Math.max(15, Math.min(240, Math.floor(input.lessonLengthMinutes))),
+    primaryGoal: input.primaryGoal,
+    onboardingCompletedAt: new Date(),
+    updatedAt: new Date(),
+  };
+  return workspace.preferences;
+}
+
+export async function saveWorkspacePreferences(actor: Actor, input: WorkspacePreferenceInput) {
+  const db = getDatabase();
+  return db ? saveWorkspacePreferencesDb(actor, input) : saveWorkspacePreferencesMemory(actor, input);
+}
+
+function listArchivesMemory(actor: Actor): LessonArchiveRow[] {
+  return clone(getWorkspaceMemory(actor).archives).sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
 }
 
 function listWorkspaceProfilesMemory(): WorkspaceProfileSummary[] {
@@ -466,18 +719,18 @@ export async function getWorkspaceProfile(actor: Actor): Promise<ProfileRow> {
   return ensureProfile(actor);
 }
 
-function listClientsMemory(actor: Actor) {
+function listClientsMemory(actor: Actor): ClientRow[] {
   return clone(getWorkspaceMemory(actor).clients).sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
 }
 
-async function listClientsDb(actor: Actor) {
+async function listClientsDb(actor: Actor): Promise<ClientRow[]> {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
   const profile = await ensureProfileDb(actor);
   return db.select().from(clients).where(eq(clients.ownerUserId, profile.id)).orderBy(desc(clients.createdAt));
 }
 
-export async function listClients(actor: Actor) {
+export async function listClients(actor: Actor): Promise<ClientRow[]> {
   const db = getDatabase();
   return db ? listClientsDb(actor) : listClientsMemory(actor);
 }
@@ -525,7 +778,7 @@ export async function createClient(actor: Actor, input: ClientInput) {
   return db ? createClientDb(actor, input) : createClientMemory(actor, input);
 }
 
-async function listSessionsDb(actor: Actor) {
+async function listSessionsDb(actor: Actor): Promise<SessionRow[]> {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
   const profile = await ensureProfileDb(actor);
@@ -536,11 +789,11 @@ async function listSessionsDb(actor: Actor) {
     .orderBy(desc(sessions.startsAt), desc(sessions.createdAt));
 }
 
-function listSessionsMemory(actor: Actor) {
+function listSessionsMemory(actor: Actor): SessionRow[] {
   return clone(getWorkspaceMemory(actor).sessions).sort((left, right) => right.startsAt.getTime() - left.startsAt.getTime());
 }
 
-export async function listSessions(actor: Actor) {
+export async function listSessions(actor: Actor): Promise<SessionRow[]> {
   const db = getDatabase();
   return db ? listSessionsDb(actor) : listSessionsMemory(actor);
 }
@@ -596,18 +849,62 @@ export async function createSession(actor: Actor, input: SessionInput) {
   return db ? createSessionDb(actor, input) : createSessionMemory(actor, input);
 }
 
-async function listRatingsDb(actor: Actor) {
+async function updateSessionDb(actor: Actor, sessionId: string, input: SessionStatusInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const existing = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.ownerUserId, profile.id)))
+    .limit(1);
+  if (!existing.length) {
+    return null;
+  }
+
+  const updated = await db
+    .update(sessions)
+    .set({
+      status: input.status,
+      notes: input.notes?.trim() || existing[0].notes,
+    })
+    .where(and(eq(sessions.id, sessionId), eq(sessions.ownerUserId, profile.id)))
+    .returning();
+  return updated[0] || null;
+}
+
+function updateSessionMemory(actor: Actor, sessionId: string, input: SessionStatusInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const session = workspace.sessions.find((entry) => entry.id === sessionId);
+  if (!session) {
+    return null;
+  }
+
+  session.status = input.status;
+  if (typeof input.notes === "string" && input.notes.trim()) {
+    session.notes = input.notes.trim();
+  }
+
+  return session;
+}
+
+export async function updateSession(actor: Actor, sessionId: string, input: SessionStatusInput) {
+  const db = getDatabase();
+  return db ? updateSessionDb(actor, sessionId, input) : updateSessionMemory(actor, sessionId, input);
+}
+
+async function listRatingsDb(actor: Actor): Promise<RatingRow[]> {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
   const profile = await ensureProfileDb(actor);
   return db.select().from(ratings).where(eq(ratings.ownerUserId, profile.id)).orderBy(desc(ratings.createdAt));
 }
 
-function listRatingsMemory(actor: Actor) {
+function listRatingsMemory(actor: Actor): RatingRow[] {
   return clone(getWorkspaceMemory(actor).ratings).sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
 }
 
-export async function listRatings(actor: Actor) {
+export async function listRatings(actor: Actor): Promise<RatingRow[]> {
   const db = getDatabase();
   return db ? listRatingsDb(actor) : listRatingsMemory(actor);
 }
@@ -616,12 +913,22 @@ async function createRatingDb(actor: Actor, input: RatingInput) {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
   const profile = await ensureProfileDb(actor);
-  const resolvedClientId = await resolveOwnedClientIdDb(actor, input.clientId);
+  const completedSession = input.sessionId
+    ? await db
+        .select({ id: sessions.id, clientId: sessions.clientId })
+        .from(sessions)
+        .where(and(eq(sessions.id, input.sessionId), eq(sessions.ownerUserId, profile.id), eq(sessions.status, "completed")))
+        .limit(1)
+    : [];
+  const resolvedClientId = completedSession[0]?.clientId
+    ? completedSession[0].clientId
+    : await resolveOwnedClientIdDb(actor, input.clientId);
   const inserted = await db
     .insert(ratings)
     .values({
       ownerUserId: profile.id,
       clientId: resolvedClientId,
+      sessionId: completedSession[0]?.id || null,
       score: Math.min(5, Math.max(1, Math.floor(input.score))),
       category: input.category,
       comment: input.comment,
@@ -632,11 +939,16 @@ async function createRatingDb(actor: Actor, input: RatingInput) {
 
 function createRatingMemory(actor: Actor, input: RatingInput) {
   const workspace = getWorkspaceMemory(actor);
-  const resolvedClientId = resolveOwnedClientIdMemory(actor, input.clientId);
+  const completedSession = input.sessionId
+    ? workspace.sessions.find((session) => session.id === input.sessionId && session.status === "completed")
+    : null;
+  const resolvedClientId = completedSession?.clientId || resolveOwnedClientIdMemory(actor, input.clientId);
+  const resolvedSessionId = completedSession ? completedSession.id : null;
   const rating: RatingRow = {
     id: randomUUID(),
     ownerUserId: workspace.profile.id,
     clientId: resolvedClientId,
+    sessionId: resolvedSessionId,
     score: Math.min(5, Math.max(1, Math.floor(input.score))),
     category: input.category,
     comment: input.comment,
@@ -651,18 +963,125 @@ export async function createRating(actor: Actor, input: RatingInput) {
   return db ? createRatingDb(actor, input) : createRatingMemory(actor, input);
 }
 
-async function listSyncsDb(actor: Actor) {
+async function listScheduleRequestsDb(actor: Actor): Promise<ScheduleRequestRow[]> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  return db
+    .select()
+    .from(scheduleRequests)
+    .where(eq(scheduleRequests.ownerUserId, profile.id))
+    .orderBy(desc(scheduleRequests.requestedStartsAt), desc(scheduleRequests.createdAt));
+}
+
+function listScheduleRequestsMemory(actor: Actor): ScheduleRequestRow[] {
+  return clone(getWorkspaceMemory(actor).scheduleRequests).sort((left, right) => right.requestedStartsAt.getTime() - left.requestedStartsAt.getTime());
+}
+
+export async function listScheduleRequests(actor: Actor): Promise<ScheduleRequestRow[]> {
+  const db = getDatabase();
+  return db ? listScheduleRequestsDb(actor) : listScheduleRequestsMemory(actor);
+}
+
+async function createScheduleRequestDb(actor: Actor, input: ScheduleRequestInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const resolvedClientId = await resolveOwnedClientIdDb(actor, input.clientId);
+  const inserted = await db
+    .insert(scheduleRequests)
+    .values({
+      ownerUserId: profile.id,
+      clientId: resolvedClientId,
+      linkedSessionId: null,
+      lessonTitle: input.lessonTitle,
+      requestedStartsAt: toDate(input.requestedStartsAt),
+      reason: input.reason,
+      details: input.details,
+      status: "pending",
+    })
+    .returning();
+  return inserted[0];
+}
+
+function createScheduleRequestMemory(actor: Actor, input: ScheduleRequestInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const request: ScheduleRequestRow = {
+    id: randomUUID(),
+    ownerUserId: workspace.profile.id,
+    clientId: resolveOwnedClientIdMemory(actor, input.clientId),
+    linkedSessionId: null,
+    lessonTitle: input.lessonTitle,
+    requestedStartsAt: toDate(input.requestedStartsAt),
+    reason: input.reason,
+    details: input.details,
+    status: "pending",
+    createdAt: new Date(),
+  };
+  workspace.scheduleRequests.unshift(request);
+  return request;
+}
+
+export async function createScheduleRequest(actor: Actor, input: ScheduleRequestInput) {
+  const db = getDatabase();
+  return db ? createScheduleRequestDb(actor, input) : createScheduleRequestMemory(actor, input);
+}
+
+async function updateScheduleRequestDb(actor: Actor, requestId: string, input: ScheduleRequestStatusInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const existing = await db
+    .select()
+    .from(scheduleRequests)
+    .where(and(eq(scheduleRequests.id, requestId), eq(scheduleRequests.ownerUserId, profile.id)))
+    .limit(1);
+  const current = existing[0];
+  if (!current) {
+    return null;
+  }
+
+  const updated = await db
+    .update(scheduleRequests)
+    .set({
+      status: input.status,
+      linkedSessionId: input.linkedSessionId === undefined ? current.linkedSessionId : input.linkedSessionId,
+    })
+    .where(and(eq(scheduleRequests.id, requestId), eq(scheduleRequests.ownerUserId, profile.id)))
+    .returning();
+  return updated[0] || current;
+}
+
+function updateScheduleRequestMemory(actor: Actor, requestId: string, input: ScheduleRequestStatusInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const request = workspace.scheduleRequests.find((entry) => entry.id === requestId);
+  if (!request) {
+    return null;
+  }
+  request.status = input.status;
+  if (input.linkedSessionId !== undefined) {
+    request.linkedSessionId = input.linkedSessionId;
+  }
+  return request;
+}
+
+export async function updateScheduleRequest(actor: Actor, requestId: string, input: ScheduleRequestStatusInput) {
+  const db = getDatabase();
+  return db ? updateScheduleRequestDb(actor, requestId, input) : updateScheduleRequestMemory(actor, requestId, input);
+}
+
+async function listSyncsDb(actor: Actor): Promise<SyncRow[]> {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
   const profile = await ensureProfileDb(actor);
   return db.select().from(calendarSyncs).where(eq(calendarSyncs.ownerUserId, profile.id)).orderBy(desc(calendarSyncs.lastSyncedAt));
 }
 
-function listSyncsMemory(actor: Actor) {
+function listSyncsMemory(actor: Actor): SyncRow[] {
   return clone(getWorkspaceMemory(actor).syncs).sort((left, right) => right.lastSyncedAt.getTime() - left.lastSyncedAt.getTime());
 }
 
-export async function listSyncs(actor: Actor) {
+export async function listSyncs(actor: Actor): Promise<SyncRow[]> {
   const db = getDatabase();
   return db ? listSyncsDb(actor) : listSyncsMemory(actor);
 }
@@ -695,6 +1114,74 @@ function recordCalendarSyncMemory(actor: Actor, calendarId: string, eventsImport
   };
   workspace.syncs.unshift(sync);
   return sync;
+}
+
+async function listLessonArchivesDb(actor: Actor): Promise<LessonArchiveRow[]> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  return db.select().from(lessonArchives).where(eq(lessonArchives.ownerUserId, profile.id)).orderBy(desc(lessonArchives.createdAt));
+}
+
+export async function listLessonArchives(actor: Actor): Promise<LessonArchiveRow[]> {
+  const db = getDatabase();
+  return db ? listLessonArchivesDb(actor) : listArchivesMemory(actor);
+}
+
+async function createLessonArchiveDb(actor: Actor, input: LessonArchiveInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const resolvedClientId = await resolveOwnedClientIdDb(actor, input.clientId);
+  const resolvedSession = input.sessionId
+    ? await db
+        .select({ id: sessions.id })
+        .from(sessions)
+        .where(and(eq(sessions.id, input.sessionId), eq(sessions.ownerUserId, profile.id)))
+        .limit(1)
+    : [];
+
+  const inserted = await db
+    .insert(lessonArchives)
+    .values({
+      ownerUserId: profile.id,
+      sessionId: resolvedSession[0]?.id || null,
+      clientId: resolvedClientId,
+      title: input.title,
+      summary: input.summary,
+      boardLabel: input.boardLabel,
+      snapshotJson: input.snapshotJson,
+      fileName:
+        input.fileName ||
+        `${input.title.toLowerCase().replace(/\s+/g, "-")}-lesson-record.txt`,
+    })
+    .returning();
+  return inserted[0];
+}
+
+function createLessonArchiveMemory(actor: Actor, input: LessonArchiveInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const archive: LessonArchiveRow = {
+    id: randomUUID(),
+    ownerUserId: workspace.profile.id,
+    sessionId: input.sessionId && workspace.sessions.some((session) => session.id === input.sessionId) ? input.sessionId : null,
+    clientId: resolveOwnedClientIdMemory(actor, input.clientId),
+    title: input.title,
+    summary: input.summary,
+    boardLabel: input.boardLabel,
+    snapshotJson: input.snapshotJson,
+    fileName:
+      input.fileName ||
+      `${input.title.toLowerCase().replace(/\s+/g, "-")}-lesson-record.txt`,
+    createdAt: new Date(),
+  };
+  workspace.archives.unshift(archive);
+  return archive;
+}
+
+export async function createLessonArchive(actor: Actor, input: LessonArchiveInput) {
+  const db = getDatabase();
+  return db ? createLessonArchiveDb(actor, input) : createLessonArchiveMemory(actor, input);
 }
 
 export async function importCalendarEvents(actor: Actor, calendarId: string, events: SyncEventInput[]) {
@@ -769,13 +1256,16 @@ export async function importCalendarEvents(actor: Actor, calendarId: string, eve
   return { imported, sync };
 }
 
-export async function getWorkspaceOverview(actor: Actor) {
+export async function getWorkspaceOverview(actor: Actor): Promise<WorkspaceOverview> {
   const profile = await ensureProfile(actor);
-  const [clientList, sessionList, ratingList, syncList] = await Promise.all([
+  const [preferences, clientList, sessionList, ratingList, syncList, archiveList, requestList] = await Promise.all([
+    getWorkspacePreferences(actor),
     listClients(actor),
     listSessions(actor),
     listRatings(actor),
     listSyncs(actor),
+    listLessonArchives(actor),
+    listScheduleRequests(actor),
   ]);
 
   const activeSessions = sessionList.filter((session) => session.status === "planned");
@@ -790,6 +1280,7 @@ export async function getWorkspaceOverview(actor: Actor) {
 
   return {
     profile,
+    preferences,
     clientCount: clientList.length,
     sessionCount: sessionList.length,
     activeSessionCount: activeSessions.length,
@@ -801,14 +1292,25 @@ export async function getWorkspaceOverview(actor: Actor) {
     sessions: sessionList,
     ratings: ratingList,
     syncs: syncList,
+    archives: archiveList,
+    scheduleRequests: requestList,
     upcomingSessions: activeSessions.slice(0, 5),
     recentSessions: sessionList.slice(0, 6),
     recentClients: clientList.slice(0, 4),
   };
 }
 
-export async function getInvoiceDrafts(actor: Actor) {
-  const [clientList, sessionList] = await Promise.all([listClients(actor), listSessions(actor)]);
+export async function getInvoiceDrafts(actor: Actor): Promise<
+  {
+    client: ClientRow;
+    sessionCount: number;
+    totalCents: number;
+    lastSession: SessionRow | null;
+    lineItems: SessionRow[];
+    fileName: string;
+  }[]
+> {
+  const [clientList, sessionList, preferences] = await Promise.all([listClients(actor), listSessions(actor), getWorkspacePreferences(actor)]);
   return clientList.map((client) => {
     const clientSessions = sessionList.filter((session) => session.clientId === client.id && session.billable);
     const totalCents = clientSessions.reduce((total, session) => total + session.amountCents, 0);
@@ -819,7 +1321,7 @@ export async function getInvoiceDrafts(actor: Actor) {
       totalCents,
       lastSession,
       lineItems: clientSessions,
-      fileName: `MegaStar Tutoring Invoice ${formatMonthYear(new Date())}.xlsx`,
+      fileName: `MegaStar Tutoring Invoice ${formatMonthYear(new Date(), preferences.market)}.xlsx`,
     };
   });
 }

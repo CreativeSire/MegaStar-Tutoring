@@ -8,6 +8,7 @@ import { requireActor } from "@/lib/current-actor";
 export default async function ClientsPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
   const activeClients = overview.clients.filter((client) => client.status === "active").length;
   const attentionClients = overview.clients.filter((client) => client.status === "needs_attention").length;
 
@@ -35,7 +36,7 @@ export default async function ClientsPage() {
         }
       >
         <span className="pill neutral">{overview.sessionCount} lessons</span>
-        <span className="pill neutral">{formatMoney(overview.billableTotal)} due</span>
+        <span className="pill neutral">{formatMoney(overview.billableTotal, market)} due</span>
         <span className="pill neutral">Private by design</span>
       </PageIntro>
 
@@ -49,7 +50,7 @@ export default async function ClientsPage() {
           <div className="stat-label">Lessons saved</div>
         </article>
         <article className="panel">
-          <div className="stat-value">{formatMoney(overview.billableTotal)}</div>
+          <div className="stat-value">{formatMoney(overview.billableTotal, market)}</div>
           <div className="stat-label">Current total</div>
         </article>
       </section>
@@ -87,12 +88,12 @@ export default async function ClientsPage() {
                       <div>{client.meetingsPerWeek} sessions each week</div>
                       <div className="table-subtle">{client.preferredDays || "No preferred days saved"}</div>
                     </td>
-                    <td>{formatMoney(client.rateCents)}</td>
+                    <td>{formatMoney(client.rateCents, market)}</td>
                     <td>
                       <span className={`pill ${client.status === "active" ? "success" : client.status === "needs_attention" ? "warning" : "neutral"}`}>
                         {client.status}
                       </span>
-                      <div className="table-subtle">Added {formatShortDate(client.createdAt)}</div>
+                      <div className="table-subtle">Added {formatShortDate(client.createdAt, market)}</div>
                     </td>
                   </tr>
                 ))

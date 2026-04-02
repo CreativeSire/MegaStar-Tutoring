@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.7",
+    "@livekit/components-react": "^2.9.20",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-label": "^2.1.8",
@@ -20,6 +21,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
+    "livekit-client": "^2.18.0",
+    "livekit-server-sdk": "^2.15.0",
     "lucide-react": "^1.7.0",
     "next": "^16.2.1",
     "react": "^19.2.4",
@@ -36,6 +39,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.1",
+    "playwright": "^1.59.0",
     "typescript": "^5.9.3"
   }
 }

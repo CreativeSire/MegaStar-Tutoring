@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { PageIntro } from "@/components/page-intro";
 import { buildTutorLessonNotes } from "@/lib/messaging";
+import { getMarketProfile } from "@/lib/market";
 import { getWorkspaceOverview } from "@/lib/repository";
 import { requireActor } from "@/lib/current-actor";
 
 export default async function NotesPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
-  const { latestSession, noteCards, focusCards, quickPrompts } = buildTutorLessonNotes(overview);
+  const market = overview.preferences.market;
+  const { latestSession, noteCards, focusCards, quickPrompts } = buildTutorLessonNotes(overview, market);
+  const locale = getMarketProfile(market).locale;
 
   return (
     <div className="workspace-grid">
@@ -60,7 +63,7 @@ export default async function NotesPage() {
               <p>{latestSession.notes || "No note added yet."}</p>
               <div className="lesson-note-feature-meta">
                 <span>{overview.clients.find((client) => client.id === latestSession.clientId)?.name || "Unassigned"}</span>
-                <span>{latestSession.startsAt.toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>
+                <span>{latestSession.startsAt.toLocaleString(locale, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}</span>
               </div>
               {latestSession.clientId ? (
                 <Link className="button button-secondary" href={`/app/clients/${latestSession.clientId}`}>

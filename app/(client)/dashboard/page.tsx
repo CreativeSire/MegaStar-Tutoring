@@ -12,11 +12,13 @@ const quickNotes = [
 export default async function ClientDashboardPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
   const studentName = overview.profile.displayName;
   const nextLesson = overview.upcomingSessions[0] || overview.recentSessions[0] || null;
   const nextLessonList = overview.upcomingSessions.slice(0, 3);
   const lessonCount = overview.activeSessionCount || overview.sessionCount;
   const calendarStatus = overview.syncs[0]?.statusMessage || "Calendar ready";
+  const scheduleRequestCount = overview.scheduleRequests.length;
 
   return (
     <div className="student-dashboard">
@@ -28,13 +30,16 @@ export default async function ClientDashboardPage() {
             Your next lesson, the week ahead, and a few quick notes in one clear view.
           </p>
           <div className="student-hero-actions">
-            <Link href="/dashboard/sessions" className="button button-primary">
-              View lessons
-            </Link>
-            <Link href="/dashboard/reschedule" className="button button-secondary">
-              Change a time
-            </Link>
-          </div>
+          <Link href="/dashboard/sessions" className="button button-primary">
+            View lessons
+          </Link>
+          <Link href="/classroom" className="button button-secondary">
+            Open classroom
+          </Link>
+          <Link href="/dashboard/reschedule" className="button button-secondary">
+            Change a time
+          </Link>
+        </div>
           <div className="student-hero-meta">
             <div>
               <strong>{lessonCount}</strong>
@@ -45,8 +50,12 @@ export default async function ClientDashboardPage() {
               <span>Done</span>
             </div>
             <div>
-              <strong>{formatScore(overview.ratingAverage || 0)}</strong>
+              <strong>{formatScore(overview.ratingAverage || 0, market)}</strong>
               <span>Tutor rating</span>
+            </div>
+            <div>
+              <strong>{scheduleRequestCount}</strong>
+              <span>Time changes</span>
             </div>
           </div>
         </div>
@@ -56,11 +65,11 @@ export default async function ClientDashboardPage() {
           {nextLesson ? (
             <>
               <strong>{nextLesson.title}</strong>
-              <div>{formatShortDateTime(nextLesson.startsAt)}</div>
+                <div>{formatShortDateTime(nextLesson.startsAt, market)}</div>
               <div>{nextLesson.notes || "A note from your tutor will appear here."}</div>
               <div className="student-next-row">
                 <span>{nextLesson.status}</span>
-                <span>{nextLesson.billable ? formatMoney(nextLesson.amountCents) : "Included"}</span>
+                <span>{nextLesson.billable ? formatMoney(nextLesson.amountCents, market) : "Included"}</span>
               </div>
             </>
           ) : (
@@ -70,9 +79,9 @@ export default async function ClientDashboardPage() {
             </>
           )}
           <div className="student-next-list">
-            {nextLessonList.map((session) => (
+            {nextLessonList.map((session: (typeof nextLessonList)[number]) => (
               <div key={session.id} className="student-next-item">
-                <span>{formatShortDateTime(session.startsAt)}</span>
+                <span>{formatShortDateTime(session.startsAt, market)}</span>
                 <strong>{session.title}</strong>
               </div>
             ))}
@@ -83,6 +92,9 @@ export default async function ClientDashboardPage() {
       <section className="action-row">
         <Link className="button button-primary" href="/dashboard/start">
           Start here
+        </Link>
+        <Link className="button button-secondary" href="/classroom">
+          Classroom
         </Link>
         <Link className="button button-secondary" href="/dashboard/plan">
           Weekly plan
@@ -105,12 +117,16 @@ export default async function ClientDashboardPage() {
           <span>Missed lessons</span>
         </div>
         <div className="student-pill">
-          <strong>{formatScore(overview.ratingAverage || 0)}</strong>
+              <strong>{formatScore(overview.ratingAverage || 0, market)}</strong>
           <span>Tutor rating</span>
         </div>
         <div className="student-pill">
-          <strong>{formatMoney(overview.billableTotal)}</strong>
+              <strong>{formatMoney(overview.billableTotal, market)}</strong>
           <span>Payments this month</span>
+        </div>
+        <div className="student-pill">
+          <strong>{scheduleRequestCount}</strong>
+          <span>Time changes waiting</span>
         </div>
       </section>
 
@@ -123,11 +139,13 @@ export default async function ClientDashboardPage() {
             </div>
           </div>
           <div className="student-timeline">
-            {(overview.upcomingSessions.length ? overview.upcomingSessions : overview.recentSessions).slice(0, 4).map((session) => (
+            {(overview.upcomingSessions.length ? overview.upcomingSessions : overview.recentSessions)
+              .slice(0, 4)
+              .map((session: (typeof overview.upcomingSessions)[number]) => (
               <div key={session.id} className="student-timeline-row">
                 <div>
                   <strong>{session.title}</strong>
-                  <span>{formatShortDateTime(session.startsAt)}</span>
+                <span>{formatShortDateTime(session.startsAt, market)}</span>
                 </div>
                 <span className={`pill ${session.status === "missed" ? "danger" : session.status === "completed" ? "success" : "neutral"}`}>
                   {session.status}
@@ -168,7 +186,7 @@ export default async function ClientDashboardPage() {
           </div>
           <div className="student-notes">
             {overview.recentSessions.length ? (
-              overview.recentSessions.slice(0, 3).map((session) => (
+              overview.recentSessions.slice(0, 3).map((session: (typeof overview.recentSessions)[number]) => (
                 <div key={session.id} className="list-card">
                   <strong>{session.title}</strong>
                   <span>{session.notes || "No note added yet."}</span>

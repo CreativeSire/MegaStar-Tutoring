@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type FormEvent } from "react";
+import { useMemo, useState, useTransition, type FormEvent } from "react";
 
 type RatingClient = {
   id: string;
@@ -9,14 +9,31 @@ type RatingClient = {
   billTo: string;
 };
 
-type RatingFormProps = {
-  clients: RatingClient[];
+type RatingSession = {
+  id: string;
+  title: string;
+  startsAt: string;
+  clientId: string | null;
+  clientName: string;
 };
 
-export function RatingForm({ clients }: RatingFormProps) {
+type RatingFormProps = {
+  clients: RatingClient[];
+  sessions: RatingSession[];
+};
+
+export function RatingForm({ clients, sessions }: RatingFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState("This stays tied to the lesson it belongs to.");
+  const [selectedSessionId, setSelectedSessionId] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [message, setMessage] = useState("Choose a finished lesson so the review stays verified.");
+
+  const selectedSession = useMemo(
+    () => sessions.find((session) => session.id === selectedSessionId) || null,
+    [sessions, selectedSessionId],
+  );
+  const linkedClientId = selectedSession?.clientId || "";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,6 +56,8 @@ export function RatingForm({ clients }: RatingFormProps) {
 
       event.currentTarget.reset();
       setMessage("Review saved.");
+      setSelectedSessionId("");
+      setSelectedClientId("");
       router.refresh();
     });
   }
@@ -53,8 +72,28 @@ export function RatingForm({ clients }: RatingFormProps) {
       </div>
       <div className="form-grid">
         <label className="field">
+          <span>Lesson</span>
+          <select
+            name="sessionId"
+            value={selectedSessionId}
+            onChange={(event) => setSelectedSessionId(event.target.value)}
+          >
+            <option value="">Choose a completed lesson</option>
+            {sessions.map((session) => (
+              <option key={session.id} value={session.id}>
+                {session.title} - {session.clientName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
           <span>Student</span>
-          <select name="clientId" defaultValue="">
+          <select
+            name="clientId"
+            value={linkedClientId || selectedClientId}
+            onChange={(event) => setSelectedClientId(event.target.value)}
+            disabled={Boolean(linkedClientId)}
+          >
             <option value="">Unassigned</option>
             {clients.map((client) => (
               <option key={client.id} value={client.id}>
@@ -62,6 +101,9 @@ export function RatingForm({ clients }: RatingFormProps) {
               </option>
             ))}
           </select>
+          <span className="field-hint">
+            {linkedClientId ? "Linked to the selected lesson." : "Pick a student or choose a lesson to link it automatically."}
+          </span>
         </label>
         <label className="field">
           <span>Score</span>
@@ -84,7 +126,7 @@ export function RatingForm({ clients }: RatingFormProps) {
       </div>
       <div className="action-row">
         <button className="button button-primary" type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save review"}
+          {pending ? "Saving..." : "Save verified review"}
         </button>
       </div>
       <p className="form-feedback">{message}</p>

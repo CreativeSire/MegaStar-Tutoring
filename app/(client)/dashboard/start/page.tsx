@@ -5,6 +5,7 @@ import { requireClientActor } from "@/lib/current-actor";
 const starterSteps = [
   { title: "Check your first lesson", detail: "See the next time you're due to meet." },
   { title: "Save the weekly rhythm", detail: "Keep your lessons in a simple pattern." },
+  { title: "Send a time change", detail: "If a lesson moves, ask for a new slot." },
   { title: "Read the latest note", detail: "Your tutor's message appears after lessons." },
   { title: "Ask for a new time", detail: "Use this if a lesson needs to move." },
 ];
@@ -58,6 +59,16 @@ export default async function ClientStartPage() {
           <div className="student-pill">
             <strong>{overview.clients.length}</strong>
             <span>Lesson profiles</span>
+          </div>
+        </div>
+        <div className="workspace-grid cols-2" style={{ marginTop: 16 }}>
+          <div className="list-card">
+            <strong>{overview.preferences.preferredDays || "Not set"}</strong>
+            <span>Weekly rhythm</span>
+          </div>
+          <div className="list-card">
+            <strong>{overview.preferences.lessonLengthMinutes} min</strong>
+            <span>Lesson length</span>
           </div>
         </div>
         <div className="action-row">

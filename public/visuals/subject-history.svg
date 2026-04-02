@@ -1,0 +1,29 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' role='img' aria-label='History'>
+  <defs>
+    <linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#7c2d12' />
+      <stop offset='100%' stop-color='#92400e' />
+    </linearGradient>
+    <linearGradient id='glass' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#ffffff' stop-opacity='0.28' />
+      <stop offset='100%' stop-color='#ffffff' stop-opacity='0.06' />
+    </linearGradient>
+  </defs>
+  <rect width='1200' height='800' rx='48' fill='url(#bg)' />
+  <circle cx='1020' cy='118' r='172' fill='#f59e0b' fill-opacity='0.18' />
+  <circle cx='160' cy='120' r='124' fill='#fb7185' fill-opacity='0.16' />
+  <circle cx='180' cy='650' r='170' fill='#f59e0b' fill-opacity='0.12' />
+  <rect x='86' y='86' width='1028' height='628' rx='42' fill='url(#glass)' stroke='#ffffff' stroke-opacity='0.12' />
+  <rect x='138' y='130' width='430' height='250' rx='28' fill='#ffffff' fill-opacity='0.18' />
+  <rect x='614' y='130' width='466' height='116' rx='22' fill='#ffffff' fill-opacity='0.12' />
+  <rect x='614' y='274' width='466' height='106' rx='22' fill='#ffffff' fill-opacity='0.12' />
+  <rect x='138' y='422' width='942' height='188' rx='28' fill='#ffffff' fill-opacity='0.1' />
+  <circle cx='312' cy='255' r='70' fill='#fff' fill-opacity='0.7' />
+  <circle cx='312' cy='232' r='34' fill='#f59e0b' fill-opacity='0.72' />
+  <rect x='257' y='297' width='110' height='108' rx='54' fill='#fff' fill-opacity='0.7' />
+  <rect x='205' y='488' width='786' height='36' rx='18' fill='#fff' fill-opacity='0.34' />
+  <rect x='205' y='542' width='608' height='24' rx='12' fill='#fff' fill-opacity='0.24' />
+  <rect x='205' y='582' width='420' height='24' rx='12' fill='#fff' fill-opacity='0.18' />
+  <text x='136' y='686' fill='#ffffff' fill-opacity='0.95' font-family='Inter, Arial, sans-serif' font-size='60' font-weight='700'>History</text>
+  <text x='136' y='732' fill='#ffffff' fill-opacity='0.78' font-family='Inter, Arial, sans-serif' font-size='28' font-weight='500'>Stories that stay</text>
+</svg>

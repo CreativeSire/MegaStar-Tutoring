@@ -18,11 +18,14 @@ export const metadata: Metadata = {
   keywords: ["tutoring", "online tutoring", "GCSE", "A-Level", "maths tutor", "english tutor", "science tutor"],
   authors: [{ name: "MegaStar Tutoring" }],
   creator: "MegaStar Tutoring",
-  metadataBase: new URL("https://mega-star-tutoring.vercel.app"),
+  metadataBase: new URL("https://megastartutors.com"),
+  alternates: {
+    canonical: "https://megastartutors.com",
+  },
   openGraph: {
     type: "website",
     locale: "en_GB",
-    url: "https://mega-star-tutoring.vercel.app",
+    url: "https://megastartutors.com",
     siteName: "MegaStar Tutoring",
     title: "MegaStar Tutoring — 1-to-1 Online Tutoring That Works",
     description: "94% of students improve by 2+ grades within 3 months. Start with 2 free sessions.",

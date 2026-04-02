@@ -7,16 +7,20 @@ export default async function DashboardPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
   const databaseReady = isAppDatabaseReady();
+  const market = overview.preferences.market;
 
   const actionItems = [
     overview.missedSessionCount > 0
       ? `${overview.missedSessionCount} lesson${overview.missedSessionCount === 1 ? "" : "s"} need a follow-up`
       : "No lessons need attention right now",
+    overview.scheduleRequests.length > 0
+      ? `${overview.scheduleRequests.length} time change${overview.scheduleRequests.length === 1 ? "" : "s"} are waiting`
+      : "No new time changes are waiting",
     overview.activeSessionCount > 0
       ? `${overview.activeSessionCount} lesson${overview.activeSessionCount === 1 ? "" : "s"} are lined up`
       : "Add lessons to start planning the week",
     overview.ratingAverage > 0
-      ? `Your tutor score is sitting at ${formatScore(overview.ratingAverage)}`
+      ? `Your tutor score is sitting at ${formatScore(overview.ratingAverage, market)}`
       : "Ratings will appear once students leave feedback",
   ];
 
@@ -32,7 +36,7 @@ export default async function DashboardPage() {
           <div className="stat-label">Lessons</div>
         </article>
         <article className="panel">
-          <div className="stat-value">{formatMoney(overview.billableTotal)}</div>
+          <div className="stat-value">{formatMoney(overview.billableTotal, market)}</div>
           <div className="stat-label">Total due</div>
         </article>
       </section>
@@ -50,11 +54,11 @@ export default async function DashboardPage() {
             </thead>
             <tbody>
               {overview.upcomingSessions.length ? (
-                overview.upcomingSessions.map((session) => {
+                overview.upcomingSessions.map((session: (typeof overview.upcomingSessions)[number]) => {
                   const client = overview.clients.find((item) => item.id === session.clientId);
                   return (
                     <tr key={session.id}>
-                      <td>{formatShortDateTime(session.startsAt)}</td>
+                      <td>{formatShortDateTime(session.startsAt, market)}</td>
                       <td>
                         <strong>{client?.name || session.title}</strong>
                         <div className="table-subtle">{session.notes || "No notes yet"}</div>
@@ -97,7 +101,7 @@ export default async function DashboardPage() {
                 <div key={client.id} className="client-card">
                   <strong>{client.name}</strong>
                   <span>{client.preferredDays || "No preferred days saved"}</span>
-                  <span>{formatMoney(client.rateCents)} per session</span>
+                  <span>{formatMoney(client.rateCents, market)} per session</span>
                 </div>
               ))
             ) : (
@@ -110,12 +114,12 @@ export default async function DashboardPage() {
           <h2>Recent lessons</h2>
           <div className="workspace-grid">
             {overview.recentSessions.length ? (
-              overview.recentSessions.map((session) => (
+              overview.recentSessions.map((session: (typeof overview.recentSessions)[number]) => (
                 <div key={session.id} className="list-card">
                   <strong>{session.title}</strong>
-                  <div className="table-subtle">{formatShortDateTime(session.startsAt)}</div>
+                  <div className="table-subtle">{formatShortDateTime(session.startsAt, market)}</div>
                   <div className="table-subtle">
-                    {session.billable ? formatMoney(session.amountCents) : "Not billable"}
+                    {session.billable ? formatMoney(session.amountCents, market) : "Not billable"}
                   </div>
                 </div>
               ))
@@ -133,6 +137,14 @@ export default async function DashboardPage() {
               <span>{databaseReady ? "Real data will persist in Neon." : "Set DATABASE_URL to turn on the live database."}</span>
             </div>
             <div className="list-card">
+              <strong>{overview.preferences.onboardingCompletedAt ? "Setup complete" : "Setup waiting"}</strong>
+              <span>
+                {overview.preferences.onboardingCompletedAt
+                  ? `${overview.preferences.preferredDays || "No days chosen"} · ${overview.preferences.lessonLengthMinutes} min lessons`
+                  : "Open Start here to set the weekly rhythm."}
+              </span>
+            </div>
+            <div className="list-card">
               <strong>{overview.syncs[0] ? "Calendar connected" : "Calendar not connected"}</strong>
               <span>{overview.syncs[0] ? overview.syncs[0].statusMessage : "Connect Google Calendar from the Calendar page."}</span>
             </div>
@@ -143,6 +155,9 @@ export default async function DashboardPage() {
       <section className="action-row">
         <Link className="button button-primary" href="/app/clients">
           Add students
+        </Link>
+        <Link className="button button-secondary" href="/classroom">
+          Open classroom
         </Link>
         <Link className="button button-secondary" href="/app/calendar">
           Open calendar
@@ -158,6 +173,12 @@ export default async function DashboardPage() {
         </Link>
         <Link className="button button-secondary" href="/app/invoices">
           View invoices
+        </Link>
+        <Link className="button button-secondary" href="/app/library">
+          Lesson library
+        </Link>
+        <Link className="button button-secondary" href="/app/compliance">
+          Review trail
         </Link>
       </section>
     </div>

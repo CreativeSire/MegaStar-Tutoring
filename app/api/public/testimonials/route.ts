@@ -38,7 +38,7 @@ export async function GET() {
       result: r.score === 5 ? "Grade improved" : "Progress made",
       subject: r.category || "Tutoring",
       rating: r.score,
-      image: `https://images.unsplash.com/photo-${[1, 2, 3][Math.floor(Math.random() * 3)] === 1 ? "1544005313-94ddf0286df2" : Math.random() > 0.5 ? "1543269865-cbf427effbad" : "1560250097-0b93528c311a"}?w=400&q=85`,
+      image: ["/visuals/testimonial-1.svg", "/visuals/testimonial-2.svg", "/visuals/testimonial-3.svg"][Math.floor(Math.random() * 3)],
     }));
 
     return NextResponse.json({ testimonials });
@@ -47,3 +47,4 @@ export async function GET() {
     return NextResponse.json({ testimonials: [] });
   }
 }
+

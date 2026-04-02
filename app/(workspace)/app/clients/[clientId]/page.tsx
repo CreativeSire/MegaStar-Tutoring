@@ -63,7 +63,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           <h2>Recent lessons</h2>
           <div className="workspace-grid">
             {clientSessions.length ? (
-              clientSessions.map((session) => (
+              clientSessions.map((session: (typeof clientSessions)[number]) => (
                 <div key={session.id} className="list-card">
                   <strong>{session.title}</strong>
                   <span>{formatShortDateTime(session.startsAt)}</span>

@@ -1,88 +1,139 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ContactForm } from "@/components/contact-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with the MegaStar Tutoring team. We're here to help with any questions about our tutoring services.",
+  description:
+    "Get in touch with the MegaStar Tutoring team. We're here to help with any questions about tutoring, lessons, or support.",
 };
 
 const contactInfo = [
   {
-    icon: Mail,
     title: "Email",
     details: "support@megastartutoring.co.uk",
-    description: "We typically respond within 24 hours",
+    description: "We typically reply within one working day.",
   },
   {
-    icon: Phone,
     title: "Phone",
     details: "+44 (0) 20 7123 4567",
     description: "Mon-Fri, 9am-6pm GMT",
   },
   {
-    icon: MapPin,
     title: "Office",
     details: "London, United Kingdom",
-    description: "Available for in-person consultations",
+    description: "Online-first with in-person support by request.",
   },
   {
-    icon: Clock,
-    title: "Support Hours",
-    details: "24/7 Online Support",
-    description: "For urgent tutoring inquiries",
+    title: "Support hours",
+    details: "24/7 online help",
+    description: "For urgent questions about lessons or access.",
   },
 ];
 
 const faqs = [
   {
     question: "How quickly can I start tutoring?",
-    answer: "Most students are matched with a tutor within 24-48 hours of signing up. You can start your first free session as soon as you're matched.",
+    answer:
+      "Most families are matched with a tutor within 24–48 hours. You can often begin as soon as a suitable tutor is found.",
   },
   {
-    question: "What if I'm not happy with my tutor?",
-    answer: "No problem! We offer free tutor switching. Just let us know and we'll match you with a new tutor who better fits your learning style.",
+    question: "What if my tutor isn’t the right fit?",
+    answer:
+      "We can rematch you. The goal is always to make the experience feel comfortable and effective.",
   },
   {
     question: "Do you offer group sessions?",
-    answer: "Yes! We offer small group sessions for 2-4 students at a discounted rate. Contact us to learn more about group tutoring options.",
+    answer:
+      "Yes — small group sessions are available for some subjects. If that’s the best fit, we’ll let you know.",
   },
 ];
 
 export default function ContactPage() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-navy-50 pt-32 pb-20">
+      <section className="bg-gradient-to-b from-navy-50 via-white to-coral-50/50 pt-32 pb-20">
         <div className="container-premium">
-          <div className="mx-auto max-w-3xl text-center">
-            <span className="eyebrow mb-6">Contact Us</span>
-            <h1 className="text-display-2 mb-6 text-navy">
-              We&apos;d love to hear from{" "}
-              <span className="gradient-text">you</span>
-            </h1>
-            <p className="text-body-large mx-auto max-w-2xl text-navy-500">
-              Have questions about our tutoring services? Our team is here to help 
-              you find the perfect learning solution.
-            </p>
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="max-w-2xl">
+              <span className="eyebrow mb-6">Contact</span>
+              <h1 className="text-display-2 mb-6 text-navy">
+                We’d love to hear from{" "}
+                <span className="gradient-text">you</span>
+              </h1>
+              <p className="text-body-large max-w-2xl text-navy-500">
+                If you&apos;d like help choosing a tutor, setting up lessons, or
+                understanding how MegaStar works, our team is ready to help.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Badge className="rounded-full bg-white px-4 py-2 text-navy shadow-soft">
+                  Friendly support
+                </Badge>
+                <Badge className="rounded-full bg-white px-4 py-2 text-navy shadow-soft">
+                  Quick replies
+                </Badge>
+                <Badge className="rounded-full bg-white px-4 py-2 text-navy shadow-soft">
+                  Simple next steps
+                </Badge>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-hidden rounded-[32px] shadow-strong">
+                <Image
+                  src="/visuals/hero-classroom.svg"
+                  alt="Support team helping a family"
+                  width={1200}
+                  height={900}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-8 left-8 right-8 hidden rounded-[28px] border border-white/50 bg-white/95 p-5 shadow-soft backdrop-blur md:block">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-coral">
+                      Reply time
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-navy">
+                      Within 24 hours
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-coral">
+                      Best for
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-navy">
+                      Lessons, help, and updates
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-coral">
+                      Support
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-navy">
+                      Clear and friendly
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Info Cards */}
       <section className="section-padding bg-white">
         <div className="container-premium">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {contactInfo.map((item) => (
-              <Card key={item.title} className="text-center">
-                <CardContent className="pt-8">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-coral-50 text-coral">
-                    <item.icon size={28} />
-                  </div>
-                  <h3 className="mb-2 text-lg font-bold text-navy">{item.title}</h3>
-                  <p className="mb-1 font-semibold text-navy-800">{item.details}</p>
-                  <p className="text-sm text-navy-500">{item.description}</p>
+              <Card key={item.title} className="border-navy-100 bg-navy-50/50 shadow-soft">
+                <CardContent className="space-y-3 p-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-coral">
+                    {item.title}
+                  </p>
+                  <p className="text-lg font-bold text-navy">{item.details}</p>
+                  <p className="text-sm leading-6 text-navy-500">{item.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -90,47 +141,56 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact Form Section */}
       <section className="section-padding bg-navy-50">
         <div className="container-premium">
-          <div className="grid gap-16 lg:grid-cols-2">
-            {/* Form */}
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <span className="eyebrow mb-4">Send us a message</span>
-              <h2 className="text-heading-1 mb-6 text-navy">Get in touch</h2>
-              <p className="mb-8 text-navy-500">
-                Fill out the form below and our team will get back to you within 24 hours. 
-                For urgent inquiries, please call us directly.
+              <span className="eyebrow mb-4">Send a note</span>
+              <h2 className="text-heading-1 mb-6 text-navy">Tell us what you need</h2>
+              <p className="mb-8 max-w-2xl text-navy-500">
+                Whether you&apos;re ready to start or just want to ask a few
+                questions, send us a message and we&apos;ll help you find the
+                best path forward.
               </p>
-              <ContactForm />
+              <Card className="border-white/70 bg-white/85 shadow-soft backdrop-blur">
+                <CardContent className="p-6 sm:p-8">
+                  <ContactForm />
+                </CardContent>
+              </Card>
             </div>
 
-            {/* FAQ */}
-            <div>
-              <span className="eyebrow mb-4">Quick answers</span>
-              <h2 className="text-heading-1 mb-6 text-navy">Frequently asked questions</h2>
-              <div className="space-y-6">
+            <div className="space-y-6">
+              <Card className="overflow-hidden border-navy-100 shadow-soft">
+                <div className="relative h-56">
+                  <Image
+                    src="/visuals/hero-classroom.svg"
+                    alt="Friendly tutor helping a student"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardContent className="space-y-3 p-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-coral">
+                    Helpful start
+                  </p>
+                  <p className="text-2xl font-bold text-navy">A calm way to begin</p>
+                  <p className="text-navy-500">
+                    We&apos;ll help you choose the right tutor, the right pace, and the
+                    right schedule without making the process feel heavy.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-4">
                 {faqs.map((faq) => (
-                  <div key={faq.question} className="rounded-2xl bg-white p-6 shadow-soft">
-                    <h3 className="mb-2 text-lg font-bold text-navy">{faq.question}</h3>
-                    <p className="text-navy-500">{faq.answer}</p>
-                  </div>
+                  <Card key={faq.question} className="border-navy-100 bg-white shadow-soft">
+                    <CardContent className="space-y-2 p-6">
+                      <h3 className="text-lg font-bold text-navy">{faq.question}</h3>
+                      <p className="text-sm leading-6 text-navy-500">{faq.answer}</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Map Section */}
-      <section className="bg-white">
-        <div className="h-96 w-full bg-navy-100">
-          {/* Placeholder for map - would integrate Google Maps or similar */}
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <MapPin size={48} className="mx-auto mb-4 text-coral" />
-              <p className="text-lg font-semibold text-navy">MegaStar Tutoring HQ</p>
-              <p className="text-navy-500">London, United Kingdom</p>
             </div>
           </div>
         </div>
@@ -138,3 +198,4 @@ export default function ContactPage() {
     </>
   );
 }
+

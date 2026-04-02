@@ -5,6 +5,20 @@ export function assertSameOrigin(request: Request) {
   }
 
   const requestUrl = new URL(request.url);
+  if (origin === requestUrl.origin) {
+    return;
+  }
+
+  const originUrl = new URL(origin);
+  const loopbackHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+  const originIsLoopback = loopbackHosts.has(originUrl.hostname);
+  const requestIsLoopback = loopbackHosts.has(requestUrl.hostname);
+  const sameLoopbackPort = originUrl.port === requestUrl.port;
+
+  if (originUrl.protocol === requestUrl.protocol && originIsLoopback && requestIsLoopback && sameLoopbackPort) {
+    return;
+  }
+
   if (origin !== requestUrl.origin) {
     throw new Error("Forbidden origin.");
   }

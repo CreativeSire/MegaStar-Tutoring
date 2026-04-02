@@ -6,6 +6,7 @@ import { requireActor } from "@/lib/current-actor";
 export default async function AiPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
 
   const suggestions = [
     overview.missedSessionCount > 0
@@ -15,10 +16,10 @@ export default async function AiPage() {
       ? `You have ${overview.clients.length} student profile${overview.clients.length === 1 ? "" : "s"} ready for smarter planning.`
       : "Start with a student profile so the scheduler can learn the pattern.",
     overview.billableTotal > 0
-      ? `There is ${formatMoney(overview.billableTotal)} in lesson time ready to arrange.`
+      ? `There is ${formatMoney(overview.billableTotal, market)} in lesson time ready to arrange.`
       : "Once lessons land, billing can be shaped from the same record.",
     overview.ratingAverage > 0
-      ? `Tutor score is ${formatScore(overview.ratingAverage)} — keep the verified reviews coming.`
+      ? `Tutor score is ${formatScore(overview.ratingAverage, market)} — keep the verified reviews coming.`
       : "Ask for a review after each completed lesson to build a strong profile.",
   ];
 
@@ -41,7 +42,7 @@ export default async function AiPage() {
               <span>Student profiles</span>
             </div>
             <div className="list-card">
-              <strong>{formatScore(overview.ratingAverage || 0)}</strong>
+        <strong>{formatScore(overview.ratingAverage || 0, market)}</strong>
               <span>Current rating</span>
             </div>
           </>
@@ -90,7 +91,7 @@ export default async function AiPage() {
               <span>Lessons completed</span>
             </div>
             <div className="list-card">
-              <strong>{overview.billableTotal > 0 ? formatMoney(overview.billableTotal) : "—"}</strong>
+        <strong>{overview.billableTotal > 0 ? formatMoney(overview.billableTotal, market) : "—"}</strong>
               <span>Lesson value</span>
             </div>
             <div className="list-card">

@@ -7,7 +7,7 @@ export default async function WorkspaceLayout({ children }: Readonly<{ children:
   return (
     <AppShell
       title="MegaStar Tutoring"
-      subtitle="Tutor dashboard"
+      subtitle="Teaching hub"
       nav={workspaceNav}
       role={actor.role || "tutor"}
     >

@@ -7,7 +7,8 @@ import { requireActor } from "@/lib/current-actor";
 export default async function AlertsPage() {
   const actor = await requireActor();
   const overview = await getWorkspaceOverview(actor);
-  const { notices, scheduleCards } = buildTutorNotices(overview);
+  const market = overview.preferences.market;
+  const { notices, scheduleCards } = buildTutorNotices(overview, market);
   const nextLesson = overview.upcomingSessions[0];
 
   return (
@@ -66,7 +67,7 @@ export default async function AlertsPage() {
           {nextLesson ? (
             <div className="list-card">
               <strong>{nextLesson.title}</strong>
-              <span>{formatShortDateTime(nextLesson.startsAt)}</span>
+              <span>{formatShortDateTime(nextLesson.startsAt, market)}</span>
               <span>{nextLesson.notes || "No note saved yet."}</span>
             </div>
           ) : (

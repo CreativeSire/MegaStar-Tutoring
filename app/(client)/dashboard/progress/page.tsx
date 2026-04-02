@@ -5,6 +5,7 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientProgressPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
   const completedLessons = overview.completedSessionCount;
   const plannedLessons = overview.sessionCount;
 
@@ -28,11 +29,11 @@ export default async function ClientProgressPage() {
             <span>Lessons done</span>
           </div>
           <div className="student-pill">
-            <strong>{formatScore(overview.ratingAverage || 0)}</strong>
+              <strong>{formatScore(overview.ratingAverage || 0, market)}</strong>
             <span>Tutor rating</span>
           </div>
           <div className="student-pill">
-            <strong>{formatMoney(overview.billableTotal)}</strong>
+              <strong>{formatMoney(overview.billableTotal, market)}</strong>
             <span>Payments this month</span>
           </div>
         </div>
@@ -47,7 +48,7 @@ export default async function ClientProgressPage() {
         </div>
         <div className="student-timeline">
           {overview.recentSessions.length ? (
-            overview.recentSessions.slice(0, 4).map((session) => (
+            overview.recentSessions.slice(0, 4).map((session: (typeof overview.recentSessions)[number]) => (
               <div key={session.id} className="student-timeline-row">
                 <div>
                   <strong>{session.title}</strong>

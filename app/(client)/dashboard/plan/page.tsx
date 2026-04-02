@@ -5,6 +5,7 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientPlanPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
 
   const planItems = (overview.upcomingSessions.length ? overview.upcomingSessions : overview.recentSessions).slice(0, 5);
 
@@ -19,11 +20,11 @@ export default async function ClientPlanPage() {
         </div>
         <div className="student-timeline">
           {planItems.length ? (
-            planItems.map((session) => (
+            planItems.map((session: (typeof planItems)[number]) => (
               <div key={session.id} className="student-timeline-row">
                 <div>
                   <strong>{session.title}</strong>
-                  <span>{formatShortDateTime(session.startsAt)}</span>
+              <span>{formatShortDateTime(session.startsAt, market)}</span>
                 </div>
                 <span className={`pill ${session.status === "missed" ? "danger" : session.status === "completed" ? "success" : "neutral"}`}>
                   {session.status}

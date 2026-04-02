@@ -55,13 +55,13 @@ function sessionClientName(overview: WorkspaceOverview, clientId: string | null)
   return overview.clients.find((client) => client.id === clientId)?.name || "Unassigned";
 }
 
-export function buildTutorLessonNotes(overview: WorkspaceOverview) {
+export function buildTutorLessonNotes(overview: WorkspaceOverview, market?: string) {
   const latestSession = overview.recentSessions[0] || null;
   const noteCards: NoteCard[] = overview.recentSessions.length
     ? overview.recentSessions.slice(0, 5).map((session) => ({
         title: session.title,
         detail: session.notes || "No note added yet.",
-        meta: `${sessionClientName(overview, session.clientId)} · ${formatShortDateTime(session.startsAt)}`,
+        meta: `${sessionClientName(overview, session.clientId)} · ${formatShortDateTime(session.startsAt, market)}`,
         tone: toneForStatus(session.status),
         href: session.clientId ? `/app/clients/${session.clientId}` : undefined,
         linkLabel: "Open student",
@@ -80,7 +80,7 @@ export function buildTutorLessonNotes(overview: WorkspaceOverview) {
       ? {
           title: "Latest note",
           detail: latestSession.notes || "The most recent lesson note will show here.",
-          meta: `${sessionClientName(overview, latestSession.clientId)} · ${formatShortDateTime(latestSession.startsAt)}`,
+          meta: `${sessionClientName(overview, latestSession.clientId)} · ${formatShortDateTime(latestSession.startsAt, market)}`,
           tone: toneForStatus(latestSession.status),
           href: latestSession.clientId ? `/app/clients/${latestSession.clientId}` : undefined,
           linkLabel: "Open student",
@@ -108,7 +108,7 @@ export function buildTutorLessonNotes(overview: WorkspaceOverview) {
       ? {
           title: "Next lesson",
           detail: overview.upcomingSessions[0].notes || "A short note for the next lesson will appear here.",
-          meta: `${sessionClientName(overview, overview.upcomingSessions[0].clientId)} · ${formatShortDateTime(overview.upcomingSessions[0].startsAt)}`,
+          meta: `${sessionClientName(overview, overview.upcomingSessions[0].clientId)} · ${formatShortDateTime(overview.upcomingSessions[0].startsAt, market)}`,
           tone: "info",
         }
       : {
@@ -143,7 +143,7 @@ export function buildTutorLessonNotes(overview: WorkspaceOverview) {
   return { latestSession, noteCards, focusCards, quickPrompts };
 }
 
-export function buildTutorMessages(overview: WorkspaceOverview) {
+export function buildTutorMessages(overview: WorkspaceOverview, market?: string) {
   const threads: MessageCard[] = overview.clients.length
     ? overview.clients.slice(0, 5).map((client) => {
         const clientSessions = overview.sessions.filter((session) => session.clientId === client.id);
@@ -152,7 +152,7 @@ export function buildTutorMessages(overview: WorkspaceOverview) {
           title: client.name,
           detail: latestSession?.notes || client.notes || "A short reply can go here after the latest lesson.",
           meta: latestSession
-            ? `${statusLabel(latestSession.status)} · ${formatShortDateTime(latestSession.startsAt)}`
+            ? `${statusLabel(latestSession.status)} · ${formatShortDateTime(latestSession.startsAt, market)}`
             : "No lesson yet",
           tone: latestSession ? toneForStatus(latestSession.status) : "warm",
           href: `/app/clients/${client.id}`,
@@ -220,7 +220,7 @@ export function buildTutorMessages(overview: WorkspaceOverview) {
       ? {
           title: "Next lesson at a glance",
           detail: overview.upcomingSessions[0].title,
-          meta: formatShortDateTime(overview.upcomingSessions[0].startsAt),
+          meta: formatShortDateTime(overview.upcomingSessions[0].startsAt, market),
           tone: "good",
         }
       : {
@@ -234,13 +234,13 @@ export function buildTutorMessages(overview: WorkspaceOverview) {
   return { threads, replySuggestions, focusCards };
 }
 
-export function buildStudentMessages(overview: WorkspaceOverview) {
+export function buildStudentMessages(overview: WorkspaceOverview, market?: string) {
   const latestSession = overview.recentSessions[0] || null;
   const threads: MessageCard[] = overview.recentSessions.length
     ? overview.recentSessions.slice(0, 4).map((session) => ({
         title: session.title,
         detail: session.notes || "A short note from your tutor will appear here.",
-        meta: `${statusLabel(session.status)} · ${formatShortDateTime(session.startsAt)}`,
+        meta: `${statusLabel(session.status)} · ${formatShortDateTime(session.startsAt, market)}`,
         tone: toneForStatus(session.status),
       }))
     : [
@@ -278,7 +278,7 @@ export function buildStudentMessages(overview: WorkspaceOverview) {
       ? {
           title: "Latest note",
           detail: latestSession.notes || "A short note from the last lesson will appear here.",
-          meta: formatShortDateTime(latestSession.startsAt),
+          meta: formatShortDateTime(latestSession.startsAt, market),
           tone: toneForStatus(latestSession.status),
         }
       : {
@@ -291,7 +291,7 @@ export function buildStudentMessages(overview: WorkspaceOverview) {
       ? {
           title: "Next lesson",
           detail: overview.upcomingSessions[0].title,
-          meta: formatShortDateTime(overview.upcomingSessions[0].startsAt),
+          meta: formatShortDateTime(overview.upcomingSessions[0].startsAt, market),
           tone: "info",
         }
       : {

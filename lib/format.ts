@@ -1,38 +1,47 @@
-const moneyFormatter = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-  maximumFractionDigits: 0,
-});
+import { getMarketProfile } from "@/lib/market";
 
-const scoreFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 1,
-  minimumFractionDigits: 1,
-});
+type FormatMarket = string | null | undefined;
 
-export function formatMoney(cents: number) {
-  return moneyFormatter.format((Number.isFinite(cents) ? cents : 0) / 100);
+function resolveMarket(value?: FormatMarket) {
+  return getMarketProfile(value);
 }
 
-export function formatShortDateTime(value: Date | string) {
-  return new Intl.DateTimeFormat("en-GB", {
+export function formatMoney(cents: number, market?: FormatMarket) {
+  const profile = resolveMarket(market);
+  return new Intl.NumberFormat(profile.locale, {
+    style: "currency",
+    currency: profile.currency,
+    maximumFractionDigits: 0,
+  }).format((Number.isFinite(cents) ? cents : 0) / 100);
+}
+
+export function formatShortDateTime(value: Date | string, market?: FormatMarket) {
+  const profile = resolveMarket(market);
+  return new Intl.DateTimeFormat(profile.locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(typeof value === "string" ? new Date(value) : value);
 }
 
-export function formatShortDate(value: Date | string) {
-  return new Intl.DateTimeFormat("en-GB", {
+export function formatShortDate(value: Date | string, market?: FormatMarket) {
+  const profile = resolveMarket(market);
+  return new Intl.DateTimeFormat(profile.locale, {
     dateStyle: "medium",
   }).format(typeof value === "string" ? new Date(value) : value);
 }
 
-export function formatMonthYear(value: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+export function formatMonthYear(value: Date, market?: FormatMarket) {
+  const profile = resolveMarket(market);
+  return new Intl.DateTimeFormat(profile.locale, {
     month: "long",
     year: "numeric",
   }).format(value);
 }
 
-export function formatScore(value: number) {
-  return `${scoreFormatter.format(Number.isFinite(value) ? value : 0)} / 5`;
+export function formatScore(value: number, market?: FormatMarket) {
+  const profile = resolveMarket(market);
+  return `${new Intl.NumberFormat(profile.locale, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(Number.isFinite(value) ? value : 0)} / 5`;
 }

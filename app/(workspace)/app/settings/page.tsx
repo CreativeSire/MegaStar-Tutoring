@@ -1,9 +1,12 @@
 import { PageIntro } from "@/components/page-intro";
 import { requireActor } from "@/lib/current-actor";
-import { isAppDatabaseReady } from "@/lib/repository";
+import { getWorkspaceOverview, isAppDatabaseReady } from "@/lib/repository";
+import { getMarketProfile } from "@/lib/market";
 
 export default async function SettingsPage() {
   const actor = await requireActor();
+  const overview = await getWorkspaceOverview(actor);
+  const marketProfile = getMarketProfile(overview.preferences.market);
   const databaseReady = isAppDatabaseReady();
   const googleClientConfigured = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
   const clerkReady = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY);
@@ -13,12 +16,16 @@ export default async function SettingsPage() {
       <PageIntro
         eyebrow="Account"
         title="Check the basics in one place."
-        description="See whether sign-in, saved records, and calendar sync are ready."
+        description="See whether sign-in, saved records, calendar sync, and your market profile are ready."
         aside={
           <>
             <div className="list-card">
               <strong>{actor.role}</strong>
               <span>Current access</span>
+            </div>
+            <div className="list-card">
+              <strong>{marketProfile.label}</strong>
+              <span>{marketProfile.currency} · Market profile</span>
             </div>
             <div className="list-card">
               <strong>{clerkReady ? "Ready" : "Not set yet"}</strong>
@@ -34,6 +41,7 @@ export default async function SettingsPage() {
         <span className="pill neutral">{googleClientConfigured ? "Calendar linked" : "Calendar not linked"}</span>
         <span className="pill neutral">Private by design</span>
         <span className="pill neutral">Role-based access</span>
+        <span className="pill neutral">{marketProfile.label} formatting</span>
       </PageIntro>
 
       <section className="workspace-grid cols-2">
@@ -56,6 +64,10 @@ export default async function SettingsPage() {
             <div className="list-card">
               <strong>Access</strong>
               <span>Use the admin page to set each person as tutor, student, or admin.</span>
+            </div>
+            <div className="list-card">
+              <strong>Market</strong>
+              <span>{marketProfile.description}</span>
             </div>
           </div>
         </article>

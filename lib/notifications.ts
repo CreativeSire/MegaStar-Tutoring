@@ -1,3 +1,4 @@
+import { formatShortDateTime } from "@/lib/format";
 import type { getWorkspaceOverview } from "@/lib/repository";
 
 type NoticeTone = "good" | "warm" | "alert" | "info";
@@ -10,7 +11,7 @@ export type NoticeCard = {
 
 type WorkspaceOverview = Awaited<ReturnType<typeof getWorkspaceOverview>>;
 
-export function buildTutorNotices(overview: WorkspaceOverview) {
+export function buildTutorNotices(overview: WorkspaceOverview, market?: string) {
   const notices: NoticeCard[] = [
     overview.missedSessionCount > 0
       ? {
@@ -21,6 +22,17 @@ export function buildTutorNotices(overview: WorkspaceOverview) {
       : {
           title: "No missed lessons waiting",
           detail: "The week looks calm right now.",
+          tone: "good",
+        },
+    overview.scheduleRequests.length > 0
+      ? {
+          title: "New time changes to review",
+          detail: `${overview.scheduleRequests.length} lesson${overview.scheduleRequests.length === 1 ? "" : "s"} asked for a new slot.`,
+          tone: "warm",
+        }
+      : {
+          title: "No new time changes waiting",
+          detail: "Everything is lined up for now.",
           tone: "good",
         },
     overview.syncs[0]
@@ -37,7 +49,7 @@ export function buildTutorNotices(overview: WorkspaceOverview) {
     overview.ratingAverage > 0
       ? {
           title: "Tutor score is building",
-          detail: `${overview.ratingAverage.toFixed(1)} out of 5 from verified reviews.`,
+        detail: `${overview.ratingAverage.toFixed(1)} out of 5 from verified reviews.`,
           tone: "good",
         }
       : {
@@ -50,11 +62,7 @@ export function buildTutorNotices(overview: WorkspaceOverview) {
   const scheduleCards: NoticeCard[] = overview.upcomingSessions.length
     ? overview.upcomingSessions.slice(0, 3).map((session) => ({
         title: session.title,
-        detail: `${session.status} · ${new Date(session.startsAt).toLocaleString("en-GB", {
-          weekday: "short",
-          hour: "numeric",
-          minute: "2-digit",
-        })}`,
+        detail: `${session.status} · ${formatShortDateTime(session.startsAt, market)}`,
         tone: session.status === "missed" ? "alert" : "info",
       }))
     : [
@@ -68,7 +76,7 @@ export function buildTutorNotices(overview: WorkspaceOverview) {
   return { notices, scheduleCards };
 }
 
-export function buildStudentNotices(overview: WorkspaceOverview) {
+export function buildStudentNotices(overview: WorkspaceOverview, market?: string) {
   const notices: NoticeCard[] = [
     overview.upcomingSessions[0]
       ? {
@@ -90,6 +98,17 @@ export function buildStudentNotices(overview: WorkspaceOverview) {
       : {
           title: "No missed lessons waiting",
           detail: "Everything looks steady for now.",
+          tone: "good",
+        },
+    overview.scheduleRequests.length > 0
+      ? {
+          title: "A new time change is waiting",
+          detail: `${overview.scheduleRequests.length} request${overview.scheduleRequests.length === 1 ? "" : "s"} are ready to review.`,
+          tone: "warm",
+        }
+      : {
+          title: "No time changes waiting",
+          detail: "The week is still on track.",
           tone: "good",
         },
     overview.syncs[0]

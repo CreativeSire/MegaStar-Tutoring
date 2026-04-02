@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { formatMoney, formatScore } from "@/lib/format";
+import { getMarketProfile } from "@/lib/market";
+import { WorkspacePreferencesForm } from "@/components/workspace-preferences-form";
 import { getWorkspaceOverview, isAppDatabaseReady } from "@/lib/repository";
 import { requireActor } from "@/lib/current-actor";
 
@@ -7,6 +9,7 @@ const setupChecks = [
   { label: "Add the first student", detail: "Create a private profile for each student." },
   { label: "Set the weekly rhythm", detail: "Choose how often you meet and which days matter most." },
   { label: "Connect the calendar", detail: "Bring lessons into one place so time stays clear." },
+  { label: "Try a time change", detail: "Send one request so the flow stays easy to use." },
   { label: "Write the first note", detail: "Keep each lesson easy to follow." },
 ];
 
@@ -17,6 +20,15 @@ export default async function StartPage() {
   const hasCalendar = Boolean(overview.syncs[0]);
   const hasStudents = overview.clients.length > 0;
   const hasLessons = overview.sessions.length > 0;
+  const marketProfile = getMarketProfile(overview.preferences.market);
+  const market = overview.preferences.market;
+  const onboardingPreferences = {
+    market: overview.preferences.market,
+    preferredDays: overview.preferences.preferredDays,
+    lessonLengthMinutes: overview.preferences.lessonLengthMinutes,
+    primaryGoal: overview.preferences.primaryGoal,
+    onboardingCompletedAt: overview.preferences.onboardingCompletedAt?.toISOString() ?? null,
+  };
 
   return (
     <div className="workspace-grid cols-2">
@@ -38,6 +50,10 @@ export default async function StartPage() {
             <span>{databaseReady ? "Real records are stored for you." : "Add DATABASE_URL for live storage."}</span>
           </div>
           <div className="list-card">
+            <strong>{marketProfile.label}</strong>
+            <span>{marketProfile.currency} · Market profile</span>
+          </div>
+          <div className="list-card">
             <strong>{hasCalendar ? "Calendar connected" : "Calendar ready"}</strong>
             <span>{hasCalendar ? overview.syncs[0]?.statusMessage : "Connect Google Calendar when you want it."}</span>
           </div>
@@ -47,6 +63,8 @@ export default async function StartPage() {
           </div>
         </div>
       </section>
+
+      <WorkspacePreferencesForm preferences={onboardingPreferences} />
 
       <section className="panel">
         <div className="section-head compact">
@@ -69,12 +87,20 @@ export default async function StartPage() {
 
         <div className="workspace-grid cols-2" style={{ marginTop: 16 }}>
           <div className="list-card">
-            <strong>{formatMoney(overview.billableTotal)}</strong>
+            <strong>{formatMoney(overview.billableTotal, market)}</strong>
             <span>Current payment total</span>
           </div>
           <div className="list-card">
-            <strong>{formatScore(overview.ratingAverage || 0)}</strong>
+            <strong>{formatScore(overview.ratingAverage || 0, market)}</strong>
             <span>Average tutor rating</span>
+          </div>
+          <div className="list-card">
+            <strong>{overview.preferences.lessonLengthMinutes} min</strong>
+            <span>Lesson length</span>
+          </div>
+          <div className="list-card">
+            <strong>{overview.preferences.preferredDays || "Not set"}</strong>
+            <span>Preferred days</span>
           </div>
         </div>
 

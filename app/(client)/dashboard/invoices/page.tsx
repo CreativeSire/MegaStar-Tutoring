@@ -6,6 +6,7 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientInvoicesPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
   const lastLesson = overview.recentSessions[0];
 
   return (
@@ -17,7 +18,7 @@ export default async function ClientInvoicesPage() {
         aside={
           <>
             <div className="list-card">
-              <strong>{formatMoney(overview.billableTotal)}</strong>
+              <strong>{formatMoney(overview.billableTotal, market)}</strong>
               <span>Current total</span>
             </div>
             <div className="list-card">
@@ -25,7 +26,7 @@ export default async function ClientInvoicesPage() {
               <span>Lessons in view</span>
             </div>
             <div className="list-card">
-              <strong>{lastLesson ? formatShortDateTime(lastLesson.startsAt) : "—"}</strong>
+              <strong>{lastLesson ? formatShortDateTime(lastLesson.startsAt, market) : "—"}</strong>
               <span>Latest lesson</span>
             </div>
           </>
@@ -46,7 +47,7 @@ export default async function ClientInvoicesPage() {
           </div>
           <div className="student-summary">
             <div className="list-card">
-              <strong>{formatMoney(overview.billableTotal)}</strong>
+            <strong>{formatMoney(overview.billableTotal, market)}</strong>
               <span>Current total</span>
             </div>
             <div className="list-card">
@@ -69,13 +70,13 @@ export default async function ClientInvoicesPage() {
           </div>
           <div className="student-timeline" style={{ marginTop: 16 }}>
             {overview.recentSessions.length ? (
-              overview.recentSessions.map((session) => (
+              overview.recentSessions.map((session: (typeof overview.recentSessions)[number]) => (
                 <div key={session.id} className="student-timeline-row">
                   <div>
                     <strong>{session.title}</strong>
-                    <span>{formatShortDateTime(session.startsAt)}</span>
+                    <span>{formatShortDateTime(session.startsAt, market)}</span>
                   </div>
-                  <span>{session.billable ? formatMoney(session.amountCents) : "Not billed"}</span>
+                    <span>{session.billable ? formatMoney(session.amountCents, market) : "Not billed"}</span>
                 </div>
               ))
             ) : (

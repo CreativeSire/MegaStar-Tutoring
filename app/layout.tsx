@@ -7,10 +7,15 @@ export const metadata: Metadata = {
   title: "MegaStar Tutoring | Personalised Online Tutoring with AI-Powered Scheduling",
   description: "Expert online tutoring in Maths, English, Science & more. AI-powered scheduling, verified tutors, 94% success rate. Book your free trial lesson today.",
   keywords: "online tutoring, private tutor, maths tutor, english tutor, science tutor, GCSE tutoring, A-Level tutoring, 11 plus tutoring, online lessons",
+  metadataBase: new URL("https://megastartutors.com"),
+  alternates: {
+    canonical: "https://megastartutors.com",
+  },
   openGraph: {
     title: "MegaStar Tutoring | Expert Online Tutoring",
     description: "Personalised online tutoring with AI-powered scheduling. 94% student success rate. Book your free trial today.",
     type: "website",
+    url: "https://megastartutors.com",
   },
   twitter: {
     card: "summary_large_image",

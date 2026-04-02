@@ -9,6 +9,7 @@ export type NavItem = {
 
 export const workspaceNav: NavItem[] = [
   { href: "/app", label: "Dashboard", description: "Today at a glance", roles: ["tutor", "admin"] },
+  { href: "/classroom", label: "Classroom", description: "Live teaching room", roles: ["tutor", "admin"] },
   { href: "/app/start", label: "Start here", description: "Simple setup", roles: ["tutor", "admin"] },
   { href: "/app/clients", label: "Students", description: "Lesson profiles", roles: ["tutor", "admin"] },
   { href: "/app/calendar", label: "Calendar", description: "Lessons and availability", roles: ["tutor", "admin"] },
@@ -16,6 +17,8 @@ export const workspaceNav: NavItem[] = [
   { href: "/app/notes", label: "Notes", description: "Lesson details", roles: ["tutor", "admin"] },
   { href: "/app/messages", label: "Messages", description: "Student conversations", roles: ["tutor", "admin"] },
   { href: "/app/alerts", label: "Reminders", description: "Things to check", roles: ["tutor", "admin"] },
+  { href: "/app/library", label: "Library", description: "Download packs", roles: ["tutor", "admin"] },
+  { href: "/app/compliance", label: "Compliance", description: "Review trail", roles: ["tutor", "admin"] },
   { href: "/app/invoices", label: "Invoices", description: "Private exports", roles: ["tutor", "admin"] },
   { href: "/app/ratings", label: "Reviews", description: "Tutor feedback", roles: ["tutor", "admin"] },
   { href: "/app/ai", label: "Help", description: "Smart suggestions", roles: ["tutor", "admin"] },
@@ -25,6 +28,7 @@ export const workspaceNav: NavItem[] = [
 
 export const clientNav: NavItem[] = [
   { href: "/dashboard", label: "Overview", description: "Your lessons", roles: ["client", "admin"] },
+  { href: "/classroom", label: "Classroom", description: "Live lesson room", roles: ["client", "admin"] },
   { href: "/dashboard/start", label: "Start here", description: "Your first steps", roles: ["client", "admin"] },
   { href: "/dashboard/plan", label: "Plan", description: "Weekly view", roles: ["client", "admin"] },
   { href: "/dashboard/sessions", label: "Lessons", description: "Times and notes", roles: ["client", "admin"] },

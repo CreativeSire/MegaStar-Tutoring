@@ -18,9 +18,11 @@ MegaStar-Tutoring-Implementation-Backlog.pdf
 output/pdf/
 security-ownership-out/
 SECURITY_REVIEW.md
+local-docs/
 
 # clerk configuration (can include secrets)
 /.clerk/
 
 .vercel
 .env*.local
+.playwright-cli/

@@ -7,7 +7,8 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientUpdatesPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
-  const { notices, sessionCards } = buildStudentNotices(overview);
+  const market = overview.preferences.market;
+  const { notices, sessionCards } = buildStudentNotices(overview, market);
   const nextLesson = overview.upcomingSessions[0];
 
   return (
@@ -67,7 +68,7 @@ export default async function ClientUpdatesPage() {
           {nextLesson ? (
             <div className="list-card">
               <strong>{nextLesson.title}</strong>
-              <span>{formatShortDateTime(nextLesson.startsAt)}</span>
+              <span>{formatShortDateTime(nextLesson.startsAt, market)}</span>
               <span>{nextLesson.notes || "A short note from your tutor will appear here."}</span>
             </div>
           ) : (

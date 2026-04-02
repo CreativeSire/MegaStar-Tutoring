@@ -6,6 +6,7 @@ import { requireActor } from "@/lib/current-actor";
 export default async function InvoicesPage() {
   const actor = await requireActor();
   const [overview, invoices] = await Promise.all([getWorkspaceOverview(actor), getInvoiceDrafts(actor)]);
+  const market = overview.preferences.market;
   const latestInvoice = invoices[0];
 
   return (
@@ -17,7 +18,7 @@ export default async function InvoicesPage() {
         aside={
           <>
             <div className="list-card">
-              <strong>{formatMoney(overview.billableTotal)}</strong>
+            <strong>{formatMoney(overview.billableTotal, market)}</strong>
               <span>Current total</span>
             </div>
             <div className="list-card">
@@ -38,7 +39,7 @@ export default async function InvoicesPage() {
 
       <section className="workspace-grid cols-3">
         <article className="panel">
-          <div className="stat-value">{formatMoney(overview.billableTotal)}</div>
+          <div className="stat-value">{formatMoney(overview.billableTotal, market)}</div>
           <div className="stat-label">Ready to export</div>
         </article>
         <article className="panel">
@@ -46,7 +47,9 @@ export default async function InvoicesPage() {
           <div className="stat-label">Drafts prepared</div>
         </article>
         <article className="panel">
-          <div className="stat-value">{latestInvoice ? formatShortDateTime(latestInvoice.lastSession.startsAt) : "—"}</div>
+          <div className="stat-value">
+            {latestInvoice?.lastSession ? formatShortDateTime(latestInvoice.lastSession.startsAt, market) : "—"}
+          </div>
           <div className="stat-label">Latest lesson included</div>
         </article>
       </section>
@@ -62,7 +65,7 @@ export default async function InvoicesPage() {
                   <strong>{invoice.client.name}</strong>
                   <span>{invoice.fileName}</span>
                   <span>{invoice.sessionCount} billable session(s)</span>
-                  <span>{formatMoney(invoice.totalCents)}</span>
+                  <span>{formatMoney(invoice.totalCents, market)}</span>
                 </div>
               ))
             ) : (
@@ -88,7 +91,7 @@ export default async function InvoicesPage() {
             </div>
             <div className="list-card">
               <strong>Latest update</strong>
-              <span>{latestInvoice ? formatShortDateTime(latestInvoice.lastSession.startsAt) : "No lessons yet"}</span>
+              <span>{latestInvoice?.lastSession ? formatShortDateTime(latestInvoice.lastSession.startsAt, market) : "No lessons yet"}</span>
             </div>
           </div>
         </article>

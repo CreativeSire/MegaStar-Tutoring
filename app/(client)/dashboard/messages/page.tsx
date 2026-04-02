@@ -8,6 +8,7 @@ import { requireClientActor } from "@/lib/current-actor";
 export default async function ClientMessagesPage() {
   const actor = await requireClientActor();
   const overview = await getWorkspaceOverview(actor);
+  const market = overview.preferences.market;
   const { threads, replySuggestions, focusCards } = buildStudentMessages(overview);
   const nextLesson = overview.upcomingSessions[0] || overview.recentSessions[0] || null;
 
@@ -105,7 +106,7 @@ export default async function ClientMessagesPage() {
         <div className="student-message-summary">
           <div className="list-card">
             <strong>{nextLesson ? nextLesson.title : "No lesson yet"}</strong>
-            <span>{nextLesson ? formatShortDateTime(nextLesson.startsAt) : "Your next lesson will appear here."}</span>
+          <span>{nextLesson ? formatShortDateTime(nextLesson.startsAt, market) : "Your next lesson will appear here."}</span>
           </div>
           <div className="list-card">
             <strong>{overview.syncs[0] ? "Connected" : "Ready"}</strong>
