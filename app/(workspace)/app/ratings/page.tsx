@@ -1,4 +1,5 @@
 import { RatingForm } from "@/components/rating-form";
+import { RatingModerationActions } from "@/components/rating-moderation-actions";
 import { PageIntro } from "@/components/page-intro";
 import { formatScore, formatShortDate } from "@/lib/format";
 import { getWorkspaceOverview, listRatings } from "@/lib/repository";
@@ -10,6 +11,8 @@ export default async function RatingsPage() {
   const market = overview.preferences.market;
   const averageScore = ratings.length ? ratings.reduce((total, rating) => total + rating.score, 0) / ratings.length : 0;
   const verifiedRatings = ratings.filter((rating) => rating.sessionId);
+  const pendingRatings = ratings.filter((rating) => rating.moderationStatus === "pending");
+  const hiddenRatings = ratings.filter((rating) => rating.moderationStatus === "hidden");
   const categoryMap = ratings.reduce<Record<string, { total: number; count: number }>>((accumulator, rating) => {
     const entry = accumulator[rating.category] || { total: 0, count: 0 };
     entry.total += rating.score;
@@ -29,8 +32,8 @@ export default async function RatingsPage() {
     <div className="workspace-grid">
       <PageIntro
         eyebrow="Reviews"
-        title="Tutor feedback, kept private and useful."
-        description="Track what students appreciate most so each lesson feels clearer, kinder, and easier to follow."
+        title="Tutor feedback, moderated and useful."
+        description="Track what students appreciate most and keep the public-facing trail clean."
         aside={
           <>
             <div className="list-card">
@@ -42,8 +45,8 @@ export default async function RatingsPage() {
               <span>Saved reviews</span>
             </div>
             <div className="list-card">
-              <strong>{verifiedRatings.length}</strong>
-              <span>Lesson-linked reviews</span>
+              <strong>{pendingRatings.length}</strong>
+              <span>Need moderation</span>
             </div>
           </>
         }
@@ -51,7 +54,7 @@ export default async function RatingsPage() {
         <span className="pill neutral">{overview.clients.length} students</span>
         <span className="pill neutral">{ratings.length} reviews</span>
         <span className="pill neutral">{verifiedRatings.length} lesson-linked</span>
-        <span className="pill neutral">Private feedback</span>
+        <span className="pill neutral">Moderated feedback</span>
       </PageIntro>
 
       <section className="workspace-grid cols-2">
@@ -89,6 +92,14 @@ export default async function RatingsPage() {
               <strong>{verifiedRatings.length}</strong>
               <span>Lesson-linked reviews</span>
             </div>
+            <div className="list-card">
+              <strong>{pendingRatings.length}</strong>
+              <span>Pending moderation</span>
+            </div>
+            <div className="list-card">
+              <strong>{hiddenRatings.length}</strong>
+              <span>Hidden from view</span>
+            </div>
           </div>
 
           <div className="workspace-grid" style={{ marginTop: 16 }}>
@@ -97,7 +108,9 @@ export default async function RatingsPage() {
                 <div key={item.category} className="list-card">
                   <div className="audit-row">
                     <strong>{item.category}</strong>
-              <span>{formatScore(item.average, market)} · {item.count}</span>
+                    <span>
+                      {formatScore(item.average, market)} · {item.count}
+                    </span>
                   </div>
                   <div className="table-subtle">Average from the latest private reviews.</div>
                 </div>
@@ -115,12 +128,16 @@ export default async function RatingsPage() {
                     <strong>{rating.category}</strong>
                     <span>{rating.score} / 5</span>
                   </div>
+                  <span className={`pill ${rating.moderationStatus === "approved" ? "success" : rating.moderationStatus === "hidden" ? "danger" : "warning"}`}>
+                    {rating.moderationStatus}
+                  </span>
                   <span className="pill success">{rating.sessionId ? "Verified" : "Unverified"}</span>
                   <div className="table-subtle">
                     {overview.sessions.find((session) => session.id === rating.sessionId)?.title || "No lesson linked"}
                   </div>
                   <span>{rating.comment || "No comment added"}</span>
-              <span className="table-subtle">{formatShortDate(rating.createdAt, market)}</span>
+                  <span className="table-subtle">{formatShortDate(rating.createdAt, market)}</span>
+                  <RatingModerationActions ratingId={rating.id} currentStatus={rating.moderationStatus} />
                 </div>
               ))
             ) : (

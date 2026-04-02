@@ -62,6 +62,22 @@ export const ratings = pgTable("ratings", {
   score: integer("score").notNull(),
   category: text("category").notNull().default("overall"),
   comment: text("comment").notNull().default(""),
+  moderationStatus: text("moderation_status").notNull().default("approved"),
+  source: text("source").notNull().default("workspace"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const availabilityBlocks = pgTable("availability_blocks", {
+  id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+  ownerUserId: text("owner_user_id")
+    .notNull()
+    .references(() => userProfiles.id, { onDelete: "cascade" }),
+  dayOfWeek: integer("day_of_week").notNull(),
+  startMinute: integer("start_minute").notNull(),
+  endMinute: integer("end_minute").notNull(),
+  label: text("label").notNull().default("Available"),
+  notes: text("notes").notNull().default(""),
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -87,6 +103,11 @@ export const invoices = pgTable("invoices", {
   totalCents: integer("total_cents").notNull().default(0),
   status: invoiceStatusEnum("status").notNull().default("draft"),
   fileName: text("file_name").notNull(),
+  invoiceNumber: text("invoice_number").notNull().default(""),
+  clientNameSnapshot: text("client_name_snapshot").notNull().default(""),
+  lineItemsJson: text("line_items_json").notNull().default("[]"),
+  exportFormat: text("export_format").notNull().default("csv"),
+  dueAt: timestamp("due_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -177,6 +198,7 @@ export const userProfilesRelations = relations(userProfiles, ({ many }) => ({
   clients: many(clients),
   sessions: many(sessions),
   ratings: many(ratings),
+  availabilityBlocks: many(availabilityBlocks),
   calendarSyncs: many(calendarSyncs),
   invoices: many(invoices),
   lessonArchives: many(lessonArchives),

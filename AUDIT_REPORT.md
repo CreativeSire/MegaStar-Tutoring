@@ -83,3 +83,41 @@ Verified against the local dev server with the tutor workspace actor:
 - The archive save path and same-origin protection are both verified.
 - The schedule/reschedule path now resolves the same local test actor across pages and API routes, so accept/decline actions persist cleanly.
 - The public marketing surface now matches the blueprint routes and renders without hydration warnings in browser smoke.
+
+## New Operational Sweep
+
+### Scheduling and availability
+- Added a real weekly availability model with create/delete actions.
+- The calendar page now shows planner blocks, open-slot suggestions, and conflict cards.
+- Google Calendar sync is kept as a first-class planner module rather than a separate status-only panel.
+
+### Billing and invoices
+- Added an invoice builder with student, period, and export-format controls.
+- Added saved invoice records with export/download actions.
+- Added invoice status controls so exports can move from draft to sent or paid.
+
+### Ratings and moderation
+- Added review moderation states and moderation actions.
+- Ratings now distinguish approved, pending, and hidden items.
+- The ratings page now reads like a real moderation surface instead of a static list.
+
+### AI helper and client portal
+- Expanded the AI helper page to surface schedule, billing, moderation, and availability prompts.
+- Added a client review form and wired the student portal dashboard to the feedback route.
+- Expanded client detail pages with operational snapshot, billing, and availability context.
+
+### Migration cleanup
+- Added a database migration artifact for the new availability, invoice, and rating columns.
+
+### Verification
+- `npm run lint`
+- `npm run build`
+- Browser/API smoke on the running dev server confirmed:
+  - calendar planner render
+  - availability block creation
+  - invoice export creation
+  - invoice export download actions
+  - rating creation and moderation actions
+  - AI helper render
+  - client detail render
+  - client dashboard review submission

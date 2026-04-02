@@ -1,8 +1,19 @@
-import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { getDatabase, hasDatabase } from "@/lib/db";
-import { calendarSyncs, clients, invoices, lessonArchives, ratings, scheduleRequests, sessions, userProfiles, workspacePreferences } from "@/lib/db/schema";
-import { formatMonthYear } from "@/lib/format";
+import {
+  availabilityBlocks,
+  calendarSyncs,
+  clients,
+  invoices,
+  lessonArchives,
+  ratings,
+  scheduleRequests,
+  sessions,
+  userProfiles,
+  workspacePreferences,
+} from "@/lib/db/schema";
+import { formatMoney, formatMonthYear } from "@/lib/format";
 import { normalizeMarket } from "@/lib/market";
 import { normalizeAppRole, type AppRole } from "@/lib/roles";
 
@@ -48,6 +59,8 @@ export type RatingInput = {
   score: number;
   category: string;
   comment: string;
+  moderationStatus?: string;
+  source?: string;
 };
 
 export type SyncEventInput = {
@@ -146,6 +159,20 @@ type RatingRow = {
   score: number;
   category: string;
   comment: string;
+  moderationStatus: string;
+  source: string;
+  createdAt: Date;
+};
+
+type AvailabilityBlockRow = {
+  id: string;
+  ownerUserId: string;
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+  label: string;
+  notes: string;
+  active: boolean;
   createdAt: Date;
 };
 
@@ -167,6 +194,11 @@ type InvoiceRow = {
   totalCents: number;
   status: "draft" | "sent" | "paid";
   fileName: string;
+  invoiceNumber: string;
+  clientNameSnapshot: string;
+  lineItemsJson: string;
+  exportFormat: string;
+  dueAt: Date | null;
   createdAt: Date;
 };
 
@@ -214,6 +246,7 @@ type MemoryWorkspace = {
   clients: ClientRow[];
   sessions: SessionRow[];
   ratings: RatingRow[];
+  availabilityBlocks: AvailabilityBlockRow[];
   syncs: SyncRow[];
   invoices: InvoiceRow[];
   archives: LessonArchiveRow[];
@@ -237,6 +270,7 @@ export type WorkspaceOverview = {
   clients: ClientRow[];
   sessions: SessionRow[];
   ratings: RatingRow[];
+  availabilityBlocks: AvailabilityBlockRow[];
   syncs: SyncRow[];
   archives: LessonArchiveRow[];
   scheduleRequests: ScheduleRequestRow[];
@@ -255,6 +289,31 @@ function toDate(value: string | Date) {
 
 function toMoney(value: number) {
   return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+}
+
+function minutesToTimeLabel(minutes: number) {
+  const safeMinutes = Math.max(0, Math.min(24 * 60, Math.floor(minutes)));
+  const hours = Math.floor(safeMinutes / 60);
+  const mins = safeMinutes % 60;
+  const suffix = hours >= 12 ? "pm" : "am";
+  const normalizedHour = hours % 12 || 12;
+  return `${normalizedHour}:${String(mins).padStart(2, "0")} ${suffix}`;
+}
+
+function weekdayLabel(dayOfWeek: number) {
+  return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][Math.max(0, Math.min(6, Math.floor(dayOfWeek)))] || "Day";
+}
+
+function toWeekdayIndex(value: Date) {
+  return value.getDay();
+}
+
+function overlapsMinutes(startA: number, endA: number, startB: number, endB: number) {
+  return startA < endB && endA > startB;
+}
+
+function getSessionMinutes(value: Date) {
+  return value.getHours() * 60 + value.getMinutes();
 }
 
 function resolveOwnedClientIdMemory(actor: Actor, clientId: string | null | undefined) {
@@ -380,7 +439,33 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
         score: 5,
         category: "communication",
         comment: "Very clear explanations.",
+        moderationStatus: "approved",
+        source: "workspace",
         createdAt: new Date(now.getTime() - 3 * 86400000),
+      },
+    ],
+    availabilityBlocks: [
+      {
+        id: randomUUID(),
+        ownerUserId: "",
+        dayOfWeek: 1,
+        startMinute: 16 * 60,
+        endMinute: 19 * 60,
+        label: "Monday evening",
+        notes: "After school block",
+        active: true,
+        createdAt: new Date(now.getTime() - 3 * 86400000),
+      },
+      {
+        id: randomUUID(),
+        ownerUserId: "",
+        dayOfWeek: 3,
+        startMinute: 16 * 60,
+        endMinute: 20 * 60,
+        label: "Wednesday evening",
+        notes: "Main teaching block",
+        active: true,
+        createdAt: new Date(now.getTime() - 2 * 86400000),
       },
     ],
     syncs: [
@@ -403,6 +488,11 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
         totalCents: 3000,
         status: "draft",
         fileName: "MegaStar Tutoring Invoice March 2026.xlsx",
+        invoiceNumber: "INV-2026-03-001",
+        clientNameSnapshot: "Client A Family",
+        lineItemsJson: "[]",
+        exportFormat: "xlsx",
+        dueAt: new Date(now.getFullYear(), now.getMonth(), 15),
         createdAt: new Date(now.getTime() - 2 * 86400000),
       },
     ],
@@ -453,6 +543,7 @@ function buildDemoWorkspace(actor: Actor): MemoryWorkspace {
     clientId: base.clients[0].id,
     sessionId: base.sessions[0].id,
   }));
+  base.availabilityBlocks = base.availabilityBlocks.map((block) => ({ ...block, ownerUserId: base.profile.id }));
   base.syncs = base.syncs.map((sync) => ({ ...sync, ownerUserId: base.profile.id }));
   base.invoices = base.invoices.map((invoice) => ({
     ...invoice,
@@ -480,6 +571,24 @@ function getMemoryStore() {
   return globalForMemory.megaStarStore;
 }
 
+function normalizeMemoryWorkspace(workspace: MemoryWorkspace) {
+  workspace.availabilityBlocks = workspace.availabilityBlocks || [];
+  workspace.ratings = workspace.ratings.map((rating) => ({
+    ...rating,
+    moderationStatus: rating.moderationStatus || "approved",
+    source: rating.source || "workspace",
+  }));
+  workspace.invoices = workspace.invoices.map((invoice) => ({
+    ...invoice,
+    invoiceNumber: invoice.invoiceNumber || "",
+    clientNameSnapshot: invoice.clientNameSnapshot || "",
+    lineItemsJson: invoice.lineItemsJson || "[]",
+    exportFormat: invoice.exportFormat || "csv",
+    dueAt: invoice.dueAt || null,
+  }));
+  return workspace;
+}
+
 function getWorkspaceMemory(actor: Actor) {
   const store = getMemoryStore();
   let workspace = store.workspaces.get(actor.clerkUserId);
@@ -487,7 +596,7 @@ function getWorkspaceMemory(actor: Actor) {
     workspace = buildDemoWorkspace(actor);
     store.workspaces.set(actor.clerkUserId, workspace);
   }
-  return workspace;
+  return normalizeMemoryWorkspace(workspace);
 }
 
 function peekWorkspaceMemory(clerkUserId: string) {
@@ -909,6 +1018,108 @@ export async function listRatings(actor: Actor): Promise<RatingRow[]> {
   return db ? listRatingsDb(actor) : listRatingsMemory(actor);
 }
 
+async function listAvailabilityBlocksDb(actor: Actor): Promise<AvailabilityBlockRow[]> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  return db
+    .select()
+    .from(availabilityBlocks)
+    .where(eq(availabilityBlocks.ownerUserId, profile.id))
+    .orderBy(availabilityBlocks.dayOfWeek, availabilityBlocks.startMinute, availabilityBlocks.createdAt);
+}
+
+function listAvailabilityBlocksMemory(actor: Actor): AvailabilityBlockRow[] {
+  return clone(getWorkspaceMemory(actor).availabilityBlocks).sort((left, right) => {
+    if (left.dayOfWeek !== right.dayOfWeek) {
+      return left.dayOfWeek - right.dayOfWeek;
+    }
+
+    if (left.startMinute !== right.startMinute) {
+      return left.startMinute - right.startMinute;
+    }
+
+    return right.createdAt.getTime() - left.createdAt.getTime();
+  });
+}
+
+export async function listAvailabilityBlocks(actor: Actor): Promise<AvailabilityBlockRow[]> {
+  const db = getDatabase();
+  return db ? listAvailabilityBlocksDb(actor) : listAvailabilityBlocksMemory(actor);
+}
+
+export type AvailabilityBlockInput = {
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+  label: string;
+  notes: string;
+  active: boolean;
+};
+
+async function createAvailabilityBlockDb(actor: Actor, input: AvailabilityBlockInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const inserted = await db
+    .insert(availabilityBlocks)
+    .values({
+      ownerUserId: profile.id,
+      dayOfWeek: Math.max(0, Math.min(6, Math.floor(input.dayOfWeek))),
+      startMinute: Math.max(0, Math.min(24 * 60, Math.floor(input.startMinute))),
+      endMinute: Math.max(0, Math.min(24 * 60, Math.floor(input.endMinute))),
+      label: input.label.trim() || "Available",
+      notes: input.notes.trim(),
+      active: Boolean(input.active),
+    })
+    .returning();
+  return inserted[0] as AvailabilityBlockRow;
+}
+
+function createAvailabilityBlockMemory(actor: Actor, input: AvailabilityBlockInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const block: AvailabilityBlockRow = {
+    id: randomUUID(),
+    ownerUserId: workspace.profile.id,
+    dayOfWeek: Math.max(0, Math.min(6, Math.floor(input.dayOfWeek))),
+    startMinute: Math.max(0, Math.min(24 * 60, Math.floor(input.startMinute))),
+    endMinute: Math.max(0, Math.min(24 * 60, Math.floor(input.endMinute))),
+    label: input.label.trim() || "Available",
+    notes: input.notes.trim(),
+    active: Boolean(input.active),
+    createdAt: new Date(),
+  };
+  workspace.availabilityBlocks.unshift(block);
+  return block;
+}
+
+export async function createAvailabilityBlock(actor: Actor, input: AvailabilityBlockInput) {
+  const db = getDatabase();
+  return db ? createAvailabilityBlockDb(actor, input) : createAvailabilityBlockMemory(actor, input);
+}
+
+async function deleteAvailabilityBlockDb(actor: Actor, availabilityBlockId: string) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  await db
+    .delete(availabilityBlocks)
+    .where(and(eq(availabilityBlocks.id, availabilityBlockId), eq(availabilityBlocks.ownerUserId, profile.id)));
+  return true;
+}
+
+function deleteAvailabilityBlockMemory(actor: Actor, availabilityBlockId: string) {
+  const workspace = getWorkspaceMemory(actor);
+  const before = workspace.availabilityBlocks.length;
+  workspace.availabilityBlocks = workspace.availabilityBlocks.filter((entry) => entry.id !== availabilityBlockId);
+  return workspace.availabilityBlocks.length !== before;
+}
+
+export async function deleteAvailabilityBlock(actor: Actor, availabilityBlockId: string) {
+  const db = getDatabase();
+  return db ? deleteAvailabilityBlockDb(actor, availabilityBlockId) : deleteAvailabilityBlockMemory(actor, availabilityBlockId);
+}
+
 async function createRatingDb(actor: Actor, input: RatingInput) {
   const db = getDatabase();
   if (!db) throw new Error("Database is not configured.");
@@ -932,6 +1143,8 @@ async function createRatingDb(actor: Actor, input: RatingInput) {
       score: Math.min(5, Math.max(1, Math.floor(input.score))),
       category: input.category,
       comment: input.comment,
+      moderationStatus: input.moderationStatus || "approved",
+      source: input.source || "workspace",
     })
     .returning();
   return inserted[0];
@@ -952,6 +1165,8 @@ function createRatingMemory(actor: Actor, input: RatingInput) {
     score: Math.min(5, Math.max(1, Math.floor(input.score))),
     category: input.category,
     comment: input.comment,
+    moderationStatus: input.moderationStatus || "approved",
+    source: input.source || "workspace",
     createdAt: new Date(),
   };
   workspace.ratings.unshift(rating);
@@ -961,6 +1176,38 @@ function createRatingMemory(actor: Actor, input: RatingInput) {
 export async function createRating(actor: Actor, input: RatingInput) {
   const db = getDatabase();
   return db ? createRatingDb(actor, input) : createRatingMemory(actor, input);
+}
+
+export type RatingModerationInput = {
+  moderationStatus: "approved" | "pending" | "hidden";
+};
+
+async function updateRatingModerationDb(actor: Actor, ratingId: string, input: RatingModerationInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const updated = await db
+    .update(ratings)
+    .set({ moderationStatus: input.moderationStatus })
+    .where(and(eq(ratings.id, ratingId), eq(ratings.ownerUserId, profile.id)))
+    .returning();
+  return updated[0] || null;
+}
+
+function updateRatingModerationMemory(actor: Actor, ratingId: string, input: RatingModerationInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const rating = workspace.ratings.find((entry) => entry.id === ratingId);
+  if (!rating) {
+    return null;
+  }
+
+  rating.moderationStatus = input.moderationStatus;
+  return rating;
+}
+
+export async function updateRatingModeration(actor: Actor, ratingId: string, input: RatingModerationInput) {
+  const db = getDatabase();
+  return db ? updateRatingModerationDb(actor, ratingId, input) : updateRatingModerationMemory(actor, ratingId, input);
 }
 
 async function listScheduleRequestsDb(actor: Actor): Promise<ScheduleRequestRow[]> {
@@ -1258,17 +1505,18 @@ export async function importCalendarEvents(actor: Actor, calendarId: string, eve
 
 export async function getWorkspaceOverview(actor: Actor): Promise<WorkspaceOverview> {
   const profile = await ensureProfile(actor);
-  const [preferences, clientList, sessionList, ratingList, syncList, archiveList, requestList] = await Promise.all([
+  const [preferences, clientList, sessionList, ratingList, availabilityList, syncList, archiveList, requestList] = await Promise.all([
     getWorkspacePreferences(actor),
     listClients(actor),
     listSessions(actor),
     listRatings(actor),
+    listAvailabilityBlocks(actor),
     listSyncs(actor),
     listLessonArchives(actor),
     listScheduleRequests(actor),
   ]);
 
-  const activeSessions = sessionList.filter((session) => session.status === "planned");
+  const activeSessions = sessionList.filter((session) => session.status === "planned" || session.status === "partial");
   const missedSessions = sessionList.filter((session) => session.status === "missed");
   const completedSessions = sessionList.filter((session) => session.status === "completed");
   const billableTotal = sessionList
@@ -1291,6 +1539,7 @@ export async function getWorkspaceOverview(actor: Actor): Promise<WorkspaceOverv
     clients: clientList,
     sessions: sessionList,
     ratings: ratingList,
+    availabilityBlocks: availabilityList,
     syncs: syncList,
     archives: archiveList,
     scheduleRequests: requestList,
@@ -1324,6 +1573,224 @@ export async function getInvoiceDrafts(actor: Actor): Promise<
       fileName: `MegaStar Tutoring Invoice ${formatMonthYear(new Date(), preferences.market)}.xlsx`,
     };
   });
+}
+
+export type InvoiceBuilderInput = {
+  clientId: string;
+  periodStart: string;
+  periodEnd: string;
+  exportFormat: string;
+};
+
+async function listInvoicesDb(actor: Actor): Promise<InvoiceRow[]> {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  return db.select().from(invoices).where(eq(invoices.ownerUserId, profile.id)).orderBy(desc(invoices.createdAt));
+}
+
+function listInvoicesMemory(actor: Actor): InvoiceRow[] {
+  return clone(getWorkspaceMemory(actor).invoices).sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+}
+
+export async function listInvoices(actor: Actor): Promise<InvoiceRow[]> {
+  const db = getDatabase();
+  return db ? listInvoicesDb(actor) : listInvoicesMemory(actor);
+}
+
+function buildInvoiceFileName(clientName: string, periodStart: Date, exportFormat: string, market: string) {
+  const safeClientName = clientName.trim().replace(/\s+/g, " ") || "Student";
+  const month = formatMonthYear(periodStart, market);
+  const ext = exportFormat === "xlsx" ? "xlsx" : exportFormat === "pdf" ? "pdf" : "csv";
+  return `MegaStar Tutoring Invoice ${safeClientName} ${month}.${ext}`;
+}
+
+function buildInvoiceNumber(periodStart: Date, nextIndex: number) {
+  const year = periodStart.getFullYear();
+  const month = String(periodStart.getMonth() + 1).padStart(2, "0");
+  return `INV-${year}-${month}-${String(nextIndex).padStart(3, "0")}`;
+}
+
+function buildInvoiceLineItems(sessionsList: SessionRow[]) {
+  return sessionsList.map((session) => ({
+    sessionId: session.id,
+    title: session.title,
+    startsAt: session.startsAt.toISOString(),
+    amountCents: session.amountCents,
+    notes: session.notes,
+  }));
+}
+
+async function createInvoiceDb(actor: Actor, input: InvoiceBuilderInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const client = await resolveOwnedClientIdDb(actor, input.clientId);
+  if (!client) {
+    throw new Error("Client not found.");
+  }
+
+  const [clientRow, sessionRows, invoiceRows, preferences] = await Promise.all([
+    db.select().from(clients).where(and(eq(clients.id, client), eq(clients.ownerUserId, profile.id))).limit(1),
+    db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.ownerUserId, profile.id), eq(sessions.clientId, client)))
+      .orderBy(desc(sessions.startsAt)),
+    db.select({ id: invoices.id }).from(invoices).where(eq(invoices.ownerUserId, profile.id)),
+    getWorkspacePreferences(actor),
+  ]);
+
+  const periodStart = new Date(input.periodStart);
+  const periodEnd = new Date(input.periodEnd);
+  const selectedSessions = sessionRows.filter((session) => session.billable && session.startsAt >= periodStart && session.startsAt <= periodEnd);
+  const totalCents = selectedSessions.reduce((total, session) => total + session.amountCents, 0);
+  const nextIndex = invoiceRows.length + 1;
+  const lineItemsJson = JSON.stringify(buildInvoiceLineItems(selectedSessions));
+  const clientRowValue = clientRow[0];
+  const fileName = buildInvoiceFileName(clientRowValue?.name || "Student", periodStart, input.exportFormat, preferences.market);
+  const inserted = await db
+    .insert(invoices)
+    .values({
+      ownerUserId: profile.id,
+      clientId: client,
+      periodStart,
+      periodEnd,
+      totalCents,
+      status: "draft",
+      fileName,
+      invoiceNumber: buildInvoiceNumber(periodStart, nextIndex),
+      clientNameSnapshot: clientRowValue?.billTo || clientRowValue?.name || "Student",
+      lineItemsJson,
+      exportFormat: input.exportFormat,
+      dueAt: new Date(periodEnd.getTime() + 14 * 86400000),
+    })
+    .returning();
+
+  return {
+    invoice: inserted[0] as InvoiceRow,
+    client: clientRowValue as ClientRow,
+    sessions: selectedSessions,
+    fileName,
+    lineItemsJson,
+  };
+}
+
+function createInvoiceMemory(actor: Actor, input: InvoiceBuilderInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const client = workspace.clients.find((entry) => entry.id === input.clientId);
+  if (!client) {
+    throw new Error("Client not found.");
+  }
+
+  const periodStart = new Date(input.periodStart);
+  const periodEnd = new Date(input.periodEnd);
+  const selectedSessions = workspace.sessions.filter(
+    (session) => session.clientId === client.id && session.billable && session.startsAt >= periodStart && session.startsAt <= periodEnd,
+  );
+  const totalCents = selectedSessions.reduce((total, session) => total + session.amountCents, 0);
+  const lineItemsJson = JSON.stringify(buildInvoiceLineItems(selectedSessions));
+  const fileName = buildInvoiceFileName(client.name, periodStart, input.exportFormat, workspace.preferences.market);
+  const invoice: InvoiceRow = {
+    id: randomUUID(),
+    ownerUserId: workspace.profile.id,
+    clientId: client.id,
+    periodStart,
+    periodEnd,
+    totalCents,
+    status: "draft",
+    fileName,
+    invoiceNumber: buildInvoiceNumber(periodStart, workspace.invoices.length + 1),
+    clientNameSnapshot: client.billTo || client.name,
+    lineItemsJson,
+    exportFormat: input.exportFormat,
+    dueAt: new Date(periodEnd.getTime() + 14 * 86400000),
+    createdAt: new Date(),
+  };
+  workspace.invoices.unshift(invoice);
+  return { invoice, client, sessions: selectedSessions, fileName, lineItemsJson };
+}
+
+export async function createInvoice(actor: Actor, input: InvoiceBuilderInput) {
+  const db = getDatabase();
+  return db ? createInvoiceDb(actor, input) : createInvoiceMemory(actor, input);
+}
+
+export type InvoiceStatusInput = {
+  status: "draft" | "sent" | "paid";
+};
+
+async function updateInvoiceStatusDb(actor: Actor, invoiceId: string, input: InvoiceStatusInput) {
+  const db = getDatabase();
+  if (!db) throw new Error("Database is not configured.");
+  const profile = await ensureProfileDb(actor);
+  const updated = await db
+    .update(invoices)
+    .set({ status: input.status })
+    .where(and(eq(invoices.id, invoiceId), eq(invoices.ownerUserId, profile.id)))
+    .returning();
+  return updated[0] || null;
+}
+
+function updateInvoiceStatusMemory(actor: Actor, invoiceId: string, input: InvoiceStatusInput) {
+  const workspace = getWorkspaceMemory(actor);
+  const invoice = workspace.invoices.find((entry) => entry.id === invoiceId);
+  if (!invoice) {
+    return null;
+  }
+
+  invoice.status = input.status;
+  return invoice;
+}
+
+export async function updateInvoiceStatus(actor: Actor, invoiceId: string, input: InvoiceStatusInput) {
+  const db = getDatabase();
+  return db ? updateInvoiceStatusDb(actor, invoiceId, input) : updateInvoiceStatusMemory(actor, invoiceId, input);
+}
+
+export function buildInvoiceExportContent(
+  invoice: InvoiceRow,
+  client: ClientRow | null,
+  sessionsList: SessionRow[],
+  market: string,
+) {
+  const lines = [
+    ["Invoice number", invoice.invoiceNumber || invoice.fileName],
+    ["Client", client?.name || invoice.clientNameSnapshot || "Student"],
+    ["Billing name", client?.billTo || invoice.clientNameSnapshot || "Student"],
+    ["Period start", formatMonthYear(invoice.periodStart, market)],
+    ["Period end", formatMonthYear(invoice.periodEnd, market)],
+    ["Status", invoice.status],
+    ["Export format", invoice.exportFormat],
+    ["Total", formatMoney(invoice.totalCents, market)],
+    [""],
+    ["Sessions"],
+    ...sessionsList.map((session) => [
+      session.title,
+      session.startsAt.toISOString(),
+      formatMoney(session.amountCents, market),
+      session.notes || "",
+    ]),
+  ];
+
+  return lines
+    .map((row) => row.map((cell) => `"${String(cell || "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+}
+
+export function parseInvoiceLineItems(lineItemsJson: string) {
+  try {
+    const parsed = JSON.parse(lineItemsJson) as Array<{
+      sessionId?: string;
+      title?: string;
+      startsAt?: string;
+      amountCents?: number;
+      notes?: string;
+    }>;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getClientById(actor: Actor, clientId: string) {

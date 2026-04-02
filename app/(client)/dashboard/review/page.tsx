@@ -1,21 +1,12 @@
+import { ClientReviewForm } from "@/components/client-review-form";
 import { PageIntro } from "@/components/page-intro";
+import { getWorkspaceOverview } from "@/lib/repository";
+import { requireClientActor } from "@/lib/current-actor";
 
-const reviewGuides = [
-  {
-    title: "Punctuality",
-    detail: "Did the lesson start on time and flow well?",
-  },
-  {
-    title: "Clarity",
-    detail: "Were things explained in a way that felt easy to follow?",
-  },
-  {
-    title: "Support",
-    detail: "Did the lesson feel helpful and encouraging?",
-  },
-];
+export default async function ClientReviewPage() {
+  const actor = await requireClientActor();
+  const overview = await getWorkspaceOverview(actor);
 
-export default function ClientReviewPage() {
   return (
     <div className="workspace-grid">
       <PageIntro
@@ -39,24 +30,49 @@ export default function ClientReviewPage() {
         <span className="pill neutral">Helpful to both sides</span>
       </PageIntro>
 
-      <section className="panel">
-        <div className="section-head compact">
-          <div>
-            <h2>What to think about</h2>
-            <p>A few small things make the review more useful.</p>
-          </div>
-        </div>
-        <div className="workspace-grid cols-3">
-          {reviewGuides.map((item) => (
-            <div key={item.title} className="list-card">
-              <strong>{item.title}</strong>
-              <span>{item.detail}</span>
+      <section className="workspace-grid cols-2">
+        <ClientReviewForm
+          clients={overview.clients.map((client) => ({
+            id: client.id,
+            name: client.name,
+            billTo: client.billTo,
+          }))}
+          sessions={overview.sessions
+            .filter((session) => session.status === "completed" || session.status === "partial")
+            .map((session) => ({
+              id: session.id,
+              title: session.title,
+              startsAt: session.startsAt.toISOString(),
+              clientId: session.clientId,
+              clientName: overview.clients.find((client) => client.id === session.clientId)?.name || session.title,
+            }))}
+        />
+
+        <section className="panel">
+          <div className="section-head compact">
+            <div>
+              <h2>What to think about</h2>
+              <p>A few small things make the review more useful.</p>
             </div>
-          ))}
-        </div>
-        <div className="list-card" style={{ marginTop: 16 }}>
-          Your review helps keep lessons clear, helpful, and on track.
-        </div>
+          </div>
+          <div className="workspace-grid">
+            <div className="list-card">
+              <strong>Clarity</strong>
+              <span>Was the lesson easy to follow?</span>
+            </div>
+            <div className="list-card">
+              <strong>Pace</strong>
+              <span>Did the lesson feel too fast or too slow?</span>
+            </div>
+            <div className="list-card">
+              <strong>Support</strong>
+              <span>Did you feel looked after and encouraged?</span>
+            </div>
+          </div>
+          <div className="list-card" style={{ marginTop: 16 }}>
+            Your review helps keep lessons clear, helpful, and on track.
+          </div>
+        </section>
       </section>
     </div>
   );
