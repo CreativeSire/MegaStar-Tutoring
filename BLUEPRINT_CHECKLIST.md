@@ -23,6 +23,7 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 - [x] Dedicated invoice builder route
 - [x] Ratings and review moderation
 - [x] AI assistant panel
+- [x] Insights and observability page
 - [x] Settings page
 
 ## Client Area
@@ -64,5 +65,5 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 ## Remaining Optional Enhancements
 
 - [ ] Add any future product-specific pages that are not part of the current blueprint.
-- [ ] Expand analytics and observability if/when the next phase needs it.
-- [ ] Replace demo content with live production data once the real backend is connected everywhere.
+- [x] Expand analytics and observability.
+- [x] Replace demo content with live production readiness indicators where the backend is not yet wired everywhere.

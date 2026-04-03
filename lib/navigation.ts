@@ -22,6 +22,7 @@ export const workspaceNav: NavItem[] = [
   { href: "/app/invoices", label: "Invoices", description: "Private exports", roles: ["tutor", "admin"] },
   { href: "/app/ratings", label: "Reviews", description: "Tutor feedback", roles: ["tutor", "admin"] },
   { href: "/app/ai", label: "Help", description: "Smart suggestions", roles: ["tutor", "admin"] },
+  { href: "/app/insights", label: "Insights", description: "Health and activity", roles: ["tutor", "admin"] },
   { href: "/app/admin", label: "Admin", description: "People and access", roles: ["admin"] },
   { href: "/app/settings", label: "Settings", description: "App preferences", roles: ["tutor", "admin"] },
 ];

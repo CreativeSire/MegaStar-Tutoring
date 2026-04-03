@@ -144,12 +144,15 @@ Verified against the local dev server with the tutor workspace actor:
 - Added the missing dedicated invoice-builder route at `/app/invoices/new` so the implementation now matches the blueprint more closely.
 - Added a visible `New invoice` CTA from the main invoice list.
 - Kept the pricing and auth aliases in place for the public onboarding path.
+- Added a dedicated `/app/insights` page for observability, readiness, and recent activity.
+- Added a nav entry for Insights so the operations surface is discoverable from the tutor shell.
 
 ### Verification
 - `npm run lint`
 - `npm run build`
 - Browser smoke confirmed:
   - `/app/invoices/new` renders the invoice builder
+  - `/app/insights` renders the observability page
   - `/classroom` renders the live classroom shell
   - `/pricing` renders the public pricing page
   - `/auth/sign-in` and `/auth/sign-up` return a healthy `200` response in the browser
