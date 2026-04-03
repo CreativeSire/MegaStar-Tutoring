@@ -32,7 +32,7 @@
 
 ### Locale and presentation
 - Market-aware formatting is threaded through the workspace flow.
-- The workspace supports UK, Nigeria, Germany, Spain, and Mauritius profiles.
+- The workspace supports UK, Nigeria, Germany, Spain, Mauritius, France, the US, and Canada profiles.
 - Premium styling was tightened on room badges, archive banners, and the join shell.
 
 ### Public-facing polish
@@ -122,6 +122,11 @@ Verified against the local dev server with the tutor workspace actor:
   - client detail render
   - client dashboard review submission
 
+### Global coverage note
+- The current blueprint and smoke passes are written against the whole website, not just the dashboard.
+- The tutor and client paths are both treated as first-class product surfaces.
+- The supported region set now includes UK, Nigeria, Germany, Spain, Mauritius, France, US, and Canada so the locale system stays aligned with the intended client base.
+
 ## Final Route and Portal Sweep
 
 ### What changed
@@ -193,3 +198,23 @@ Verified against the local dev server with the tutor workspace actor:
 ### Result
 - All routes above returned `200` in Chromium during the latest smoke pass.
 - The rendered copy matched the intended premium route surface, including the classroom, invoice builder, insights page, and student review flow.
+
+## Global Readiness Pass
+
+### What changed
+- Expanded the market selector and supporting locale layer to include France, the US, and Canada alongside the existing supported regions.
+- Updated the public pricing page so the wider region support is visible to visitors.
+- Kept settings and insights aligned with the same market model so tutor and client configuration stays coherent.
+
+### Verification
+- `npm run lint`
+- `npm run build`
+- Browser smoke confirmed:
+  - `/pricing` explicitly mentions the supported regions
+  - `/app/settings` shows market profile readiness
+  - `/app/insights` shows the readiness / health view
+
+### Website-wide scope
+- The blueprint and audit now cover the whole site surface, not just the dashboard.
+- Tutor, client, classroom, public marketing, and observability flows are all treated as part of one product path.
+- The regional model now reflects UK, Nigeria, Germany, Spain, Mauritius, France, US, and Canada.
