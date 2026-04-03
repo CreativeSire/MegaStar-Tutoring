@@ -1,4 +1,4 @@
-export type MarketKey = "uk" | "nigeria" | "germany" | "spain" | "mauritius";
+export type MarketKey = "uk" | "nigeria" | "germany" | "spain" | "mauritius" | "france" | "us" | "canada";
 
 export type MarketProfile = {
   key: MarketKey;
@@ -9,7 +9,7 @@ export type MarketProfile = {
   description: string;
 };
 
-export const marketKeys = ["uk", "nigeria", "germany", "spain", "mauritius"] as const;
+export const marketKeys = ["uk", "nigeria", "germany", "spain", "mauritius", "france", "us", "canada"] as const;
 
 export const marketProfiles: Record<MarketKey, MarketProfile> = {
   uk: {
@@ -51,6 +51,30 @@ export const marketProfiles: Record<MarketKey, MarketProfile> = {
     currency: "MUR",
     accent: "MU",
     description: "Mauritius-ready lesson scheduling and rupee billing.",
+  },
+  france: {
+    key: "france",
+    label: "France",
+    locale: "fr-FR",
+    currency: "EUR",
+    accent: "FR",
+    description: "French tutoring flows with euro billing and local formatting.",
+  },
+  us: {
+    key: "us",
+    label: "United States",
+    locale: "en-US",
+    currency: "USD",
+    accent: "US",
+    description: "US tutoring with dollar billing and familiar date formats.",
+  },
+  canada: {
+    key: "canada",
+    label: "Canada",
+    locale: "en-CA",
+    currency: "CAD",
+    accent: "CA",
+    description: "Canadian tutoring with Canadian dollar billing and local date formatting.",
   },
 };
 

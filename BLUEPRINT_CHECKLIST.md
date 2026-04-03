@@ -11,6 +11,7 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 - [x] Contact page
 - [x] Privacy policy
 - [x] Terms page
+- [x] Global market readiness for UK, Nigeria, Germany, Spain, Mauritius, France, US, and Canada
 
 ## Tutor / Admin Area
 
@@ -67,3 +68,4 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 - [ ] Add any future product-specific pages that are not part of the current blueprint.
 - [x] Expand analytics and observability.
 - [x] Replace demo content with live production readiness indicators where the backend is not yet wired everywhere.
+- [x] Keep the global market selector aligned with the supported tutor/client regions.

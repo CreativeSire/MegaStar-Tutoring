@@ -45,7 +45,7 @@ const guarantees = [
   "No hidden fees",
   "Cancel anytime",
   "Private client records",
-  "Works across UK, Nigeria, Germany, Spain, and Mauritius",
+  "Works across UK, Nigeria, Germany, Spain, Mauritius, France, the US, and Canada",
 ];
 
 export default function PricingPage() {
