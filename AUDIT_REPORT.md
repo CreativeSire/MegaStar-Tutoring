@@ -137,3 +137,19 @@ Verified against the local dev server with the tutor workspace actor:
   - `/dashboard/start`, `/dashboard/plan`, `/dashboard/progress`, `/dashboard/messages`, `/dashboard/invoices`, `/dashboard/updates`, and `/dashboard/reschedule` all rendered cleanly
   - `/app`, `/app/start`, `/app/messages`, `/app/notes`, `/app/alerts`, `/app/library`, and `/app/compliance` all rendered cleanly for `tutor-live@example.com`
   - the student messages link now resolves to `/dashboard/sessions`
+
+## Blueprint Closure Pass
+
+### What changed
+- Added the missing dedicated invoice-builder route at `/app/invoices/new` so the implementation now matches the blueprint more closely.
+- Added a visible `New invoice` CTA from the main invoice list.
+- Kept the pricing and auth aliases in place for the public onboarding path.
+
+### Verification
+- `npm run lint`
+- `npm run build`
+- Browser smoke confirmed:
+  - `/app/invoices/new` renders the invoice builder
+  - `/classroom` renders the live classroom shell
+  - `/pricing` renders the public pricing page
+  - `/auth/sign-in` and `/auth/sign-up` return a healthy `200` response in the browser

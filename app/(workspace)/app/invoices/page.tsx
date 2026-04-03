@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { InvoiceBuilderForm } from "@/components/invoice-builder-form";
 import { InvoiceStatusActions } from "@/components/invoice-status-actions";
 import { PageIntro } from "@/components/page-intro";
@@ -56,6 +57,9 @@ export default async function InvoicesPage() {
         <span className="pill neutral">{overview.clients.length} students</span>
         <span className="pill neutral">Month-based files</span>
         <span className="pill neutral">Private exports</span>
+        <Link href="/app/invoices/new" className="button button-primary">
+          New invoice
+        </Link>
       </PageIntro>
 
       <section className="workspace-grid cols-2">
