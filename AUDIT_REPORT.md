@@ -121,3 +121,19 @@ Verified against the local dev server with the tutor workspace actor:
   - AI helper render
   - client detail render
   - client dashboard review submission
+
+## Final Route and Portal Sweep
+
+### What changed
+- Added a shared message destination for student threads so each card now links back to the lesson list instead of feeling dead-ended.
+- Elevated the client start, weekly plan, and progress pages with shared `PageIntro` headers and tighter content grouping.
+- Cleaned the shared app shell sign-out link so it points to the auth alias route.
+
+### Verification
+- `npm run lint`
+- `npm run build`
+- Browser smoke with local test actors confirmed:
+  - `/dashboard` rendered for `student-live@example.com`
+  - `/dashboard/start`, `/dashboard/plan`, `/dashboard/progress`, `/dashboard/messages`, `/dashboard/invoices`, `/dashboard/updates`, and `/dashboard/reschedule` all rendered cleanly
+  - `/app`, `/app/start`, `/app/messages`, `/app/notes`, `/app/alerts`, `/app/library`, and `/app/compliance` all rendered cleanly for `tutor-live@example.com`
+  - the student messages link now resolves to `/dashboard/sessions`

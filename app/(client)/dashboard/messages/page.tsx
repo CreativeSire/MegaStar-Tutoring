@@ -57,7 +57,7 @@ export default async function ClientMessagesPage() {
                     <strong>{thread.title}</strong>
                     <span>{thread.meta}</span>
                   </div>
-                  <Link href="/dashboard/sessions">View lessons</Link>
+                  {thread.href ? <Link href={thread.href}>{thread.linkLabel || "View lessons"}</Link> : null}
                 </div>
                 <p>{thread.detail}</p>
               </div>
@@ -106,7 +106,7 @@ export default async function ClientMessagesPage() {
         <div className="student-message-summary">
           <div className="list-card">
             <strong>{nextLesson ? nextLesson.title : "No lesson yet"}</strong>
-          <span>{nextLesson ? formatShortDateTime(nextLesson.startsAt, market) : "Your next lesson will appear here."}</span>
+            <span>{nextLesson ? formatShortDateTime(nextLesson.startsAt, market) : "Your next lesson will appear here."}</span>
           </div>
           <div className="list-card">
             <strong>{overview.syncs[0] ? "Connected" : "Ready"}</strong>

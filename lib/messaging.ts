@@ -242,6 +242,8 @@ export function buildStudentMessages(overview: WorkspaceOverview, market?: strin
         detail: session.notes || "A short note from your tutor will appear here.",
         meta: `${statusLabel(session.status)} · ${formatShortDateTime(session.startsAt, market)}`,
         tone: toneForStatus(session.status),
+        href: "/dashboard/sessions",
+        linkLabel: "View lessons",
       }))
     : [
         {
@@ -249,6 +251,8 @@ export function buildStudentMessages(overview: WorkspaceOverview, market?: strin
           detail: "Once a lesson is added, the latest note will appear here.",
           meta: "Waiting for your first lesson",
           tone: "warm",
+          href: "/dashboard/sessions",
+          linkLabel: "View lessons",
         },
       ];
 

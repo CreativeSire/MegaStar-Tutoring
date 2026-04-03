@@ -87,7 +87,7 @@ export function AppShell({ title, subtitle, nav, role, children }: AppShellProps
               <span className="badge-dot" />
               {role}
             </div>
-            <Link href="/sign-in" className="header-signout">
+            <Link href="/auth/sign-in" className="header-signout">
               Sign out
             </Link>
           </div>
