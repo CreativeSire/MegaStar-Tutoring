@@ -32,7 +32,7 @@ export default async function SettingsPage() {
               <span>Sign-in</span>
             </div>
             <div className="list-card">
-              <strong>{databaseReady ? "Ready" : "Demo mode"}</strong>
+              <strong>{databaseReady ? "Ready" : "Local preview"}</strong>
               <span>Saved records</span>
             </div>
           </>

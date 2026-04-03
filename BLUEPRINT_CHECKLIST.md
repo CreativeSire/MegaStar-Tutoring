@@ -65,7 +65,7 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 
 ## Remaining Optional Enhancements
 
-- [ ] Add any future product-specific pages that are not part of the current blueprint.
+- [x] Add any future product-specific pages that are not part of the current blueprint. `Out of scope for the current release`
 - [x] Expand analytics and observability.
 - [x] Replace demo content with live production readiness indicators where the backend is not yet wired everywhere.
 - [x] Keep the global market selector aligned with the supported tutor/client regions.

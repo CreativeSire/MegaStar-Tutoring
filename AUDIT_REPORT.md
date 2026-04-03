@@ -218,3 +218,17 @@ Verified against the local dev server with the tutor workspace actor:
 - The blueprint and audit now cover the whole site surface, not just the dashboard.
 - Tutor, client, classroom, public marketing, and observability flows are all treated as part of one product path.
 - The regional model now reflects UK, Nigeria, Germany, Spain, Mauritius, France, US, and Canada.
+
+## Premium Language Sweep
+
+### What changed
+- Replaced leftover `Demo mode` language in the workspace shell with `Local preview` so the app feels more intentional in dev and preview environments.
+- Kept the premium tone consistent across the dashboard, settings, and start surfaces while preserving the live-storage status text.
+
+### Verification
+- `npm run lint`
+- `npm run build`
+- Browser smoke confirmed:
+  - `/app` shows `Local preview` when live storage is not configured
+  - `/app/start` shows `Local preview` in the setup card
+  - `/app/settings` shows `Local preview` for saved records

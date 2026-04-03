@@ -46,7 +46,7 @@ export default async function StartPage() {
             <span>Keep everything private and easy to follow.</span>
           </div>
           <div className="list-card">
-            <strong>{databaseReady ? "Data is saving" : "Demo mode"}</strong>
+            <strong>{databaseReady ? "Data is saving" : "Local preview"}</strong>
             <span>{databaseReady ? "Real records are stored for you." : "Add DATABASE_URL for live storage."}</span>
           </div>
           <div className="list-card">

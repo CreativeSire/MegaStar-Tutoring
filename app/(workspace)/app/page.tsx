@@ -133,8 +133,8 @@ export default async function DashboardPage() {
           <h2>Setup</h2>
           <div className="workspace-grid">
             <div className="list-card">
-              <strong>{databaseReady ? "Data is saved" : "Demo mode"}</strong>
-              <span>{databaseReady ? "Real data will persist in Neon." : "Set DATABASE_URL to turn on the live database."}</span>
+              <strong>{databaseReady ? "Data is saved" : "Local preview"}</strong>
+              <span>{databaseReady ? "Real data will persist in Neon." : "Set DATABASE_URL to turn on live storage."}</span>
             </div>
             <div className="list-card">
               <strong>{overview.preferences.onboardingCompletedAt ? "Setup complete" : "Setup waiting"}</strong>
