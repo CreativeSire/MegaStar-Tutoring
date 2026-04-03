@@ -6,7 +6,9 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 
 - [x] Landing page
 - [x] Dedicated subjects page
+- [x] Subject detail pages
 - [x] Dedicated how-it-works page
+- [x] Journey detail pages
 - [x] Pricing page
 - [x] Sign in route
 - [x] Sign up route
