@@ -5,6 +5,8 @@ This checklist tracks the tutoring platform blueprint that has now been implemen
 ## Public Area
 
 - [x] Landing page
+- [x] Dedicated subjects page
+- [x] Dedicated how-it-works page
 - [x] Pricing page
 - [x] Sign in route
 - [x] Sign up route

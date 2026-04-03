@@ -101,7 +101,7 @@ export default function AboutPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="rounded-full">
-                  <Link href="/sign-up">Book a free session</Link>
+                  <Link href="/auth/sign-up">Book a free session</Link>
                 </Button>
                 <Button
                   asChild
@@ -333,7 +333,7 @@ export default function AboutPage() {
                 variant="secondary"
                 className="rounded-full bg-white text-navy hover:bg-navy-50"
               >
-                <Link href="/sign-up">Book free session</Link>
+                <Link href="/auth/sign-up">Book free session</Link>
               </Button>
               <Button
                 asChild

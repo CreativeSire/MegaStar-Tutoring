@@ -37,6 +37,7 @@
 
 ### Public-facing polish
 - Added a dedicated `/pricing` page with premium plan cards and clear CTA paths.
+- Split the public journey into dedicated `/subjects` and `/how-it-works` pages so the homepage can act as a gateway instead of carrying every section.
 - Added `/auth/sign-in` and `/auth/sign-up` aliases so the blueprint routes exist alongside the Clerk-backed auth flow.
 - Fixed the marketing layout so public pages no longer nest extra `<html>` or `<body>` tags, removing the hydration mismatch seen in browser smoke.
 
@@ -83,6 +84,7 @@ Verified against the local dev server with the tutor workspace actor:
 - The archive save path and same-origin protection are both verified.
 - The schedule/reschedule path now resolves the same local test actor across pages and API routes, so accept/decline actions persist cleanly.
 - The public marketing surface now matches the blueprint routes and renders without hydration warnings in browser smoke.
+- The homepage now behaves as a route gateway, with subjects and teaching flow living on their own pages.
 
 ## New Operational Sweep
 

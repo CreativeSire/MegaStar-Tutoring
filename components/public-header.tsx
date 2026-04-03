@@ -11,8 +11,8 @@ export function PublicHeader() {
           <div className="brand-name">MegaStar Tutoring</div>
         </Link>
         <nav className="public-nav">
-          <Link href="/sign-in">Sign in</Link>
-          <Link href="/sign-up" className="nav-cta">
+          <Link href="/auth/sign-in">Sign in</Link>
+          <Link href="/auth/sign-up" className="nav-cta">
             Get started
           </Link>
         </nav>

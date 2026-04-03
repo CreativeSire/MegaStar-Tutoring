@@ -6,8 +6,8 @@ const footerLinks = {
   product: {
     title: "Product",
     links: [
-      { label: "Subjects", href: "/#subjects" },
-      { label: "How it works", href: "/#how-it-works" },
+      { label: "Subjects", href: "/subjects" },
+      { label: "How it works", href: "/how-it-works" },
       { label: "Tutors", href: "/tutors" },
       { label: "Students", href: "/auth/sign-up" },
     ],
