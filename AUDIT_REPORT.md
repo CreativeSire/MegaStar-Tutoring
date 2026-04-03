@@ -156,3 +156,40 @@ Verified against the local dev server with the tutor workspace actor:
   - `/classroom` renders the live classroom shell
   - `/pricing` renders the public pricing page
   - `/auth/sign-in` and `/auth/sign-up` return a healthy `200` response in the browser
+
+## Latest Smoke Pass
+
+### Verified Routes
+- Public:
+  - `/`
+  - `/pricing`
+  - `/auth/sign-in`
+  - `/auth/sign-up`
+- Tutor:
+  - `/app`
+  - `/app/start`
+  - `/app/calendar`
+  - `/app/invoices`
+  - `/app/invoices/new`
+  - `/app/insights`
+  - `/app/messages`
+  - `/app/notes`
+  - `/app/alerts`
+  - `/app/library`
+  - `/app/compliance`
+- Client:
+  - `/dashboard`
+  - `/dashboard/start`
+  - `/dashboard/plan`
+  - `/dashboard/progress`
+  - `/dashboard/messages`
+  - `/dashboard/invoices`
+  - `/dashboard/updates`
+  - `/dashboard/reschedule`
+  - `/dashboard/review`
+- Classroom:
+  - `/classroom`
+
+### Result
+- All routes above returned `200` in Chromium during the latest smoke pass.
+- The rendered copy matched the intended premium route surface, including the classroom, invoice builder, insights page, and student review flow.
